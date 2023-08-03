@@ -18,16 +18,16 @@ Terraform Plans for Deploying Scalable Networks to the Various Public Clouds
 
 ## AWS - Amazon Web Services
 
-- contains plans to provision hub-spoke style network environments using either transit gateways or VPC Peering. 
+- contains plans to provision hub-spoke style network environments using either transit gateways or VPC Peering.
 - includes deployments of both the AWS Network Native Firewall and the *FortiGate NGFW*.
 - also includes a plan to deploy a simple VPC Peering network.
 
-#### Transit Gateway Networks
+### Transit Gateway Networks
 
 - [Transit Gateway Native Firewall](aws/transit_gateway_native_firewall)
 - [Transit Gateway FortiGate NGFW](aws/transit_gateway_fortigate_ngfw)
 
-#### VPC Peering Networks
+### VPC Peering Networks
 
 - [VPC Peering](aws/vpc_peering)
 
