@@ -5,6 +5,22 @@ resource "aws_vpc" "hub" {
   }
 }
 
+resource "aws_subnet" "hub_outside" {
+    vpc_id     = aws_vpc.hub.id
+    cidr_block = "10.0.0.0/24"
+    tags = {
+        Name = "hub_outside_subnet"
+    }
+}
+
+resource "aws_subnet" "hub_inside" {
+    vpc_id     = aws_vpc.hub.id
+    cidr_block = "10.0.1.0/24"
+    tags = {
+        Name = "hub_inside_subnet"
+    }
+}
+
 resource "aws_internet_gateway" "hub" {
   vpc_id = aws_vpc.hub.id
 
