@@ -21,6 +21,30 @@ resource "aws_subnet" "hub_inside" {
     }
 }
 
+resource "aws_route_table" "hub_outside" {
+  vpc_id = aws_vpc.hub.id
+  tags = {
+    Name = "hub_outside_route_table"
+  }
+}
+
+resource "aws_route_table_association" "hub_outside" {
+  subnet_id      = aws_subnet.hub_outside.id
+  route_table_id = aws_route_table.hub_outside.id  
+}
+
+resource "aws_route_table" "hub_inside" {
+  vpc_id = aws_vpc.hub.id
+  tags = {
+    Name = "hub_inside_route_table"
+  }
+}
+
+resource "aws_route_table_association" "hub_inside" {
+  subnet_id      = aws_subnet.hub_inside.id
+  route_table_id = aws_route_table.hub_inside.id  
+}
+
 resource "aws_internet_gateway" "hub" {
   vpc_id = aws_vpc.hub.id
 
