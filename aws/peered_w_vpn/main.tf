@@ -28,6 +28,12 @@ resource "aws_route_table" "hub_outside" {
   }
 }
 
+resource "aws_route" "inet_access" {
+  route_table_id         = aws_route_table.hub_outside.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id = aws_internet_gateway.hub.id
+}
+
 resource "aws_route_table_association" "hub_outside" {
   subnet_id      = aws_subnet.hub_outside.id
   route_table_id = aws_route_table.hub_outside.id  
