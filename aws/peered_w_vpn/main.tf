@@ -34,6 +34,24 @@ resource "aws_route" "inet_access" {
   gateway_id = aws_internet_gateway.hub.id
 }
 
+resource "aws_route" "dmz_spoke" {
+  route_table_id = aws_route_table.hub_inside.id
+    destination_cidr_block = data.aws_vpc_peering_connection.hub_dmz.peer_cidr_block
+    vpc_peering_connection_id = data.aws_vpc_peering_connection.hub_dmz.id
+}
+
+resource "aws_route" "app_spoke" {
+    route_table_id = aws_route_table.hub_inside.id
+        destination_cidr_block = data.aws_vpc_peering_connection.hub_app.peer_cidr_block
+        vpc_peering_connection_id = data.aws_vpc_peering_connection.hub_app.id
+}
+
+resource "aws_route" "db_spoke" {
+    route_table_id = aws_route_table.hub_inside.id
+        destination_cidr_block = data.aws_vpc_peering_connection.hub_db.peer_cidr_block
+        vpc_peering_connection_id = data.aws_vpc_peering_connection.hub_db.id
+}
+
 resource "aws_route_table_association" "hub_outside" {
   subnet_id      = aws_subnet.hub_outside.id
   route_table_id = aws_route_table.hub_outside.id  
@@ -87,6 +105,21 @@ resource "aws_vpc_peering_connection" "hub_dmz" {
   tags = {
     Name = "hub_dmz_peering"
   }
+}
+
+data "aws_vpc_peering_connection" "hub_dmz" {
+  vpc_id        = aws_vpc.hub.id
+  peer_vpc_id = aws_vpc.dmz.id
+}
+
+data "aws_vpc_peering_connection" "hub_app" {
+  vpc_id        = aws_vpc.hub.id
+  peer_vpc_id = aws_vpc.app.id
+}
+
+data "aws_vpc_peering_connection" "hub_db" {
+  vpc_id        = aws_vpc.hub.id
+  peer_vpc_id = aws_vpc.db.id
 }
 
 resource "aws_vpc_peering_connection" "hub_app" {
