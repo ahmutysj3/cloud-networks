@@ -35,18 +35,21 @@ resource "aws_route" "inet_access" {
 }
 
 resource "aws_route" "dmz_spoke" {
+  #depends_on = [ aws_vpc_peering_connection.hub_dmz ]
   route_table_id = aws_route_table.hub_inside.id
     destination_cidr_block = data.aws_vpc_peering_connection.hub_dmz.peer_cidr_block
     vpc_peering_connection_id = data.aws_vpc_peering_connection.hub_dmz.id
 }
 
 resource "aws_route" "app_spoke" {
+  #depends_on = [ aws_vpc_peering_connection.hub_app ]
     route_table_id = aws_route_table.hub_inside.id
         destination_cidr_block = data.aws_vpc_peering_connection.hub_app.peer_cidr_block
         vpc_peering_connection_id = data.aws_vpc_peering_connection.hub_app.id
 }
 
 resource "aws_route" "db_spoke" {
+  #depends_on = [ aws_vpc_peering_connection.hub_db ]
     route_table_id = aws_route_table.hub_inside.id
         destination_cidr_block = data.aws_vpc_peering_connection.hub_db.peer_cidr_block
         vpc_peering_connection_id = data.aws_vpc_peering_connection.hub_db.id
@@ -108,16 +111,19 @@ resource "aws_vpc_peering_connection" "hub_dmz" {
 }
 
 data "aws_vpc_peering_connection" "hub_dmz" {
+  depends_on = [ aws_vpc_peering_connection.hub_dmz ]
   vpc_id        = aws_vpc.hub.id
   peer_vpc_id = aws_vpc.dmz.id
 }
 
 data "aws_vpc_peering_connection" "hub_app" {
+  depends_on = [ aws_vpc_peering_connection.hub_app ]
   vpc_id        = aws_vpc.hub.id
   peer_vpc_id = aws_vpc.app.id
 }
 
 data "aws_vpc_peering_connection" "hub_db" {
+  depends_on = [ aws_vpc_peering_connection.hub_db ]
   vpc_id        = aws_vpc.hub.id
   peer_vpc_id = aws_vpc.db.id
 }
