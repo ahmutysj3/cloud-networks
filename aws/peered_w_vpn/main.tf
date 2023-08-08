@@ -6,19 +6,19 @@ resource "aws_vpc" "hub" {
 }
 
 resource "aws_subnet" "hub_outside" {
-    vpc_id     = aws_vpc.hub.id
-    cidr_block = "10.0.0.0/24"
-    tags = {
-        Name = "hub_outside_subnet"
-    }
+  vpc_id     = aws_vpc.hub.id
+  cidr_block = "10.0.0.0/24"
+  tags = {
+    Name = "hub_outside_subnet"
+  }
 }
 
 resource "aws_subnet" "hub_inside" {
-    vpc_id     = aws_vpc.hub.id
-    cidr_block = "10.0.1.0/24"
-    tags = {
-        Name = "hub_inside_subnet"
-    }
+  vpc_id     = aws_vpc.hub.id
+  cidr_block = "10.0.1.0/24"
+  tags = {
+    Name = "hub_inside_subnet"
+  }
 }
 
 resource "aws_route_table" "hub_outside" {
@@ -31,33 +31,30 @@ resource "aws_route_table" "hub_outside" {
 resource "aws_route" "inet_access" {
   route_table_id         = aws_route_table.hub_outside.id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id = aws_internet_gateway.hub.id
+  gateway_id             = aws_internet_gateway.hub.id
 }
 
 resource "aws_route" "dmz_spoke" {
-  #depends_on = [ aws_vpc_peering_connection.hub_dmz ]
-  route_table_id = aws_route_table.hub_inside.id
-    destination_cidr_block = data.aws_vpc_peering_connection.hub_dmz.peer_cidr_block
-    vpc_peering_connection_id = data.aws_vpc_peering_connection.hub_dmz.id
+  route_table_id            = aws_route_table.hub_inside.id
+  destination_cidr_block    = data.aws_vpc_peering_connection.hub_dmz.peer_cidr_block
+  vpc_peering_connection_id = data.aws_vpc_peering_connection.hub_dmz.id
 }
 
 resource "aws_route" "app_spoke" {
-  #depends_on = [ aws_vpc_peering_connection.hub_app ]
-    route_table_id = aws_route_table.hub_inside.id
-        destination_cidr_block = data.aws_vpc_peering_connection.hub_app.peer_cidr_block
-        vpc_peering_connection_id = data.aws_vpc_peering_connection.hub_app.id
+  route_table_id            = aws_route_table.hub_inside.id
+  destination_cidr_block    = data.aws_vpc_peering_connection.hub_app.peer_cidr_block
+  vpc_peering_connection_id = data.aws_vpc_peering_connection.hub_app.id
 }
 
 resource "aws_route" "db_spoke" {
-  #depends_on = [ aws_vpc_peering_connection.hub_db ]
-    route_table_id = aws_route_table.hub_inside.id
-        destination_cidr_block = data.aws_vpc_peering_connection.hub_db.peer_cidr_block
-        vpc_peering_connection_id = data.aws_vpc_peering_connection.hub_db.id
+  route_table_id            = aws_route_table.hub_inside.id
+  destination_cidr_block    = data.aws_vpc_peering_connection.hub_db.peer_cidr_block
+  vpc_peering_connection_id = data.aws_vpc_peering_connection.hub_db.id
 }
 
 resource "aws_route_table_association" "hub_outside" {
   subnet_id      = aws_subnet.hub_outside.id
-  route_table_id = aws_route_table.hub_outside.id  
+  route_table_id = aws_route_table.hub_outside.id
 }
 
 resource "aws_route_table" "hub_inside" {
@@ -69,7 +66,7 @@ resource "aws_route_table" "hub_inside" {
 
 resource "aws_route_table_association" "hub_inside" {
   subnet_id      = aws_subnet.hub_inside.id
-  route_table_id = aws_route_table.hub_inside.id  
+  route_table_id = aws_route_table.hub_inside.id
 }
 
 resource "aws_internet_gateway" "hub" {
@@ -82,28 +79,28 @@ resource "aws_internet_gateway" "hub" {
 
 resource "aws_vpc" "dmz" {
   cidr_block = "10.1.0.0/16"
-    tags = {
-        Name = "dmz_vpc"
-    }
+  tags = {
+    Name = "dmz_vpc"
+  }
 }
 
 resource "aws_vpc" "app" {
   cidr_block = "10.2.0.0/16"
-    tags = {
-        Name = "app_vpc"
-    }
+  tags = {
+    Name = "app_vpc"
+  }
 }
 
 resource "aws_vpc" "db" {
   cidr_block = "10.3.0.0/16"
-    tags = {
-        Name = "db_vpc"
-    }
+  tags = {
+    Name = "db_vpc"
+  }
 }
 
 resource "aws_vpc_peering_connection" "hub_dmz" {
-  vpc_id        = aws_vpc.hub.id
-  peer_vpc_id   = aws_vpc.dmz.id
+  vpc_id      = aws_vpc.hub.id
+  peer_vpc_id = aws_vpc.dmz.id
   auto_accept = true
   tags = {
     Name = "hub_dmz_peering"
@@ -111,26 +108,26 @@ resource "aws_vpc_peering_connection" "hub_dmz" {
 }
 
 data "aws_vpc_peering_connection" "hub_dmz" {
-  depends_on = [ aws_vpc_peering_connection.hub_dmz ]
-  vpc_id        = aws_vpc.hub.id
+  depends_on  = [aws_vpc_peering_connection.hub_dmz]
+  vpc_id      = aws_vpc.hub.id
   peer_vpc_id = aws_vpc.dmz.id
 }
 
 data "aws_vpc_peering_connection" "hub_app" {
-  depends_on = [ aws_vpc_peering_connection.hub_app ]
-  vpc_id        = aws_vpc.hub.id
+  depends_on  = [aws_vpc_peering_connection.hub_app]
+  vpc_id      = aws_vpc.hub.id
   peer_vpc_id = aws_vpc.app.id
 }
 
 data "aws_vpc_peering_connection" "hub_db" {
-  depends_on = [ aws_vpc_peering_connection.hub_db ]
-  vpc_id        = aws_vpc.hub.id
+  depends_on  = [aws_vpc_peering_connection.hub_db]
+  vpc_id      = aws_vpc.hub.id
   peer_vpc_id = aws_vpc.db.id
 }
 
 resource "aws_vpc_peering_connection" "hub_app" {
-  vpc_id        = aws_vpc.hub.id
-  peer_vpc_id   = aws_vpc.app.id
+  vpc_id      = aws_vpc.hub.id
+  peer_vpc_id = aws_vpc.app.id
   auto_accept = true
   tags = {
     Name = "hub_app_peering"
@@ -138,8 +135,8 @@ resource "aws_vpc_peering_connection" "hub_app" {
 }
 
 resource "aws_vpc_peering_connection" "hub_db" {
-  vpc_id        = aws_vpc.hub.id
-  peer_vpc_id   = aws_vpc.db.id
+  vpc_id      = aws_vpc.hub.id
+  peer_vpc_id = aws_vpc.db.id
   auto_accept = true
   tags = {
     Name = "hub_db_peering"
@@ -206,12 +203,12 @@ resource "aws_route_table" "spoke_dmz" {
 
 resource "aws_route_table_association" "dmz1" {
   subnet_id      = aws_subnet.dmz1.id
-  route_table_id = aws_route_table.spoke_dmz.id  
+  route_table_id = aws_route_table.spoke_dmz.id
 }
 
 resource "aws_route_table_association" "dmz2" {
   subnet_id      = aws_subnet.dmz2.id
-  route_table_id = aws_route_table.spoke_dmz.id  
+  route_table_id = aws_route_table.spoke_dmz.id
 }
 
 resource "aws_route_table" "spoke_app" {
@@ -223,12 +220,12 @@ resource "aws_route_table" "spoke_app" {
 
 resource "aws_route_table_association" "app1" {
   subnet_id      = aws_subnet.app1.id
-  route_table_id = aws_route_table.spoke_app.id  
+  route_table_id = aws_route_table.spoke_app.id
 }
 
 resource "aws_route_table_association" "app2" {
   subnet_id      = aws_subnet.app2.id
-  route_table_id = aws_route_table.spoke_app.id  
+  route_table_id = aws_route_table.spoke_app.id
 }
 
 resource "aws_route_table" "spoke_db" {
@@ -240,10 +237,10 @@ resource "aws_route_table" "spoke_db" {
 
 resource "aws_route_table_association" "db1" {
   subnet_id      = aws_subnet.db1.id
-  route_table_id = aws_route_table.spoke_db.id  
+  route_table_id = aws_route_table.spoke_db.id
 }
 
 resource "aws_route_table_association" "db2" {
   subnet_id      = aws_subnet.db2.id
-  route_table_id = aws_route_table.spoke_db.id  
+  route_table_id = aws_route_table.spoke_db.id
 }
