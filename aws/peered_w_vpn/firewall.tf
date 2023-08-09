@@ -17,7 +17,6 @@ resource "aws_instance" "pfsense" {
   network_interface {
     network_interface_id = aws_network_interface.pfsense_outside.id
     device_index = 0
-    network_card_index = 0
   }
   
 }
@@ -25,7 +24,6 @@ resource "aws_instance" "pfsense" {
 resource "aws_network_interface" "pfsense_outside" {
     depends_on = [ aws_subnet.hub_outside ]
   subnet_id       = aws_subnet.hub_outside.id
-  private_ip     = cidrhost(aws_subnet.hub_outside.cidr_block,3)
   tags = {
     Name = "pfsense_outside_nic"
   }
