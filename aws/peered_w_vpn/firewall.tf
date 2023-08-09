@@ -19,6 +19,7 @@ resource "aws_instance" "pfsense" {
 }
 
 resource "aws_network_interface" "pfsense_outside" {
+    description = "firewall-wan-nic"
     depends_on = [ aws_subnet.hub_outside ]
   subnet_id       = aws_subnet.hub_outside.id
   private_ips = [cidrhost(aws_subnet.hub_outside.cidr_block,4)]
