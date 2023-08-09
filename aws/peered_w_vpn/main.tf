@@ -7,6 +7,7 @@ resource "aws_vpc" "hub" {
 
 resource "aws_subnet" "hub_outside" {
   vpc_id     = aws_vpc.hub.id
+  availability_zone = data.aws_availability_zones.default.names[0]
   cidr_block = "10.0.0.0/24"
   tags = {
     Name = "hub_outside_subnet"
@@ -15,6 +16,7 @@ resource "aws_subnet" "hub_outside" {
 
 resource "aws_subnet" "hub_inside" {
   vpc_id     = aws_vpc.hub.id
+  availability_zone = data.aws_availability_zones.default.names[0]
   cidr_block = "10.0.1.0/24"
   tags = {
     Name = "hub_inside_subnet"
@@ -127,6 +129,7 @@ resource "aws_vpc_peering_connection" "hub_db" {
 
 resource "aws_subnet" "dmz1" {
   vpc_id     = aws_vpc.dmz.id
+  availability_zone = data.aws_availability_zones.default.names[0]
   cidr_block = "10.1.10.0/24"
 
   tags = {
@@ -136,6 +139,7 @@ resource "aws_subnet" "dmz1" {
 
 resource "aws_subnet" "dmz2" {
   vpc_id     = aws_vpc.dmz.id
+  availability_zone = data.aws_availability_zones.default.names[0]
   cidr_block = "10.1.20.0/24"
   tags = {
     Name = "dmz2_subnet"
@@ -144,6 +148,7 @@ resource "aws_subnet" "dmz2" {
 
 resource "aws_subnet" "app1" {
   vpc_id     = aws_vpc.app.id
+  availability_zone = data.aws_availability_zones.default.names[0]
   cidr_block = "10.2.10.0/24"
 
   tags = {
@@ -153,6 +158,7 @@ resource "aws_subnet" "app1" {
 
 resource "aws_subnet" "app2" {
   vpc_id     = aws_vpc.app.id
+  availability_zone = data.aws_availability_zones.default.names[0]
   cidr_block = "10.2.20.0/24"
   tags = {
     Name = "app2_subnet"
@@ -161,6 +167,7 @@ resource "aws_subnet" "app2" {
 
 resource "aws_subnet" "db1" {
   vpc_id     = aws_vpc.db.id
+  availability_zone = data.aws_availability_zones.default.names[0]
   cidr_block = "10.3.10.0/24"
 
   tags = {
@@ -170,6 +177,7 @@ resource "aws_subnet" "db1" {
 
 resource "aws_subnet" "db2" {
   vpc_id     = aws_vpc.db.id
+  availability_zone = data.aws_availability_zones.default.names[0]
   cidr_block = "10.3.20.0/24"
   tags = {
     Name = "db2_subnet"
