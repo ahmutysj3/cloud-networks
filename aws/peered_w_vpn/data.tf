@@ -42,6 +42,7 @@ data "aws_availability_zones" "default" {
 }
 
 resource "aws_instance" "pfsense" {
+    depends_on = [ aws_subnet.hub_outside ]
   ami = data.aws_ami.pfsense.id
   availability_zone = data.aws_availability_zones.default.names[0]
   instance_type = "t3.nano"
@@ -49,24 +50,22 @@ resource "aws_instance" "pfsense" {
     Name = "pfsense"
   }
   key_name = aws_key_pair.pfsense.key_name
+  private_ip = cidrhost(aws_subnet.hub_outside.cidr_block,4)
+  subnet_id = aws_subnet.hub_outside.id
 
   cpu_options {
     core_count = 1
     threads_per_core = 2
   }
   
-  network_interface {
-    network_interface_id = aws_network_interface.pfsense_outside.id
-    device_index = 0
-    network_card_index =   0
-  }
 }
 
-resource "aws_network_interface" "pfsense_outside" {
-  subnet_id       = aws_subnet.hub_outside.id
-  private_ip     = cidrhost(aws_subnet.hub_outside.cidr_block,3)
+resource "aws_network_interface" "pfsense_inside" {
+    depends_on = [ aws_subnet.hub_inside ]
+  subnet_id       = aws_subnet.hub_inside.id
+  private_ip     = cidrhost(aws_subnet.hub_inside.cidr_block,3)
   tags = {
-    Name = "pfsense_outside_nic"
+    Name = "pfsense_inside_nic"
   }
 }
 
