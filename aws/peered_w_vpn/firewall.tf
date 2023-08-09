@@ -1,9 +1,10 @@
 
 resource "aws_instance" "pfsense" {
-    depends_on = [ aws_subnet.hub_outside ]
   ami = data.aws_ami.pfsense.id
   availability_zone = data.aws_availability_zones.default.names[0]
   instance_type = "t3.nano"
+  private_ip = cidrhost(aws_subnet.hub_inside.cidr_block,4)
+  subnet_id = aws_subnet.hub_inside.id
   tags = {
     Name = "pfsense"
   }
@@ -14,18 +15,20 @@ resource "aws_instance" "pfsense" {
     threads_per_core = 2
   }
 
-  network_interface {
-    network_interface_id = aws_network_interface.pfsense_outside.id
-    device_index = 0
-  }
   
 }
 
 resource "aws_network_interface" "pfsense_outside" {
     depends_on = [ aws_subnet.hub_outside ]
   subnet_id       = aws_subnet.hub_outside.id
+  private_ips = [cidrhost(aws_subnet.hub_outside.cidr_block,4)]
   tags = {
     Name = "pfsense_outside_nic"
+  }
+
+  attachment {
+    instance = aws_instance.pfsense.id
+    device_index = 1
   }
 }
 
