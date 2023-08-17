@@ -6,8 +6,8 @@ provider "aws" {
 provider "vault" {
   address = "https://vault.tracecloud.us:8200"
   auth_login_cert {
-    cert_file = "/home/trace/vault-client-certs/terraform_server.crt"
-    key_file = "/home/trace/vault-client-certs/terraform_server.pem"
+    cert_file = "/home/trace/vault-client-certs/terraform_client_cert.crt"
+    key_file = "/home/trace/vault-client-certs/terraform_client_cert.pem"
     mount = "cert"
   }
 }
