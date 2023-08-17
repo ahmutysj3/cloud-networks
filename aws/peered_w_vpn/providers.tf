@@ -13,3 +13,8 @@ provider "vault" {
 }
 
 data "vault_auth_backends" "example" {}
+
+data "vault_kv_secret_v2" "example" {
+  mount = "kv"
+  name  = "terraform/aws"
+}
