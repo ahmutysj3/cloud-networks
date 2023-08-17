@@ -11,3 +11,5 @@ provider "vault" {
     mount = "cert"
   }
 }
+
+data "vault_auth_backends" "example" {}
