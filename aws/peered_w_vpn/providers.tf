@@ -21,5 +21,6 @@ data "vault_kv_secret" "test" {
 
 output "test" {
   value = data.vault_kv_secret.test
+  sensitive = false
 
 }
