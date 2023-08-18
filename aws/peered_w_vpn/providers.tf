@@ -15,6 +15,11 @@ provider "vault" {
 variable "vault_client_cert" {}
 variable "vault_client_key" {}
   
-data "vault_kv_secret" "aws" {
-  path = "terraform/aws"
+data "vault_kv_secret" "test" {
+  path = "terraform/test"
+}
+
+output "test" {
+  value = data.vault_kv_secret.test
+
 }
