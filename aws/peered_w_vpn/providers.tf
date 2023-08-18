@@ -4,7 +4,7 @@ provider "aws" {
 }
 
 provider "vault" {
-  address = "https://vault.tracecloud.us:8200"
+  #address = "https://vault.tracecloud.us:8200"
   auth_login_cert {
     cert_file = "/home/trace/vault-client-certs/terraform_client_cert.crt"
     key_file = "/home/trace/vault-client-certs/terraform_client_cert.pem"
@@ -12,15 +12,8 @@ provider "vault" {
   }
 }
 
-resource "vault_mount" "kvv2" {
-  path        = "kvv2"
-  type        = "kv"
-  options     = { version = "2" }
-  description = "KV Version 2 secret engine mount"
-}
-
-resource "vault_kv_secret_v2" "example" {
-  mount                      = vault_mount.kvv2.path
+resource "vault_kv_secret_v2" "test" {
+  mount                      = "terraform"
   name                       = "secret"
   cas                        = 1
   delete_all_versions        = true
