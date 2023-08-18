@@ -5,8 +5,8 @@ provider "aws" {
 
 provider "vault" {
   auth_login_cert {
-    cert_file = "~/.vault-certs/vault.crt"
-    key_file = "~/.vault-certs/vault.key"
+    #cert_file = "~/.vault-certs/vault.crt"
+    #key_file = "~/.vault-certs/vault.key"
     mount = "cert"
   }
 }
