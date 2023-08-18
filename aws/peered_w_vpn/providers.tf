@@ -15,10 +15,3 @@ provider "vault" {
 variable "vault_client_cert" {}
 variable "vault_client_key" {}
   
-data "vault_kv_secret" "test" {
-  path = "terraform/test"
-}
-
-output "test" {
-  value = nonsensitive(data.vault_kv_secret.test.data)
-}
