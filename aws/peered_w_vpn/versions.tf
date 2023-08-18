@@ -1,5 +1,8 @@
 terraform {
-  required_version = ">= 0.13.1"
+
+  backend "local" {
+    path = "./terraform.tfstate"
+  }
 
   required_providers {
     vault = {
@@ -12,9 +15,4 @@ terraform {
     }
   }
 
-  backend "s3" {
-    bucket = "trace-tf-unlocked-bucket"
-    key    = "main/vpc/vpn/terraform.tfstate"
-    region = "us-east-1"
-  }
 }
