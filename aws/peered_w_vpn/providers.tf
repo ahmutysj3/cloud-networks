@@ -5,14 +5,14 @@ provider "aws" {
 
 provider "vault" {
   auth_login_cert {
-    cert_file = var.vault_cert_file
-    key_file = var.vault_key_file
+    cert_file = var.vault_client_cert
+    key_file = var.vault_client_key
     mount = "cert"
   }
 }
 
-variable "vault_cert_file" {}
-variable "vault_key_file" {}
+variable "vault_client_cert" {}
+variable "vault_client_key" {}
   
 resource "vault_kv_secret_v2" "test" {
   mount                      = "terraform"
