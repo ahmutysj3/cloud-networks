@@ -1,7 +1,9 @@
 terraform {
 
-  backend "local" {
-    path = "./terraform.tfstate"
+  backend "s3" {
+    bucket = "trace-tf-unlocked-bucket"
+    key    = "aws/vpc/peered-w-vpn/terraform.tfstate"
+    region = "us-east-1"
   }
 
   required_providers {
