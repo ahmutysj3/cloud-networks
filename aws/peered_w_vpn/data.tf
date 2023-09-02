@@ -2,27 +2,27 @@ data "aws_vpc_peering_connection" "hub_dmz" {
   depends_on  = [aws_vpc_peering_connection.hub_dmz]
   vpc_id      = aws_vpc.hub.id
   peer_vpc_id = aws_vpc.dmz.id
-  status = "active"
+  status      = "active"
 }
 
 data "aws_vpc_peering_connection" "hub_app" {
   depends_on  = [aws_vpc_peering_connection.hub_app]
   vpc_id      = aws_vpc.hub.id
   peer_vpc_id = aws_vpc.app.id
-  status = "active"
+  status      = "active"
 }
 
 data "aws_vpc_peering_connection" "hub_db" {
   depends_on  = [aws_vpc_peering_connection.hub_db]
   vpc_id      = aws_vpc.hub.id
   peer_vpc_id = aws_vpc.db.id
-  status = "active"
+  status      = "active"
 }
 
 data "aws_ami" "pfsense" {
-  most_recent      = true
-  name_regex       = "pfSense-plus-ec2-23.05-RELEASE-amd64"
-  owners           = ["aws-marketplace"]
+  most_recent = true
+  name_regex  = "pfSense-plus-ec2-23.05-RELEASE-amd64"
+  owners      = ["aws-marketplace"]
 
   filter {
     name   = "boot-mode"
