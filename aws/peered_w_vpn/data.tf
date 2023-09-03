@@ -1,3 +1,8 @@
+data "vault_aws_access_credentials" "creds" {
+  backend = "aws"
+  role    = "terraform-user"
+}
+
 data "aws_vpc_peering_connection" "hub_dmz" {
   depends_on  = [aws_vpc_peering_connection.hub_dmz]
   vpc_id      = aws_vpc.hub.id
