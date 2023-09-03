@@ -3,17 +3,82 @@
 Terraform Plans for Deploying Scalable Networks to the Various Public Clouds
 
 ```tree
-├── aws
-│   ├── transit_gateway_fortigate_ngfw
-│   │   └── module
-│   ├── transit_gateway_native_firewall
-│   └── vpc_peering
-│       └── network
-├── azure
-│   └── module
-├── gcp
-└── oci
-    └── network
+	|-- aws
+	|   |-- peered_w_vpn
+	|   |   |-- data.tf
+	|   |   |-- firewall.tf
+	|   |   |-- main.tf
+	|   |   |-- providers.tf
+	|   |   |-- tree.md
+	|   |   |-- variables.tf
+	|   |   |-- vault.tf
+	|   |   `-- versions.tf
+	|   |-- transit_gateway_fortigate_ngfw
+	|   |   |-- README.md
+	|   |   |-- data.tf
+	|   |   |-- main.tf
+	|   |   |-- module
+	|   |   |   |-- cloudwatch.tf
+	|   |   |   |-- firewall.tf
+	|   |   |   |-- fortigate_conf.tpl
+	|   |   |   |-- logging.tf
+	|   |   |   |-- network.tf
+	|   |   |   |-- outputs.tf
+	|   |   |   |-- transit_gateway.tf
+	|   |   |   `-- variables.tf
+	|   |   |-- outputs.tf
+	|   |   |-- terraform.tfvars
+	|   |   |-- variables.tf
+	|   |   `-- versions.tf
+	|   |-- transit_gateway_native_firewall
+	|   |   |-- README.md
+	|   |   |-- data.tf
+	|   |   |-- firewall.tf
+	|   |   |-- main.tf
+	|   |   |-- outputs.tf
+	|   |   |-- variables.tf
+	|   |   `-- versions.tf
+	|   `-- vpc_peering
+	|       |-- README.md
+	|       |-- main.tf
+	|       |-- network
+	|       |   |-- main.tf
+	|       |   |-- outputs.tf
+	|       |   `-- variables.tf
+	|       |-- outputs.tf
+	|       |-- spokes.auto.tfvars
+	|       |-- terraform.tfvars
+	|       |-- variables.tf
+	|       `-- vpc.auto.tfvars
+	|-- azure
+	|   |-- README.md
+	|   |-- main.tf
+	|   |-- module
+	|   |   |-- main.tf
+	|   |   |-- outputs.tf
+	|   |   `-- variables.tf
+	|   |-- terraform.tfvars
+	|   |-- variables.tf
+	|   |-- versions.tf
+	|   `-- vnet_params.auto.tfvars
+	|-- gcp
+	|   |-- main.tf
+	|   |-- terraform.tfvars
+	|   |-- variables.tf
+	|   `-- versions.tf
+	`-- oci
+	    |-- README.md
+	    |-- main.tf
+	    |-- network
+	    |   |-- main.tf
+	    |   |-- outputs.tf
+	    |   `-- variables.tf
+	    |-- network.auto.tfvars
+	    |-- nsg_params.auto.tfvars
+	    |-- nsg_vcn.auto.tfvars
+	    |-- outputs.tf
+	    |-- variables.tf
+	    `-- versions.tf
 ```
 
 ## AWS - Amazon Web Services
