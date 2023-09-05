@@ -25,7 +25,7 @@ resource "aws_internet_gateway" "security" {
 
 resource "aws_eip" "security" {
   for_each = local.az_map
-  vpc      = true
+  domain   = "vpc"
   tags = {
     Name = "security_${each.key}_eip"
   }
