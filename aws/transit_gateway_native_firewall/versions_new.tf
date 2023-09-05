@@ -1,7 +1,7 @@
 terraform {
   /* backend "s3" {
     bucket         = "trace-terraform-bucket"
-    key            = "aws/network/peered-w-vpn/terraform.tfstate"
+    key            = "aws/network/tgw-w-native-fw/terraform.tfstate"
     region         = "us-east-1"
     dynamodb_table = "terraform_db"
   } */
@@ -11,7 +11,7 @@ terraform {
     scheme  = "http"
     lock    = true
     gzip    = false
-    path    = "aws/peered-w-vpn/terraform.tfstate"
+    path    = "aws/tgw-w-native-fw/terraform.tfstate"
   }
 
   required_providers {
