@@ -3,6 +3,9 @@ variable "aws_region" {
   type        = string
 }
 
+variable "vault_client_cert" {}
+variable "vault_client_key" {}
+
 variable "vpcs" {
   description = "builds the hub/spoke VPCs"
   type = map(object({
