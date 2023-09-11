@@ -5,6 +5,19 @@ resource "aws_vpc" "hub" {
   }
 }
 
+resource "aws_vpn_gateway" "hub" {
+  # vpc_id = aws_vpc.hub.id
+
+  tags = {
+    Name = "hub_vpn_gw"
+  }
+}
+
+resource "aws_vpn_gateway_attachment" "hub" {
+  vpc_id         = aws_vpc.hub.id
+  vpn_gateway_id = aws_vpn_gateway.hub.id
+}
+
 resource "aws_subnet" "hub_outside" {
   vpc_id            = aws_vpc.hub.id
   availability_zone = data.aws_availability_zones.default.names[0]
