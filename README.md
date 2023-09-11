@@ -95,7 +95,7 @@ Terraform Plans for Deploying Scalable Networks to the Various Public Clouds
 #### VPC Peering Networks
 
 - [VPC Peering](aws/vpc_peering)
-- [VPC Peering w/ VPN](aws/peered_w_vpn)
+- [VPC Peering w/ VPN](aws/peered_w_vpn) - WIP
 
 ### Azure - Microsoft Azure
 
