@@ -4,16 +4,13 @@ terraform {
       source  = "hashicorp/google"
       version = "4.63.1"
     }
-    aws = {
-      source  = "hashicorp/aws"
-      version = "4.35.0"
-    }
-
   }
-  backend "s3" {
-    bucket = "trace-tf-unlocked-bucket"
-    key    = "network/gcp-terraform.tfstate"
-    region = "us-east-1"
+  backend "consul" {
+    address = "consul-01.tracecloud.us:8500"
+    scheme  = "http"
+    lock    = true
+    gzip    = false
+    path    = "gcp/peered-network/terraform.tfstate"
   }
 }
 
@@ -23,7 +20,5 @@ provider "google" {
   region      = var.gcp_region
 }
 
-provider "aws" {
-  region = var.aws_region
-}
+
 
