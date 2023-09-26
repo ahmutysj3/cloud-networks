@@ -15,7 +15,7 @@ terraform {
 }
 
 provider "google" {
-  credentials = file("~/.gcp/credentials/trace-gcp-tf.json")
+  credentials = file("~/.gcp/gcp-svc-account.json")
   project     = var.gcp_project
   region      = var.gcp_region
 }
