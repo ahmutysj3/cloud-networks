@@ -1,6 +1,6 @@
 resource "google_compute_network" "main" {
-  for_each                = var.vpc_params
+  count = 1
   project                 = var.gcp_project
   auto_create_subnetworks = false
-  name                    = "main-${each.key}-vpc"
+  name                    = "main-test-vpc"
 }
