@@ -2,6 +2,15 @@ resource "google_compute_network" "hub" {
   project                 = var.gcp_project
   auto_create_subnetworks = false
   name                    = "hub-vpc"
+  delete_default_routes_on_create = true
+}
+
+resource "google_compute_route" "hub_inet" {
+  name        = "default-route"
+  dest_range  = "0.0.0.0/0"
+  network     = google_compute_network.hub.name
+  next_hop_gateway = "default-internet-gateway"
+  priority    = 0
 }
 
 resource "google_compute_network_peering" "hub_to_spoke1" {
@@ -38,6 +47,7 @@ resource "google_compute_network" "spoke1" {
   project                 = var.gcp_project
   auto_create_subnetworks = false
   name                    = "spoke1-vpc"
+  delete_default_routes_on_create = true
 }
 
 resource "google_compute_network_peering" "spoke1_to_hub" {
@@ -55,6 +65,7 @@ resource "google_compute_network" "spoke2" {
   project                 = var.gcp_project
   auto_create_subnetworks = false
   name                    = "spoke2-vpc"
+  delete_default_routes_on_create = true
 }
 
 resource "google_compute_network_peering" "spoke2_to_hub" {
@@ -71,6 +82,7 @@ resource "google_compute_network" "spoke3" {
   project                 = var.gcp_project
   auto_create_subnetworks = false
   name                    = "spoke3-vpc"
+  delete_default_routes_on_create = true
 }
 
 resource "google_compute_network_peering" "spoke3_to_hub" {
