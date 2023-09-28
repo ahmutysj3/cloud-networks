@@ -113,6 +113,7 @@ resource "google_compute_subnetwork" "fw_outside" {
   ip_cidr_range = "10.0.2.0/24"
   region        = var.gcp_region
   network       = google_compute_network.hub.id
+  private_ip_google_access = true
 
   log_config {
     aggregation_interval = "INTERVAL_10_MIN"
