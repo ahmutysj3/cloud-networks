@@ -4,6 +4,36 @@ resource "google_compute_network" "hub" {
   name                    = "hub-vpc"
 }
 
+resource "google_compute_network_peering" "hub_to_spoke1" {
+  name         = "hub-to-spoke1"
+  network      = google_compute_network.hub.self_link
+  peer_network = google_compute_network.spoke1.self_link
+  stack_type   = "IPV4_ONLY"
+  export_custom_routes = false
+  import_custom_routes = false
+  export_subnet_routes_with_public_ip = false
+}
+
+resource "google_compute_network_peering" "hub_to_spoke2" {
+  name         = "hub-to-spoke2"
+  network      = google_compute_network.hub.self_link
+  peer_network = google_compute_network.spoke2.self_link
+  stack_type   = "IPV4_ONLY"
+  export_custom_routes = false
+  import_custom_routes = false
+  export_subnet_routes_with_public_ip = false
+}
+
+resource "google_compute_network_peering" "hub_to_spoke3" {
+  name         = "hub-to-spoke3"
+  network      = google_compute_network.hub.self_link
+  peer_network = google_compute_network.spoke3.self_link
+  stack_type   = "IPV4_ONLY"
+  export_custom_routes = false
+  import_custom_routes = false
+  export_subnet_routes_with_public_ip = false
+}
+
 resource "google_compute_network" "spoke1" {
   project                 = var.gcp_project
   auto_create_subnetworks = false
