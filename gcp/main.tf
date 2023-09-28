@@ -23,7 +23,7 @@ resource "google_compute_network" "spoke3" {
 }
 
 resource "google_compute_subnetwork" "fw_inside" {
-  name          = "fw_inside_subnet"
+  name          = "fw-inside-subnet"
   ip_cidr_range = "10.0.1.0/24"
   network       = google_compute_network.hub.id
 
@@ -35,7 +35,7 @@ resource "google_compute_subnetwork" "fw_inside" {
 }
 
 resource "google_compute_subnetwork" "fw_outside" {
-  name          = "fw_outside_subnet"
+  name          = "fw-outside-subnet"
   ip_cidr_range = "10.0.2.0/24"
   network       = google_compute_network.hub.id
 
@@ -47,7 +47,7 @@ resource "google_compute_subnetwork" "fw_outside" {
 }
 
 resource "google_compute_subnetwork" "spoke1" {
-  name          = "spoke1_subnet"
+  name          = "spoke1-subnet"
   ip_cidr_range = "10.1.0.0/16"
   network       = google_compute_network.spoke1.id
 
@@ -59,7 +59,7 @@ resource "google_compute_subnetwork" "spoke1" {
 }
 
 resource "google_compute_subnetwork" "spoke2" {
-  name          = "spoke2_subnet"
+  name          = "spoke2-subnet"
   ip_cidr_range = "10.2.0.0/16"
   network       = google_compute_network.spoke2.id
 
@@ -72,7 +72,7 @@ resource "google_compute_subnetwork" "spoke2" {
 }
 
 resource "google_compute_subnetwork" "spoke3" {
-  name          = "spoke3_subnet"
+  name          = "spoke3-subnet"
   ip_cidr_range = "10.3.0.0/16"
   network       = google_compute_network.spoke3.id
 
