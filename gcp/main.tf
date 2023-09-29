@@ -43,13 +43,6 @@ resource "google_compute_network_peering" "hub_to_spoke3" {
   export_subnet_routes_with_public_ip = false
 }
 
-resource "google_compute_network" "spoke1" {
-  project                 = var.gcp_project
-  auto_create_subnetworks = false
-  name                    = "spoke1-vpc"
-  delete_default_routes_on_create = true
-}
-
 resource "google_compute_network_peering" "spoke1_to_hub" {
   name         = "spoke1-to-hub"
   network      = google_compute_network.spoke1.self_link
@@ -59,15 +52,6 @@ resource "google_compute_network_peering" "spoke1_to_hub" {
   import_custom_routes = false
   export_subnet_routes_with_public_ip = false
 }
-
-
-resource "google_compute_network" "spoke2" {
-  project                 = var.gcp_project
-  auto_create_subnetworks = false
-  name                    = "spoke2-vpc"
-  delete_default_routes_on_create = true
-}
-
 resource "google_compute_network_peering" "spoke2_to_hub" {
   name         = "spoke2-to-hub"
   network      = google_compute_network.spoke2.self_link
@@ -78,13 +62,6 @@ resource "google_compute_network_peering" "spoke2_to_hub" {
   export_subnet_routes_with_public_ip = false
 }
 
-resource "google_compute_network" "spoke3" {
-  project                 = var.gcp_project
-  auto_create_subnetworks = false
-  name                    = "spoke3-vpc"
-  delete_default_routes_on_create = true
-}
-
 resource "google_compute_network_peering" "spoke3_to_hub" {
   name         = "spoke3-to-hub"
   network      = google_compute_network.spoke3.self_link
@@ -93,6 +70,27 @@ resource "google_compute_network_peering" "spoke3_to_hub" {
   export_custom_routes = false
   import_custom_routes = false
   export_subnet_routes_with_public_ip = false
+}
+
+resource "google_compute_network" "spoke1" {
+  project                 = var.gcp_project
+  auto_create_subnetworks = false
+  name                    = "spoke1-vpc"
+  delete_default_routes_on_create = true
+}
+
+resource "google_compute_network" "spoke2" {
+  project                 = var.gcp_project
+  auto_create_subnetworks = false
+  name                    = "spoke2-vpc"
+  delete_default_routes_on_create = true
+}
+
+resource "google_compute_network" "spoke3" {
+  project                 = var.gcp_project
+  auto_create_subnetworks = false
+  name                    = "spoke3-vpc"
+  delete_default_routes_on_create = true
 }
 
 resource "google_compute_subnetwork" "fw_inside" {
