@@ -23,7 +23,7 @@ resource "google_compute_subnetwork" "app" {
   name          = "app-subnet"
   ip_cidr_range = "10.1.0.0/16"
   region        = var.gcp_region
-  network       = google_compute_network.app.id
+  network       = google_compute_network.app.self_link
 
   log_config {
     aggregation_interval = "INTERVAL_10_MIN"
@@ -36,7 +36,7 @@ resource "google_compute_subnetwork" "db" {
   name          = "db-subnet"
   ip_cidr_range = "10.2.0.0/16"
   region        = var.gcp_region
-  network       = google_compute_network.db.id
+  network       = google_compute_network.db.self_link
 
   log_config {
     aggregation_interval = "INTERVAL_10_MIN"
@@ -50,7 +50,7 @@ resource "google_compute_subnetwork" "dmz" {
   name          = "dmz-subnet"
   ip_cidr_range = "10.3.0.0/16"
   region        = var.gcp_region
-  network       = google_compute_network.dmz.id
+  network       = google_compute_network.dmz.self_link
 
   log_config {
     aggregation_interval = "INTERVAL_10_MIN"
