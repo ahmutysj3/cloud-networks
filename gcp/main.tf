@@ -1,27 +1,124 @@
-resource "google_compute_network" "hub_inside" {
+resource "google_compute_network" "trusted" {
   project                 = var.gcp_project
-  name                    = "hub_inside"
+  name                    = "trusted-network"
   auto_create_subnetworks = false
   delete_default_routes_on_create = true
 }
 
-resource "google_compute_network" "hub_outside" {
+resource "google_compute_network" "untrusted" {
     project                 = var.gcp_project
-    name                    = "hub_outside"
+    name                    = "untrusted-network"
     auto_create_subnetworks = false
     delete_default_routes_on_create = true
 }
 
-resource "google_compute_network" "hub_mgmt" {
+resource "google_compute_network" "mgmt" {
     project                 = var.gcp_project
-    name                    = "hub_mgmt"
+    name                    = "mgmt-network"
     auto_create_subnetworks = false
     delete_default_routes_on_create = true
 }
 
-resource "google_compute_network" "hub_ha" {
+resource "google_compute_network" "fw_ha" {
     project                 = var.gcp_project
-    name                    = "hub_ha"
+    name                    = "fw-ha-network"
     auto_create_subnetworks = false
     delete_default_routes_on_create = true
+}
+
+resource "google_compute_network" "spoke" {
+    project                 = var.gcp_project
+    name                    = "spoke-network"
+    auto_create_subnetworks = false
+    delete_default_routes_on_create = true
+}
+
+resource "google_compute_network_peering" "hub" {
+  name         = "hub-peering"
+  network      = google_compute_network.trusted.self_link
+  peer_network = google_compute_network.spoke.self_link
+}
+
+resource "google_compute_network_peering" "spoke" {
+  name         = "spoke-peering"
+  network      = google_compute_network.spoke.self_link
+  peer_network = google_compute_network.trusted.self_link
+}
+
+resource "google_compute_subnetwork" "fw_inside" {
+  name          = "fw-inside-subnet"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = var.gcp_region
+  network       = google_compute_network.trusted.id
+
+  log_config {
+    aggregation_interval = "INTERVAL_10_MIN"
+    flow_sampling        = 0.5
+    metadata             = "INCLUDE_ALL_METADATA"
+  }
+}
+
+resource "google_compute_subnetwork" "protected" {
+  name          = "protected-subnet"
+  ip_cidr_range = "10.100.0.0/16"
+  region        = var.gcp_region
+  network       = google_compute_network.spoke.id
+
+  log_config {
+    aggregation_interval = "INTERVAL_10_MIN"
+    flow_sampling        = 0.5
+    metadata             = "INCLUDE_ALL_METADATA"
+  }
+}
+
+resource "google_compute_subnetwork" "fw_outside" {
+  name          = "fw-outside-subnet"
+  ip_cidr_range = "10.0.1.0/24"
+  region        = var.gcp_region
+  network       = google_compute_network.untrusted.id
+
+  log_config {
+    aggregation_interval = "INTERVAL_10_MIN"
+    flow_sampling        = 0.5
+    metadata             = "INCLUDE_ALL_METADATA"
+  }
+}
+
+resource "google_compute_subnetwork" "fw_mgmt" {
+  name          = "fw-mgmt-subnet"
+  ip_cidr_range = "10.0.254.0/25"
+  region        = var.gcp_region
+  network       = google_compute_network.mgmt.id
+
+  log_config {
+    aggregation_interval = "INTERVAL_10_MIN"
+    flow_sampling        = 0.5
+    metadata             = "INCLUDE_ALL_METADATA"
+  }
+}
+
+resource "google_compute_subnetwork" "admin" {
+  name          = "admin-subnet"
+  ip_cidr_range = "10.0.254.128/25"
+  region        = var.gcp_region
+  network       = google_compute_network.mgmt.id
+
+  log_config {
+    aggregation_interval = "INTERVAL_10_MIN"
+    flow_sampling        = 0.5
+    metadata             = "INCLUDE_ALL_METADATA"
+  }
+}
+
+resource "google_compute_subnetwork" "fw_ha" {
+  name          = "fw-ha-subnet"
+  ip_cidr_range = "10.0.255.0/24"
+  region        = var.gcp_region
+  network       = google_compute_network.fw_ha.id
+
+  log_config {
+    aggregation_interval = "INTERVAL_10_MIN"
+    flow_sampling        = 0.5
+    metadata             = "INCLUDE_ALL_METADATA"
+  }
 }
