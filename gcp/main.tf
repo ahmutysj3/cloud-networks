@@ -47,7 +47,7 @@ resource "google_compute_network_peering" "spoke" {
 
 resource "google_compute_subnetwork" "fw_inside" {
   name          = "fw-inside-subnet"
-  ip_cidr_range = "10.0.0.0/24"
+  ip_cidr_range = "10.99.0.0/24"
   region        = var.gcp_region
   network       = google_compute_network.trusted.id
 
@@ -73,7 +73,7 @@ resource "google_compute_subnetwork" "protected" {
 
 resource "google_compute_subnetwork" "fw_outside" {
   name          = "fw-outside-subnet"
-  ip_cidr_range = "10.0.1.0/24"
+  ip_cidr_range = "10.99.1.0/24"
   region        = var.gcp_region
   network       = google_compute_network.untrusted.id
 
@@ -86,7 +86,7 @@ resource "google_compute_subnetwork" "fw_outside" {
 
 resource "google_compute_subnetwork" "fw_mgmt" {
   name          = "fw-mgmt-subnet"
-  ip_cidr_range = "10.0.254.0/25"
+  ip_cidr_range = "10.99.254.0/25"
   region        = var.gcp_region
   network       = google_compute_network.mgmt.id
 
@@ -99,7 +99,7 @@ resource "google_compute_subnetwork" "fw_mgmt" {
 
 resource "google_compute_subnetwork" "admin" {
   name          = "admin-subnet"
-  ip_cidr_range = "10.0.254.128/25"
+  ip_cidr_range = "10.99.254.128/25"
   region        = var.gcp_region
   network       = google_compute_network.mgmt.id
 
@@ -112,7 +112,7 @@ resource "google_compute_subnetwork" "admin" {
 
 resource "google_compute_subnetwork" "fw_ha" {
   name          = "fw-ha-subnet"
-  ip_cidr_range = "10.0.255.0/24"
+  ip_cidr_range = "10.99.255.0/24"
   region        = var.gcp_region
   network       = google_compute_network.fw_ha.id
 
@@ -121,4 +121,20 @@ resource "google_compute_subnetwork" "fw_ha" {
     flow_sampling        = 0.5
     metadata             = "INCLUDE_ALL_METADATA"
   }
+}
+
+resource "google_compute_route" "inet_access_mgmt" {
+  name        = "inet-route-mgmt"
+  dest_range  = "0.0.0.0/0"
+  network     = google_compute_network.mgmt.name
+  next_hop_gateway = "default-internet-gateway"
+  priority    = 100
+}
+
+resource "google_compute_route" "inet_access_outside" {
+  name        = "inet-route-wan"
+  dest_range  = "0.0.0.0/0"
+  network     = google_compute_network.untrusted.name
+  next_hop_gateway = "default-internet-gateway"
+  priority    = 100
 }
