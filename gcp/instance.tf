@@ -1,12 +1,9 @@
 /* resource "google_compute_instance" "fortigate-active" {
   name           = "fgt-active-fw"
   machine_type   = "e2-standard-4"
-  zone           = "us-east1-b"
+  zone           = data.google_compute_zones.available.names[0]
   can_ip_forward = "true"
-  labels = {
-    goog-dm = "fortigate-payg-3"
-  }
-  tags    = ["allow-fgt"]
+  tags    = ["allow-fgt-mgmt", "allow-fgt-trusted", "allow-fgt-untrusted", "allow-fgt-ha"]
   project = var.gcp_project
   metadata = {
     fortigate_user_password  = "yhhR.8u7"
@@ -27,13 +24,11 @@
     device_name = "boot-disk"
 
     initialize_params {
-      image = "https://www.googleapis.com/compute/beta/projects/fortigcp-project-001/global/images/fortinet-fgtondemand-741-20230905-001-w-license"
-      size  = 10
-      type  = "pd-ssd"
+      image = data.google_compute_image.fortigate.self_link
     }
 
     mode   = "READ_WRITE"
-    source = "https://www.googleapis.com/compute/v1/projects/terraform-project-trace-lab/zones/us-east1-b/disks/fortigate-payg-3-vm"
+    source = google_compute_disk.boot.self_link
   }
 
   network_interface {
@@ -116,6 +111,7 @@ resource "google_compute_disk" "log" {
 }
 
 data "google_compute_image" "fortigate" {
+  provider = google
   family  = "fortigate-74-payg"
   project = "fortigcp-project-001"
 }
@@ -161,4 +157,18 @@ resource "google_compute_address" "fw_outside" {
   ip_version   = "IPV4"
   subnetwork   = google_compute_subnetwork.fw_untrusted.self_link
   address      = cidrhost(google_compute_subnetwork.fw_untrusted.ip_cidr_range, 2)
+}
+
+resource "google_compute_address" "fw_wan_external" {
+  name = "fw-wan-external-ip"
+  address_type = "EXTERNAL"
+  ip_version = "IPV4"
+  region = var.gcp_region
+}
+
+resource "google_compute_address" "fw_mgmt_external" {
+  name = "fw-mgmt-external-ip"
+  address_type = "EXTERNAL"
+  ip_version = "IPV4"
+  region = var.gcp_region
 }

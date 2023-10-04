@@ -2,7 +2,11 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = "4.84.0"
+      version = "5.0.0"
+    }
+    google-beta = {
+      source  = "hashicorp/google-beta"
+      version = "5.0.0"
     }
   }
   backend "consul" {
@@ -14,10 +18,6 @@ terraform {
   }
 }
 
-provider "google" {
-  project = var.gcp_project
-  region  = var.gcp_region
-}
 
 
 
