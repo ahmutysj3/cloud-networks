@@ -150,15 +150,15 @@ resource "google_compute_address" "fw_inside" {
   address_type = "INTERNAL"
   purpose      = "GCE_ENDPOINT"
   ip_version   = "IPV4"
-  subnetwork   = google_compute_subnetwork.trusted.self_link
+  subnetwork   = google_compute_subnetwork.fw_trusted.self_link
   address      = cidrhost(google_compute_subnetwork.fw_trusted.ip_cidr_range, 2)
 }
 
 resource "google_compute_address" "fw_outside" {
   name         = "fw-outside-ip"
-  address_type = "EXTERNAL"
+  address_type = "INTERNAL"
   purpose      = "GCE_ENDPOINT"
   ip_version   = "IPV4"
-  subnetwork   = google_compute_subnetwork.untrusted.self_link
+  subnetwork   = google_compute_subnetwork.fw_untrusted.self_link
   address      = cidrhost(google_compute_subnetwork.fw_untrusted.ip_cidr_range, 2)
 }
