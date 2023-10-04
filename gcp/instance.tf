@@ -1,3 +1,12 @@
+resource "random_string" "initial_password" {
+  length  = 8
+  special = false
+}
+
+output "fortigate_initial_password" {
+  value = random_string.initial_password.result
+}
+
 resource "google_compute_instance" "fortigate-active" {
   name           = "fgt-active-fw"
   machine_type   = "e2-standard-4"
@@ -6,7 +15,7 @@ resource "google_compute_instance" "fortigate-active" {
   tags           = ["allow-fgt-mgmt", "allow-fgt-trusted", "allow-fgt-untrusted", "allow-fgt-ha"]
   project        = var.gcp_project
   metadata = {
-    fortigate_user_password  = "yhhR.8u7"
+    fortigate_user_password  = random_string.initial_password.result
     google-logging-enable    = "0"
     ATTACHED_DISKS           = "log-disk"
     google-monitoring-enable = "0"
