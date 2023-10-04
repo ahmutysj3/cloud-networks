@@ -13,3 +13,9 @@ variable "boot_disk_size" {
   type        = number
   default = 10
 }
+
+variable "log_disk_size" {
+  description = "Size of the log disk in GB"
+  type        = number
+  default = 30
+}

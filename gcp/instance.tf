@@ -47,6 +47,15 @@ resource "google_compute_disk" "boot" {
   zone                      = data.google_compute_zones.available.names[0]
 }
 
+resource "google_compute_disk" "log" {
+  name                      = "fortigate-log-disk"
+  physical_block_size_bytes = 4096
+  project                   = var.gcp_project
+  size                      = var.log_disk_size
+  type                      = "pd-ssd"
+  zone                      = data.google_compute_zones.available.names[0]
+}
+
 data "google_compute_image" "fortigate" {
   family  = "fortigate-74-payg"
   project = "fortigcp-project-001"
