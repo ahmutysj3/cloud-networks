@@ -1,4 +1,4 @@
-resource "google_compute_instance" "fortigate-active" {
+/* resource "google_compute_instance" "fortigate-active" {
   name           = "fgt-active-fw"
   machine_type   = "e2-standard-4"
   zone           = "us-east1-b"
@@ -24,7 +24,7 @@ resource "google_compute_instance" "fortigate-active" {
 
   boot_disk {
     auto_delete = true
-    device_name = "fortigate-payg-vm-tmpl-boot-disk"
+    device_name = "boot-disk"
 
     initialize_params {
       image = "https://www.googleapis.com/compute/beta/projects/fortigcp-project-001/global/images/fortinet-fgtondemand-741-20230905-001-w-license"
@@ -94,7 +94,7 @@ resource "google_compute_instance" "fortigate-active" {
     enable_vtpm                 = true
   }
 
-}
+} */
 
 resource "google_compute_disk" "boot" {
   image                     = data.google_compute_image.fortigate.self_link
@@ -121,4 +121,14 @@ data "google_compute_image" "fortigate" {
 }
 
 data "google_compute_zones" "available" {
+  region = var.gcp_region
+}
+
+data "google_compute_default_service_account" "default" {
+}
+
+resource "google_compute_address" "fw_ha_sync" {
+  name = "fw-ha-sync"
+  address_type = "INTERNAL"
+
 }

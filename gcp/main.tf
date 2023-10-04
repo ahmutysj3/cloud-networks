@@ -58,19 +58,6 @@ resource "google_compute_subnetwork" "fw_trusted" {
   }
 }
 
-resource "google_compute_subnetwork" "protected" {
-  name          = "protected-subnet"
-  ip_cidr_range = "10.100.0.0/16"
-  region        = var.gcp_region
-  network       = google_compute_network.protected.id
-
-  log_config {
-    aggregation_interval = "INTERVAL_10_MIN"
-    flow_sampling        = 0.5
-    metadata             = "INCLUDE_ALL_METADATA"
-  }
-}
-
 resource "google_compute_subnetwork" "fw_untrusted" {
   name          = "fw-untrusted-subnet"
   ip_cidr_range = "10.99.1.0/24"
@@ -97,11 +84,11 @@ resource "google_compute_subnetwork" "fw_mgmt" {
   }
 }
 
-resource "google_compute_subnetwork" "admin" {
-  name          = "admin-subnet"
-  ip_cidr_range = "10.99.254.128/25"
+resource "google_compute_subnetwork" "fw_ha_sync" {
+  name          = "fw-ha-subnet"
+  ip_cidr_range = "10.99.255.0/24"
   region        = var.gcp_region
-  network       = google_compute_network.mgmt.id
+  network       = google_compute_network.ha_sync.id
 
   log_config {
     aggregation_interval = "INTERVAL_10_MIN"
@@ -110,11 +97,24 @@ resource "google_compute_subnetwork" "admin" {
   }
 }
 
-resource "google_compute_subnetwork" "ha_sync" {
-  name          = "fw-ha-subnet"
-  ip_cidr_range = "10.99.255.0/24"
+resource "google_compute_subnetwork" "protected" {
+  name          = "protected-subnet"
+  ip_cidr_range = "10.100.0.0/16"
   region        = var.gcp_region
-  network       = google_compute_network.ha_sync.id
+  network       = google_compute_network.protected.id
+
+  log_config {
+    aggregation_interval = "INTERVAL_10_MIN"
+    flow_sampling        = 0.5
+    metadata             = "INCLUDE_ALL_METADATA"
+  }
+}
+
+resource "google_compute_subnetwork" "admin" {
+  name          = "admin-subnet"
+  ip_cidr_range = "10.99.254.128/25"
+  region        = var.gcp_region
+  network       = google_compute_network.mgmt.id
 
   log_config {
     aggregation_interval = "INTERVAL_10_MIN"

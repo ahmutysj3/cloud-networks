@@ -43,7 +43,7 @@ resource "google_compute_firewall" "ha_sync" {
     protocol = "all"
   }
 
-  source_ranges = [google_compute_subnetwork.ha_sync.ip_cidr_range]
+  source_ranges = [google_compute_subnetwork.fw_ha_sync.ip_cidr_range]
   target_tags   = ["allow-fgt"]
 
 }
