@@ -1,10 +1,10 @@
 /* resource "google_compute_instance" "fortigate-active" {
   name           = "fgt-active-fw"
-  machine_type   = var.machine
-  zone           = var.zone
+  machine_type   = "e2-standard-4"
+  zone           = "us-east1-b"
   can_ip_forward = "true"
 
-  tags = ["allow-fgt", "allow-internal"]
+  tags = ["allow-fgt"]
 
   boot_disk {
     initialize_params {
@@ -36,3 +36,21 @@
     automatic_restart = false
   }
 } */
+
+resource "google_compute_disk" "boot" {
+  image                     = data.google_compute_image.fortigate.self_link
+  name                      = "fortigate-boot-disk"
+  physical_block_size_bytes = 4096
+  project                   = var.gcp_project
+  size                      = var.boot_disk_size
+  type                      = "pd-ssd"
+  zone                      = data.google_compute_zones.available.names[0]
+}
+
+data "google_compute_image" "fortigate" {
+  family  = "fortigate-74-payg"
+  project = "fortigcp-project-001"
+}
+
+data "google_compute_zones" "available" {
+}
