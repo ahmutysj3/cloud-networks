@@ -11,11 +11,11 @@ variable "gcp_region" {
 variable "boot_disk_size" {
   description = "Size of the boot disk in GB"
   type        = number
-  default = 10
+  default     = 10
 }
 
 variable "log_disk_size" {
   description = "Size of the log disk in GB"
   type        = number
-  default = 30
+  default     = 30
 }
