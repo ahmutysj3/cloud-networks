@@ -26,9 +26,9 @@ resource "google_compute_network" "fw_ha" {
     delete_default_routes_on_create = true
 }
 
-resource "google_compute_network" "spoke" {
+resource "google_compute_network" "protected" {
     project                 = var.gcp_project
-    name                    = "spoke-network"
+    name                    = "protected-network"
     auto_create_subnetworks = false
     delete_default_routes_on_create = true
 }
@@ -36,12 +36,12 @@ resource "google_compute_network" "spoke" {
 resource "google_compute_network_peering" "hub" {
   name         = "hub-peering"
   network      = google_compute_network.trusted.self_link
-  peer_network = google_compute_network.spoke.self_link
+  peer_network = google_compute_network.protected.self_link
 }
 
-resource "google_compute_network_peering" "spoke" {
-  name         = "spoke-peering"
-  network      = google_compute_network.spoke.self_link
+resource "google_compute_network_peering" "protected" {
+  name         = "protected-peering"
+  network      = google_compute_network.protected.self_link
   peer_network = google_compute_network.trusted.self_link
 }
 
@@ -62,7 +62,7 @@ resource "google_compute_subnetwork" "protected" {
   name          = "protected-subnet"
   ip_cidr_range = "10.100.0.0/16"
   region        = var.gcp_region
-  network       = google_compute_network.spoke.id
+  network       = google_compute_network.protected.id
 
   log_config {
     aggregation_interval = "INTERVAL_10_MIN"
