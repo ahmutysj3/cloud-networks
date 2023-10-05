@@ -7,7 +7,7 @@ output "fortigate_initial_password" {
   value = random_string.initial_password.result
 }
 
-resource "google_compute_instance" "fortigate-active" {
+resource "google_compute_instance" "fortigate_active" {
   name           = "fgt-active-fw"
   machine_type   = "e2-standard-4"
   zone           = data.google_compute_zones.available.names[0]
@@ -181,4 +181,8 @@ resource "google_compute_address" "fw_mgmt_external" {
   address_type = "EXTERNAL"
   ip_version   = "IPV4"
   region       = var.gcp_region
+}
+
+output "fw_mgmt_ip" {
+  value = google_compute_address.fw_mgmt_external.address  
 }
