@@ -31,16 +31,17 @@ resource "google_compute_instance" "fortigate_active" {
   boot_disk {
     auto_delete = true
     device_name = "boot-disk"
-    mode   = "READ_WRITE"
-    source = google_compute_disk.boot.self_link
+    mode        = "READ_WRITE"
+    source      = google_compute_disk.boot.self_link
   }
 
-  network_interface { # GUI/MGMT Interface
+  network_interface { # nic0: GUI/MGMT Interface
     access_config {
       nat_ip       = google_compute_address.fw_mgmt_external.address
       network_tier = "PREMIUM"
     }
 
+    nic_type           = "VIRTIO_NET"
     network            = google_compute_network.mgmt.self_link
     network_ip         = google_compute_address.fw_mgmt.address
     stack_type         = "IPV4_ONLY"
@@ -48,12 +49,13 @@ resource "google_compute_instance" "fortigate_active" {
     subnetwork_project = var.gcp_project
   }
 
-  network_interface { # WAN Interface
+  network_interface { # nic1: WAN Interface
     access_config {
       nat_ip       = google_compute_address.fw_wan_external.address
       network_tier = "PREMIUM"
     }
 
+    nic_type           = "VIRTIO_NET"
     network            = google_compute_network.untrusted.self_link
     network_ip         = google_compute_address.fw_wan.address
     stack_type         = "IPV4_ONLY"
@@ -61,7 +63,8 @@ resource "google_compute_instance" "fortigate_active" {
     subnetwork_project = var.gcp_project
   }
 
-  network_interface { # HA SYNC Interface
+  network_interface { # nic2: HA SYNC Interface
+    nic_type           = "VIRTIO_NET"
     network            = google_compute_network.ha_sync.self_link
     network_ip         = google_compute_address.fw_ha_sync.address
     stack_type         = "IPV4_ONLY"
@@ -69,7 +72,8 @@ resource "google_compute_instance" "fortigate_active" {
     subnetwork_project = var.gcp_project
   }
 
-  network_interface { # LAN Interface
+  network_interface { # nic3: LAN Interface
+    nic_type           = "VIRTIO_NET"
     network            = google_compute_network.trusted.self_link
     network_ip         = google_compute_address.fw_lan.address
     stack_type         = "IPV4_ONLY"
@@ -184,5 +188,5 @@ resource "google_compute_address" "fw_mgmt_external" {
 }
 
 output "fw_mgmt_ip" {
-  value = google_compute_address.fw_mgmt_external.address  
+  value = google_compute_address.fw_mgmt_external.address
 }

@@ -34,16 +34,16 @@ resource "google_compute_network" "protected" {
 }
 
 resource "google_compute_network_peering" "hub" {
-  name         = "hub-peering"
-  network      = google_compute_network.trusted.self_link
-  peer_network = google_compute_network.protected.self_link
+  name                 = "hub-peering"
+  network              = google_compute_network.trusted.self_link
+  peer_network         = google_compute_network.protected.self_link
   export_custom_routes = true
 }
 
 resource "google_compute_network_peering" "protected" {
-  name         = "protected-peering"
-  network      = google_compute_network.protected.self_link
-  peer_network = google_compute_network.trusted.self_link
+  name                 = "protected-peering"
+  network              = google_compute_network.protected.self_link
+  peer_network         = google_compute_network.trusted.self_link
   import_custom_routes = true
 }
 
@@ -142,14 +142,14 @@ resource "google_compute_route" "inet_access_wan" {
 }
 
 resource "google_compute_route" "inet_access_trusted" {
-  name             = "inet-route-trusted"
-  dest_range       = "0.0.0.0/0"
-  network          = google_compute_network.trusted.name
-  next_hop_ip = google_compute_address.fw_lan.address
-  priority         = 100
+  name        = "inet-route-trusted"
+  dest_range  = "0.0.0.0/0"
+  network     = google_compute_network.trusted.name
+  next_hop_ip = google_compute_instance.fortigate_active.network_interface[3].network_ip
+  priority    = 100
 
-  depends_on = [ 
+  depends_on = [
     google_compute_network_peering.hub,
     google_compute_network_peering.protected
-   ]
+  ]
 }
