@@ -107,7 +107,7 @@ resource "google_compute_disk" "boot" {
   physical_block_size_bytes = 4096
   project                   = var.gcp_project
   size                      = var.boot_disk_size
-  type                      = "pd-ssd"
+  type                      = "pd-standard"
   zone                      = data.google_compute_zones.available.names[0]
 }
 
@@ -116,7 +116,7 @@ resource "google_compute_disk" "log" {
   physical_block_size_bytes = 4096
   project                   = var.gcp_project
   size                      = var.log_disk_size
-  type                      = "pd-ssd"
+  type                      = "pd-standard"
   zone                      = data.google_compute_zones.available.names[0]
 }
 

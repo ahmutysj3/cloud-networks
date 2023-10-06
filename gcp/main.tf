@@ -145,7 +145,7 @@ resource "google_compute_route" "inet_access_trusted" {
   name             = "inet-route-trusted"
   dest_range       = "0.0.0.0/0"
   network          = google_compute_network.trusted.name
-  next_hop_instance = google_compute_instance.fortigate_active.self_link
+  next_hop_ip = google_compute_address.fw_lan.address
   priority         = 100
 
   depends_on = [ 
