@@ -26,17 +26,11 @@ resource "google_compute_instance" "jumpbox" {
   }
 
   network_interface {
-    network    = "https://www.googleapis.com/compute/v1/projects/terraform-project-trace-lab/global/networks/default"
-    network_ip = "10.142.0.4"
+    network    = google_compute_network.protected.self_link
+    network_ip = cidrhost(google_compute_subnetwork.protected.ip_cidr_range,2)
     nic_type   = "GVNIC"
     stack_type = "IPV4_ONLY"
-    subnetwork = "https://www.googleapis.com/compute/v1/projects/terraform-project-trace-lab/regions/us-east1/subnetworks/default"
-
-    access_config {
-      nat_ip                 = "34.139.230.152"
-      network_tier           = "PREMIUM"
-      public_ptr_domain_name = null
-    }
+    subnetwork = google_compute_subnetwork.protected.self_link
   }
 
   scheduling {

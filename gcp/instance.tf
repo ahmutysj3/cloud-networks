@@ -1,6 +1,6 @@
 resource "random_string" "initial_password" {
-  length  = 8
-  special = false
+  length  = 30
+  special = true
 }
 
 output "fortigate_initial_password" {
