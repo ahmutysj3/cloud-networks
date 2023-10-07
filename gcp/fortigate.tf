@@ -1,10 +1,13 @@
+data "google_compute_zones" "available" {
+  region = var.gcp_region
+}
+
+data "google_compute_default_service_account" "default" {
+}
+
 resource "random_string" "initial_password" {
   length  = 30
   special = true
-}
-
-output "fortigate_initial_password" {
-  value = random_string.initial_password.result
 }
 
 resource "google_compute_instance" "fortigate_active" {
@@ -105,6 +108,12 @@ resource "google_compute_instance" "fortigate_active" {
 
 }
 
+data "google_compute_image" "fortigate" {
+  provider = google
+  family   = "fortigate-74-payg"
+  project  = "fortigcp-project-001"
+}
+
 resource "google_compute_disk" "fortigate_boot" {
   image                     = data.google_compute_image.fortigate.self_link
   name                      = "fortigate-boot-disk"
@@ -122,19 +131,6 @@ resource "google_compute_disk" "fortigate_log" {
   size                      = var.log_disk_size
   type                      = "pd-standard"
   zone                      = data.google_compute_zones.available.names[0]
-}
-
-data "google_compute_image" "fortigate" {
-  provider = google
-  family   = "fortigate-74-payg"
-  project  = "fortigcp-project-001"
-}
-
-data "google_compute_zones" "available" {
-  region = var.gcp_region
-}
-
-data "google_compute_default_service_account" "default" {
 }
 
 resource "google_compute_address" "fw_ha_sync" {
@@ -185,8 +181,4 @@ resource "google_compute_address" "fw_mgmt_external" {
   address_type = "EXTERNAL"
   ip_version   = "IPV4"
   region       = var.gcp_region
-}
-
-output "fw_mgmt_ip" {
-  value = google_compute_address.fw_mgmt_external.address
 }
