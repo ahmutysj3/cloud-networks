@@ -25,7 +25,7 @@ resource "google_compute_instance" "fortigate_active" {
   attached_disk {
     device_name = "log-disk"
     mode        = "READ_WRITE"
-    source      = google_compute_disk.fortigage_log.self_link
+    source      = google_compute_disk.fortigate_log.self_link
   }
 
   boot_disk {
