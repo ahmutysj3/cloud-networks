@@ -25,14 +25,14 @@ resource "google_compute_instance" "fortigate_active" {
   attached_disk {
     device_name = "log-disk"
     mode        = "READ_WRITE"
-    source      = google_compute_disk.log.self_link
+    source      = google_compute_disk.fortigage_log.self_link
   }
 
   boot_disk {
     auto_delete = true
     device_name = "boot-disk"
     mode        = "READ_WRITE"
-    source      = google_compute_disk.boot.self_link
+    source      = google_compute_disk.fortigate_boot.self_link
   }
 
   network_interface { # nic0: GUI/MGMT Interface
@@ -105,7 +105,7 @@ resource "google_compute_instance" "fortigate_active" {
 
 }
 
-resource "google_compute_disk" "boot" {
+resource "google_compute_disk" "fortigate_boot" {
   image                     = data.google_compute_image.fortigate.self_link
   name                      = "fortigate-boot-disk"
   physical_block_size_bytes = 4096
@@ -115,7 +115,7 @@ resource "google_compute_disk" "boot" {
   zone                      = data.google_compute_zones.available.names[0]
 }
 
-resource "google_compute_disk" "log" {
+resource "google_compute_disk" "fortigate_log" {
   name                      = "fortigate-log-disk"
   physical_block_size_bytes = 4096
   project                   = var.gcp_project
