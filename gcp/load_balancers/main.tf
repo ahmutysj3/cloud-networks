@@ -8,16 +8,17 @@ locals {
 
 
 module "load_balancers" {
-  source = "./module"
-  for_each = local.lbs
-  name_prefix            = each.value.name
+  source          = "./module"
+  for_each        = local.lbs
+  name_prefix     = each.value.name
   region          = each.value.region
   instance_groups = each.value.backends
+  fwd_rules       = each.value.frontends
   project         = each.value.project
   network         = each.value.network
-  health_checks  = each.value.health_checks
-
+  health_checks   = each.value.health_checks
+  protocol        = each.value.protocol
+  all_ports       = each.value.all_ports
 }
-
 
 

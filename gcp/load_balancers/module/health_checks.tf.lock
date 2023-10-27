@@ -1,0 +1,18 @@
+module "health_checks" {
+  source      = "./health_checks"
+  for_each    = local.health_checks
+  prefix      = var.name_prefix
+  region      = var.region
+  port_name   = each.value.port_name
+  port_number = each.value.port_number
+  project     = var.project
+}
+
+
+output "health_checks" {
+  value = local.health_checks_outputs
+}
+
+locals {
+  health_checks_outputs = { for k, v in module.health_checks : k => v }
+}

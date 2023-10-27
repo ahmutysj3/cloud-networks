@@ -12,3 +12,18 @@ resource "google_compute_instance_group" "this" {
   network   = var.network
   instances = [for instance in data.google_compute_instance.this : instance.self_link]
 }
+
+
+variable "name" {}
+
+variable "zone" {}
+
+variable "project" {}
+
+variable "network" {}
+
+variable "instances" {}
+
+output "instance_group" {
+  value = google_compute_instance_group.this
+}
