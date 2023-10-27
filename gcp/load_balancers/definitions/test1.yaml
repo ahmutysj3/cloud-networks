@@ -13,3 +13,9 @@ lbs:
         zone: us-east1-b
         instances:
         - instance-3
+    health_checks:
+      - port_name: http
+        port_number: 80
+      - port_name: https
+        port_number: 443
+    frontends:

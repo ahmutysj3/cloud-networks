@@ -8,3 +8,9 @@ lbs:
         zone: us-east1-b
         instances:
         - instance-4
+    health_checks:
+      - port_name: ssh
+        port_number: 22
+      - port_name: java-web
+        port_number: 8443
+    frontends:

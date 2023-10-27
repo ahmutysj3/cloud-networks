@@ -10,11 +10,13 @@ locals {
 module "load_balancers" {
   source = "./module"
   for_each = local.lbs
-  name            = each.value.name
+  name_prefix            = each.value.name
   region          = each.value.region
   instance_groups = each.value.backends
   project         = each.value.project
   network         = each.value.network
+  health_checks  = each.value.health_checks
+
 }
 
 
