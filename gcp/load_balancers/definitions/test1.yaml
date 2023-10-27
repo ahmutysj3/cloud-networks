@@ -3,7 +3,7 @@ lbs:
     project: terraform-project-trace-lab
     network: protected-network
     region: us-east1
-    backends: 
+    backends:
       - instance_grp: test-instance-group
         zone: us-east1-b
         instances:
