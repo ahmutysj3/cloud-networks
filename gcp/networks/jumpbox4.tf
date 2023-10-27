@@ -1,5 +1,5 @@
-resource "google_compute_instance" "jumpbox" {
-  description  = "test-jumpbox"
+resource "google_compute_instance" "jumpbox4" {
+  description  = "test-jumpbox4"
   hostname     = null
   labels       = {}
   machine_type = "e2-micro"
@@ -8,26 +8,26 @@ resource "google_compute_instance" "jumpbox" {
   }
 
 
-  name    = "instance-1"
+  name    = "instance-4"
   project = "terraform-project-trace-lab"
   tags    = []
   zone    = "us-east1-b"
   boot_disk {
     auto_delete = true
-    device_name = "ubuntu-boot-disk"
+    device_name = "ubuntu-boot-disk4"
     mode        = "READ_WRITE"
-    source      = google_compute_disk.ubuntu_boot.self_link
+    source      = google_compute_disk.ubuntu_boot4.self_link
   }
 
   attached_disk {
-    device_name = "ubuntu-data-disk"
+    device_name = "ubuntu-data-disk4"
     mode        = "READ_WRITE"
-    source      = google_compute_disk.ubuntu_data.self_link
+    source      = google_compute_disk.ubuntu_data4.self_link
   }
 
   network_interface {
     network    = google_compute_network.protected.self_link
-    network_ip = cidrhost(google_compute_subnetwork.protected.ip_cidr_range,2)
+    network_ip = cidrhost(google_compute_subnetwork.protected.ip_cidr_range, 5)
     nic_type   = "GVNIC"
     stack_type = "IPV4_ONLY"
     subnetwork = google_compute_subnetwork.protected.self_link
@@ -40,7 +40,7 @@ resource "google_compute_instance" "jumpbox" {
     preemptible                 = true
     provisioning_model          = "SPOT"
   }
-  
+
   service_account {
     email  = data.google_compute_default_service_account.default.email
     scopes = ["cloud-platform"]
@@ -55,13 +55,8 @@ resource "google_compute_instance" "jumpbox" {
 }
 
 
-data "google_compute_image" "ubuntu" {
-  family  = "ubuntu-2204-lts"
-  project = "ubuntu-os-cloud"
-}
-
-resource "google_compute_disk" "ubuntu_boot" {
-  name                      = "ubuntu-boot-disk"
+resource "google_compute_disk" "ubuntu_boot4" {
+  name                      = "ubuntu-boot-disk4"
   size                      = 10
   type                      = "pd-ssd"
   zone                      = data.google_compute_zones.available.names[0]
@@ -69,8 +64,8 @@ resource "google_compute_disk" "ubuntu_boot" {
   physical_block_size_bytes = 4096
 }
 
-resource "google_compute_disk" "ubuntu_data" {
-  name                      = "ubuntu-data-disk"
+resource "google_compute_disk" "ubuntu_data4" {
+  name                      = "ubuntu-data-disk4"
   size                      = 10
   type                      = "pd-ssd"
   zone                      = data.google_compute_zones.available.names[0]

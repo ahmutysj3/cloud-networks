@@ -141,7 +141,7 @@ resource "google_compute_route" "inet_access_wan" {
   priority         = 100
 }
 
-resource "google_compute_route" "inet_access_trusted" {
+/* resource "google_compute_route" "inet_access_trusted" {
   name        = "inet-route-trusted"
   dest_range  = "0.0.0.0/0"
   network     = google_compute_network.trusted.name
@@ -152,4 +152,4 @@ resource "google_compute_route" "inet_access_trusted" {
     google_compute_network_peering.hub,
     google_compute_network_peering.protected
   ]
-}
+} */

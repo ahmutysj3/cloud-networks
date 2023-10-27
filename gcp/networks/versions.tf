@@ -13,13 +13,20 @@ terraform {
       version = "3.5.1"
     }
   }
-  backend "consul" {
+  /*   backend "consul" {
     address = "consul-01.tracecloud.us:8500"
     scheme  = "http"
     lock    = true
     gzip    = false
     path    = "gcp/peered-network/terraform.tfstate"
+  } */
+
+
+  backend "local" {
+    path = "./terraform.tfstate"
   }
+
+
 }
 
 

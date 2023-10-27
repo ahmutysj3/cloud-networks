@@ -1,0 +1,15 @@
+lbs:
+  - name: test1-lb
+    project: terraform-project-trace-lab
+    network: protected-network
+    region: us-east1
+    backends: 
+      - instance_grp: test-instance-group
+        zone: us-east1-b
+        instances:
+        - instance-1
+        - instance-2
+      - instance_grp: test-instance-group2
+        zone: us-east1-b
+        instances:
+        - instance-3
