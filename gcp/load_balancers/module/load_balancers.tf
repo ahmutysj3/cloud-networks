@@ -1,19 +1,10 @@
-/* locals {
-  instance_groups_tuple = [for instance_group in var.instance_groups : instance_group]
-  instance_groups       = { for instance_group in local.instance_groups_tuple : instance_group.instance_grp => instance_group }
-
-  health_checks_tuple = [for health_check in var.health_checks : health_check]
-  health_checks       = { for health_check in local.health_checks_tuple : health_check.port_name => health_check }
-
-  fwd_rules_tuple = [for fwd_rule in var.fwd_rules : fwd_rule]
-  fwd_rules       = { for fwd_rule in local.fwd_rules_tuple : "${var.name_prefix}-${var.protocol}-${fwd_rule.port_range}-fwd" => fwd_rule }
-} */
-
 locals {
-  instance_groups     = { for instance_group in var.instance_groups : instance_group.instance_grp => instance_group }
-  health_checks_tuple = [for health_check in var.health_checks : health_check]
-  health_checks       = { for health_check in var.health_checks : health_check.port_name => health_check }
-  fwd_rules           = { for fwd_rule in var.fwd_rules : "${var.name_prefix}-${var.protocol}-${fwd_rule.port_range}-fwd" => fwd_rule }
+  instance_groups         = { for instance_group in var.instance_groups : instance_group.instance_grp => instance_group }
+  backend_health_checks   = values({ for k, v in google_compute_region_health_check.this : v.name => v.id })
+  backend_instance_groups = { for k, v in local.instance_groups_outputs : v.instance_group.name => v.instance_group.self_link }
+  health_checks_tuple     = [for health_check in var.health_checks : health_check]
+  health_checks           = { for health_check in var.health_checks : health_check.port_name => health_check }
+  fwd_rules               = { for fwd_rule in var.fwd_rules : "${var.name_prefix}-${var.protocol}-${fwd_rule.port_range}-fwd" => fwd_rule }
 }
 
 
@@ -114,9 +105,7 @@ variable "all_ports" {}
 locals {
   instance_groups_outputs  = { for k, v in module.instance_groups : k => v }
   backend_services_outputs = { for k, v in module.backend_service : k => v }
-  backend_health_checks    = values({ for k, v in google_compute_region_health_check.this : v.name => v.id })
   health_checks_outputs    = google_compute_region_health_check.this
-  backend_instance_groups  = { for k, v in local.instance_groups_outputs : v.instance_group.name => v.instance_group.self_link }
 }
 
 output "instance_groups" {
