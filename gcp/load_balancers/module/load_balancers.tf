@@ -6,7 +6,7 @@ locals {
   health_checks         = [for health_check in var.health_checks : health_check]
   backend_health_checks = values({ for k, v in google_compute_region_health_check.this : v.name => v.id })
 
-  fwd_rules = { for fwd_rule in var.fwd_rules : "${var.name_prefix}-${var.protocol}-${fwd_rule.ports}-fwd" => fwd_rule }
+  fwd_rules = { for fwd_rule in var.fwd_rules : var.forward_all_ports ? "${var.name_prefix}-${var.protocol}-all-ports" : "${var.name_prefix}-${var.protocol}-${fwd_rule.ports}" => fwd_rule }
 }
 
 module "instance_groups" {
