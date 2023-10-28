@@ -1,4 +1,4 @@
-locals {
+/* locals {
   instance_groups_tuple = [for instance_group in var.instance_groups : instance_group]
   instance_groups       = { for instance_group in local.instance_groups_tuple : instance_group.instance_grp => instance_group }
 
@@ -7,7 +7,15 @@ locals {
 
   fwd_rules_tuple = [for fwd_rule in var.fwd_rules : fwd_rule]
   fwd_rules       = { for fwd_rule in local.fwd_rules_tuple : "${var.name_prefix}-${var.protocol}-${fwd_rule.port_range}-fwd" => fwd_rule }
+} */
+
+locals {
+  instance_groups     = { for instance_group in var.instance_groups : instance_group.instance_grp => instance_group }
+  health_checks_tuple = [for health_check in var.health_checks : health_check]
+  health_checks       = { for health_check in var.health_checks : health_check.port_name => health_check }
+  fwd_rules           = { for fwd_rule in var.fwd_rules : "${var.name_prefix}-${var.protocol}-${fwd_rule.port_range}-fwd" => fwd_rule }
 }
+
 
 module "instance_groups" {
   source    = "./instance_groups"
@@ -31,7 +39,7 @@ module "backend_service" {
   protocol        = var.protocol
 }
 
-resource "google_compute_region_health_check" "healthcheck" {
+resource "google_compute_region_health_check" "this" {
   count   = length(local.health_checks)
   name    = "${var.name_prefix}-${local.health_checks_tuple[count.index].port_name}-health-check"
   project = var.project
@@ -43,21 +51,23 @@ resource "google_compute_region_health_check" "healthcheck" {
 }
 
 resource "google_compute_forwarding_rule" "this" {
-  depends_on = [module.backend_service]
-  for_each   = local.fwd_rules
-  name       = each.key
-  region     = var.region
-  project    = var.project
-
-  load_balancing_scheme = "INTERNAL"
-  ip_version            = google_compute_address.fwd_rule[each.key].ip_version
-  ip_address            = google_compute_address.fwd_rule[each.key].address
+  depends_on            = [module.backend_service]
+  for_each              = google_compute_address.fwd_rule
+  name                  = "${var.name_prefix}-${each.key}-fwd-rule"
+  region                = var.region
+  project               = var.project
+  ip_version            = each.value.ip_version
+  ip_address            = each.value.address
+  subnetwork            = each.value.subnetwork
   ip_protocol           = upper(var.protocol)
-  subnetwork            = google_compute_address.fwd_rule[each.key].subnetwork
   backend_service       = module.backend_service.backend_service.self_link
+  load_balancing_scheme = "INTERNAL"
   all_ports             = var.all_ports
+  ports                 = var.all_ports ? null : [lookup(local.fwd_rule_ports, each.key, null)]
+}
 
-  ports = var.all_ports ? null : [each.value.port_range]
+locals {
+  fwd_rule_ports = { for k, v in local.fwd_rules : k => v.port_range }
 }
 
 resource "google_compute_address" "fwd_rule" {
@@ -104,8 +114,8 @@ variable "all_ports" {}
 locals {
   instance_groups_outputs  = { for k, v in module.instance_groups : k => v }
   backend_services_outputs = { for k, v in module.backend_service : k => v }
-  backend_health_checks    = values({ for k, v in google_compute_region_health_check.healthcheck : v.name => v.id })
-  health_checks_outputs    = google_compute_region_health_check.healthcheck
+  backend_health_checks    = values({ for k, v in google_compute_region_health_check.this : v.name => v.id })
+  health_checks_outputs    = google_compute_region_health_check.this
   backend_instance_groups  = { for k, v in local.instance_groups_outputs : v.instance_group.name => v.instance_group.self_link }
 }
 

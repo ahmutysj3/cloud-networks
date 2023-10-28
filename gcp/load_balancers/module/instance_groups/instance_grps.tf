@@ -1,4 +1,4 @@
-data "google_compute_instance" "this" {
+data "google_compute_instance" "instance_group" {
   for_each = toset(var.instances)
   project  = var.project
   zone     = var.zone
@@ -10,20 +10,15 @@ resource "google_compute_instance_group" "this" {
   zone      = var.zone
   project   = var.project
   network   = var.network
-  instances = [for instance in data.google_compute_instance.this : instance.self_link]
+  instances = [for instance in data.google_compute_instance.instance_group : instance.self_link]
 }
-
-
-variable "name" {}
-
-variable "zone" {}
-
-variable "project" {}
-
-variable "network" {}
-
-variable "instances" {}
 
 output "instance_group" {
   value = google_compute_instance_group.this
 }
+
+variable "name" {}
+variable "zone" {}
+variable "project" {}
+variable "network" {}
+variable "instances" {}

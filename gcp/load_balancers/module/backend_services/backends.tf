@@ -21,16 +21,10 @@ output "backend_service" {
 }
 
 variable "protocol" {}
-
 variable "network" {}
-
 variable "project" {}
-
 variable "prefix" {}
-
 variable "region" {}
-
 variable "health_checks" {}
-
 variable "instance_groups" {}
 
