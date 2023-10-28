@@ -9,12 +9,6 @@ locals {
   fwd_rules       = { for fwd_rule in local.fwd_rules_tuple : "${var.name_prefix}-${var.protocol}-${fwd_rule.port_range}-fwd" => fwd_rule }
 }
 
-resource "random_string" "random" {
-  length  = 4
-  special = false
-  upper   = false
-}
-
 module "instance_groups" {
   source    = "./instance_groups"
   for_each  = local.instance_groups
