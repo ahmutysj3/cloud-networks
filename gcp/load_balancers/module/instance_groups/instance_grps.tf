@@ -17,8 +17,21 @@ output "instance_group" {
   value = google_compute_instance_group.this
 }
 
+output "backend_instance_group" {
+  value = local.backend_ig_values
+}
+
+locals {
+  backend_ig_values = {
+    self_link = google_compute_instance_group.this.self_link
+    name      = google_compute_instance_group.this.name
+    failover  = var.failover
+  }
+}
 variable "name" {}
 variable "zone" {}
 variable "project" {}
 variable "network" {}
 variable "instances" {}
+variable "failover" {}
+

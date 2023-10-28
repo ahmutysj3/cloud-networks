@@ -7,6 +7,7 @@ lbs:
     forward_all_ports: false
     backends: 
       - instance_grp: test-instance-group3
+        failover: false
         zone: us-east1-b
         instances:
         - instance-4

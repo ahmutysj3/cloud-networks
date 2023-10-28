@@ -1,5 +1,5 @@
 resource "google_compute_region_backend_service" "this" {
-  name                  = "${var.prefix}-backend-tcp"
+  name                  = "${var.prefix}-${var.protocol}-backend-service"
   project               = var.project
   region                = var.region
   load_balancing_scheme = "INTERNAL"
@@ -10,8 +10,8 @@ resource "google_compute_region_backend_service" "this" {
   dynamic "backend" {
     for_each = var.instance_groups
     content {
-      group    = backend.value
-      failover = false
+      group    = backend.value.backend_instance_group.self_link
+      failover = backend.value.backend_instance_group.failover
     }
   }
 }
