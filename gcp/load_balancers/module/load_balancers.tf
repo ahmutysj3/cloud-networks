@@ -4,7 +4,7 @@ locals {
   backend_instance_groups = { for k, v in local.instance_groups_outputs : v.instance_group.name => v.instance_group.self_link }
   health_checks_tuple     = [for health_check in var.health_checks : health_check]
   health_checks           = { for health_check in var.health_checks : health_check.port_name => health_check }
-  fwd_rules               = { for fwd_rule in var.fwd_rules : "${var.name_prefix}-${var.protocol}-${fwd_rule.port_range}-fwd" => fwd_rule }
+  fwd_rules               = { for fwd_rule in var.fwd_rules : "${var.name_prefix}-${var.protocol}-${fwd_rule.ports}-fwd" => fwd_rule }
 }
 
 module "instance_groups" {
@@ -36,7 +36,7 @@ module "forwarding_rules" {
   region                    = var.region
   project                   = var.project
   protocol                  = var.protocol
-  all_ports                 = var.all_ports
+  forward_all_ports         = var.forward_all_ports
   fwd_rule                  = each.value
   backend_service_self_link = module.backend_service.backend_service.self_link
 }
@@ -75,7 +75,7 @@ variable "protocol" {}
 
 variable "fwd_rules" {}
 
-variable "all_ports" {}
+variable "forward_all_ports" {}
 
 locals {
   instance_groups_outputs  = { for k, v in module.instance_groups : k => v }

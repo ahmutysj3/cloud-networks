@@ -12,12 +12,12 @@ resource "google_compute_forwarding_rule" "this" {
   ip_protocol           = upper(var.protocol)
   subnetwork            = google_compute_address.fwd_rule[each.key].subnetwork
   backend_service       = module.backend_service.backend_service.self_link
-  all_ports             = var.all_ports
-  ports                 = var.all_ports ? null : [each.value.port_range]
+  forward_all_ports             = var.forward_all_ports
+  ports                 = var.forward_all_ports ? null : [each.value.ports]
 }
 
 locals {
-  fwd_rule_ports = { for k, v in local.fwd_rules : k => v.port_range }
+  fwd_rule_ports = { for k, v in local.fwd_rules : k => v.ports }
 }
 
 resource "google_compute_address" "fwd_rule" {

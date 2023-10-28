@@ -4,7 +4,7 @@ lbs:
     network: protected-network
     region: us-east1
     protocol: tcp
-    all_ports: false
+    forward_all_ports: false
     backends: 
       - instance_grp: test-instance-group3
         zone: us-east1-b
@@ -16,9 +16,9 @@ lbs:
       - port_name: java-web
         port_number: 8443
     frontends:
-      - port_range: 135
+      - ports: 135
         ip_address: 10.100.0.105
         subnet: protected-subnet
-      - port_range: 514
+      - ports: 514
         ip_address: 10.100.0.106
         subnet: protected-subnet

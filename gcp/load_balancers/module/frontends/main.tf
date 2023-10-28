@@ -1,5 +1,5 @@
 resource "google_compute_forwarding_rule" "this" {
-  name                  = "${substr(local.name, 0, length(local.name) - 2)}-rule"
+  name                  = var.forward_all_ports ? "${var.name_prefix}-${var.protocol}-all-ports-fwd-rule" : local.fwd_rule_name
   region                = var.region
   project               = var.project
   load_balancing_scheme = "INTERNAL"
@@ -8,9 +8,11 @@ resource "google_compute_forwarding_rule" "this" {
   ip_protocol           = upper(var.protocol)
   subnetwork            = google_compute_address.fwd_rule.subnetwork
   backend_service       = var.backend_service_self_link
-  all_ports             = var.all_ports
-  ports                 = var.all_ports ? null : [var.fwd_rule.port_range]
+  all_ports             = var.forward_all_ports
+  ports                 = var.forward_all_ports ? null : [var.fwd_rule.ports]
 }
+
+
 
 resource "random_string" "random" {
   length  = 4
@@ -20,7 +22,7 @@ resource "random_string" "random" {
 
 resource "google_compute_address" "fwd_rule" {
   address_type = "INTERNAL"
-  name         = "${var.name_prefix}-${random_string.random.result}-fwd-ip"
+  name         = "${var.name_prefix}-${random_string.random.result}-ip"
   ip_version   = "IPV4"
   project      = var.project
   region       = var.region
@@ -29,7 +31,7 @@ resource "google_compute_address" "fwd_rule" {
 }
 
 locals {
-  name = google_compute_address.fwd_rule.name
+  fwd_rule_name = "${substr(google_compute_address.fwd_rule.name, 0, length(google_compute_address.fwd_rule.name) - 2)}-fwd-rule"
 }
 
 data "google_compute_subnetwork" "this" {
@@ -42,7 +44,7 @@ variable "name_prefix" {}
 variable "project" {}
 variable "region" {}
 variable "protocol" {}
-variable "all_ports" {}
+variable "forward_all_ports" {}
 variable "fwd_rule" {}
 variable "backend_service_self_link" {}
 
