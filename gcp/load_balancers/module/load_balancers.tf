@@ -48,18 +48,18 @@ data "google_compute_network" "this" {
 ####
 resource "google_compute_forwarding_rule" "this" {
   depends_on            = [module.backend_service]
-  for_each              = google_compute_address.fwd_rule
+  for_each              = local.fwd_rules
   name                  = "${var.name_prefix}-${each.key}-fwd-rule"
   region                = var.region
   project               = var.project
-  ip_version            = each.value.ip_version
-  ip_address            = each.value.address
-  subnetwork            = each.value.subnetwork
-  ip_protocol           = upper(var.protocol)
-  backend_service       = module.backend_service.backend_service.self_link
   load_balancing_scheme = "INTERNAL"
+  ip_version            = google_compute_address.fwd_rule[each.key].ip_version
+  ip_address            = google_compute_address.fwd_rule[each.key].address
+  ip_protocol           = upper(var.protocol)
+  subnetwork            = google_compute_address.fwd_rule[each.key].subnetwork
+  backend_service       = module.backend_service.backend_service.self_link
   all_ports             = var.all_ports
-  ports                 = var.all_ports ? null : [lookup(local.fwd_rule_ports, each.key, null)]
+  ports                 = var.all_ports ? null : [each.value.port_range]
 }
 
 locals {
