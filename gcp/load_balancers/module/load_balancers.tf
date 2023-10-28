@@ -7,7 +7,6 @@ locals {
   fwd_rules               = { for fwd_rule in var.fwd_rules : "${var.name_prefix}-${var.protocol}-${fwd_rule.port_range}-fwd" => fwd_rule }
 }
 
-
 module "instance_groups" {
   source    = "./instance_groups"
   for_each  = local.instance_groups
@@ -41,6 +40,12 @@ resource "google_compute_region_health_check" "this" {
   }
 }
 
+data "google_compute_network" "this" {
+  project = var.project
+  name    = var.network
+}
+
+####
 resource "google_compute_forwarding_rule" "this" {
   depends_on            = [module.backend_service]
   for_each              = google_compute_address.fwd_rule
@@ -77,11 +82,6 @@ data "google_compute_subnetwork" "this" {
   project  = var.project
   region   = var.region
   name     = each.value.subnet
-}
-
-data "google_compute_network" "this" {
-  project = var.project
-  name    = var.network
 }
 
 variable "name_prefix" {}
