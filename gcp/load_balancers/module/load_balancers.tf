@@ -11,6 +11,7 @@ locals {
 
 
   instance_groups_outputs  = { for k, v in module.instance_groups : k => v.instance_group }
+  fwd_rules_outputs        = { for k, v in module.forwarding_rules : k => v }
   backend_services_outputs = { for k, v in module.backend_service : k => v }
   health_checks_outputs    = google_compute_region_health_check.this
 }
@@ -46,6 +47,7 @@ module "forwarding_rules" {
   project                   = var.project
   protocol                  = var.protocol
   forward_all_ports         = var.forward_all_ports
+  prefix                    = each.key
   fwd_rule                  = each.value
   backend_service_self_link = module.backend_service.backend_service.self_link
 }
@@ -96,6 +98,11 @@ output "backend_services" {
 
 output "backend_health_checks" {
   value = local.health_checks_outputs
+}
+
+output "forwarding_rules" {
+  value = local.fwd_rules_outputs
+
 }
 
 output "fwd_rules" {
