@@ -6,9 +6,8 @@ locals {
   health_checks         = [for health_check in var.health_checks : health_check]
   backend_health_checks = values({ for k, v in google_compute_region_health_check.this : v.name => v.id })
 
-  fwd_rules = { for fwd_rule in var.fwd_rules : var.forward_all_ports ? "${var.name_prefix}-${var.protocol}-all-ports" : "${var.name_prefix}-${var.protocol}-${fwd_rule.ports}" => fwd_rule }
 
-  test_fwd_rules = { for fwd_rule in var.fwd_rules : var.forward_all_ports ? "${local.fwd_name_prefix}-all-ports" : "${local.fwd_name_prefix}-${fwd_rule.ports}" => fwd_rule }
+  fwd_rules = { for fwd_rule in var.fwd_rules : var.forward_all_ports ? "${local.fwd_name_prefix}-all-ports" : "${local.fwd_name_prefix}-${fwd_rule.ports}" => fwd_rule }
 
   fwd_name_prefix = "${var.name_prefix}-${var.protocol}"
 }
@@ -38,7 +37,7 @@ module "backend_service" {
 
 module "forwarding_rules" {
   source                    = "./frontends"
-  for_each                  = local.test_fwd_rules
+  for_each                  = local.fwd_rules
   name_prefix               = var.name_prefix
   region                    = var.region
   project                   = var.project
