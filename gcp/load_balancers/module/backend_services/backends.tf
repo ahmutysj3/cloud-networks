@@ -1,12 +1,16 @@
 locals {
-  backend_service_name = "${var.prefix}-${var.protocol}-backend-service"
+  backend_service_name = "${var.name_prefix}-${var.protocol}-backend-service"
 }
 
+data "google_compute_network" "this" {
+  project = var.project
+  name    = var.network
+}
 
 resource "google_compute_region_backend_service" "this" {
   name                  = local.backend_service_name
   project               = var.project
-  network               = var.network
+  network               = data.google_compute_network.this.self_link
   region                = var.region
   load_balancing_scheme = "INTERNAL"
   health_checks         = [var.health_checks]
@@ -47,7 +51,7 @@ variable "project" {
   description = "The GCP project ID."
 }
 
-variable "prefix" {
+variable "name_prefix" {
   type        = string
   description = "Prefix used for naming resources."
 }

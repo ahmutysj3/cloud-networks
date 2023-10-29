@@ -12,6 +12,7 @@ resource "google_compute_forwarding_rule" "this" {
   ip_address            = google_compute_address.this.address
   ip_protocol           = upper(var.protocol)
   subnetwork            = google_compute_address.this.subnetwork
+  network               = data.google_compute_network.this.self_link
   backend_service       = var.backend_service_self_link
   all_ports             = var.forward_all_ports
   ports                 = var.forward_all_ports ? null : [var.fwd_rule.ports]
@@ -33,6 +34,11 @@ data "google_compute_subnetwork" "this" {
   name    = var.fwd_rule.subnet
 }
 
+data "google_compute_network" "this" {
+  project = var.project
+  name    = var.network
+}
+
 output "forwarding_rule" {
   description = "The created forwarding rule."
   value       = google_compute_forwarding_rule.this
@@ -46,6 +52,11 @@ output "frontend_ip_address" {
 variable "prefix" {
   type        = string
   description = "Prefix used for naming resources."
+}
+
+variable "network" {
+  description = "The network to create the forwarding rule and forwarding IP in."
+  type        = string
 }
 
 variable "project" {

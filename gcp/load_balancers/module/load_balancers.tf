@@ -24,7 +24,7 @@ module "instance_groups" {
 module "backend_service" {
   source          = "./backend_services"
   depends_on      = [module.instance_groups]
-  prefix          = var.name_prefix
+  name_prefix     = var.name_prefix
   region          = var.region
   project         = var.project
   network         = var.network
@@ -38,6 +38,7 @@ module "forwarding_rules" {
   for_each                  = local.forwarding_rules
   name_prefix               = var.name_prefix
   region                    = var.region
+  network                   = var.network
   project                   = var.project
   protocol                  = var.protocol
   forward_all_ports         = var.forward_all_ports
