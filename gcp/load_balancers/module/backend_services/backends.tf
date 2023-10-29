@@ -35,7 +35,11 @@ variable "network" {
 
 variable "protocol" {
   type        = string
-  description = "Protocol for the backend service. Valid values are 'TCP', 'UDP', etc."
+  description = "Protocol for the backend service. Valid values are 'tcp' or 'udp'"
+  validation {
+    condition     = can(regex("(?i)^(udp|tcp)$", var.protocol))
+    error_message = "The protocol must be either 'tcp' or 'udp'."
+  }
 }
 
 variable "project" {

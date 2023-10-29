@@ -106,6 +106,10 @@ variable "health_checks" {
 variable "protocol" {
   description = "The protocol to use for the load balancer"
   type        = string
+  validation {
+    condition     = can(regex("(?i)^(udp|tcp)$", var.protocol))
+    error_message = "The protocol must be either 'tcp' or 'udp'."
+  }
 }
 
 variable "forwarding_rules" {
