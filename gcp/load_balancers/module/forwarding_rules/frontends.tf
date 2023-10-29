@@ -62,8 +62,8 @@ variable "protocol" {
   type        = string
   description = "The protocol used by the forwarding rule. Valid values are 'TCP' and 'UDP'."
   validation {
-    condition     = can(regex("(?i)^(TCP|UDP|udp|tcp)$", var.protocol))
-    error_message = "The protocol must be either 'TCP' or 'UDP'."
+    condition     = can(regex("(?i)^(udp|tcp)$", var.protocol))
+    error_message = "The protocol must be either 'tcp' or 'udp'."
   }
 }
 
