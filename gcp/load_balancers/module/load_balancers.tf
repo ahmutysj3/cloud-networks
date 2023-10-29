@@ -1,15 +1,13 @@
 locals {
-  instance_groups = { for instance_group in var.instance_groups : instance_group.instance_grp => instance_group }
-
-  backend_igs = { for k, v in module.instance_groups : k => v }
+  instance_groups         = { for instance_group in var.instance_groups : instance_group.instance_grp => instance_group }
+  backend_instance_groups = { for k, v in module.instance_groups : k => v }
 
   health_checks         = [for health_check in var.health_checks : health_check]
   backend_health_checks = values({ for k, v in google_compute_region_health_check.this : v.name => v.id })
 
 
-  fwd_rules = { for fwd_rule in var.fwd_rules : var.forward_all_ports ? "${local.fwd_name_prefix}-all-ports" : "${local.fwd_name_prefix}-${fwd_rule.ports}" => fwd_rule }
-
-  fwd_name_prefix = "${var.name_prefix}-${var.protocol}"
+  forwarding_rules = { for fwd_rule in var.forwarding_rules : var.forward_all_ports ? "${local.fwd_name_prefix}-all-ports" : "${local.fwd_name_prefix}-${fwd_rule.ports}" => fwd_rule }
+  fwd_name_prefix  = "${var.name_prefix}-${var.protocol}"
 }
 
 module "instance_groups" {
@@ -31,13 +29,13 @@ module "backend_service" {
   project         = var.project
   network         = var.network
   health_checks   = local.backend_health_checks[0]
-  instance_groups = local.backend_igs
+  instance_groups = local.backend_instance_groups
   protocol        = var.protocol
 }
 
 module "forwarding_rules" {
-  source                    = "./frontends"
-  for_each                  = local.fwd_rules
+  source                    = "./forwarding_rules"
+  for_each                  = local.forwarding_rules
   name_prefix               = var.name_prefix
   region                    = var.region
   project                   = var.project
@@ -110,7 +108,7 @@ variable "protocol" {
   type        = string
 }
 
-variable "fwd_rules" {
+variable "forwarding_rules" {
   description = "The forwarding rules to create for the load balancer"
   type = list(object({
     ports      = number

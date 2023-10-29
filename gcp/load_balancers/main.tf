@@ -12,7 +12,7 @@ module "load_balancers" {
   name_prefix       = each.value.name
   region            = each.value.region
   instance_groups   = each.value.backends
-  fwd_rules         = each.value.frontends
+  forwarding_rules  = each.value.frontends
   project           = each.value.project
   network           = each.value.network
   health_checks     = each.value.health_checks
