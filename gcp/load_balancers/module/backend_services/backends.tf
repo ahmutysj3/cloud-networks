@@ -13,7 +13,7 @@ resource "google_compute_region_backend_service" "this" {
   network               = data.google_compute_network.this.self_link
   region                = var.region
   load_balancing_scheme = "INTERNAL"
-  health_checks         = [var.health_checks]
+  health_checks         = var.health_checks
   session_affinity      = "CLIENT_IP"
   protocol              = upper(var.protocol)
 
@@ -62,7 +62,7 @@ variable "region" {
 }
 
 variable "health_checks" {
-  type        = string
+  type        = list(string)
   description = "The health check for the backend service."
 }
 

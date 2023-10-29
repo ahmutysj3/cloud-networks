@@ -3,7 +3,7 @@ locals {
   backend_instance_groups = { for k, v in module.instance_groups : k => v.backend_ig_values }
 
   health_checks         = [for health_check in var.health_checks : health_check]
-  backend_health_checks = values({ for k, v in google_compute_region_health_check.this : v.name => v.id })
+  backend_health_checks = [for hc in google_compute_region_health_check.this : hc.id]
 
 
   forwarding_rules = { for fwd_rule in var.forwarding_rules : var.forward_all_ports ? "${local.fwd_name_prefix}-all-ports" : "${local.fwd_name_prefix}-${fwd_rule.ports}" => fwd_rule }
@@ -28,7 +28,7 @@ module "backend_service" {
   region          = var.region
   project         = var.project
   network         = var.network
-  health_checks   = local.backend_health_checks[0]
+  health_checks   = local.backend_health_checks
   instance_groups = local.backend_instance_groups
   protocol        = var.protocol
 }

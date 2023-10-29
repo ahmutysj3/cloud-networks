@@ -14,8 +14,6 @@ lbs:
     health_checks:
       - port_name: ssh
         port_number: 22
-      - port_name: java-web
-        port_number: 8443
     frontends:
       - ports: 135
         ip_address: 10.100.0.105

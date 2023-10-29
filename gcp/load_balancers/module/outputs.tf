@@ -26,7 +26,3 @@ output "forwarding_rules" {
 output "frontend_ip_address" {
   value = local.frontend_ip_address_outputs
 }
-
-output "backend_instance_groups" {
-  value = local.backend_instance_groups
-}

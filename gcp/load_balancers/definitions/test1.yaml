@@ -20,8 +20,6 @@ lbs:
     health_checks:
       - port_name: http
         port_number: 80
-      - port_name: https
-        port_number: 443
     frontends: # single port or comma separated list of ports (up to 5)
       - ports: 1000
         ip_address: 10.100.0.101
