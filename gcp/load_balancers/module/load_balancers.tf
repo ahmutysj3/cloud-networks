@@ -67,20 +67,60 @@ data "google_compute_network" "this" {
 }
 
 
-variable "name_prefix" {}
+variable "name_prefix" {
+  description = "The prefix to use for the load balancer name"
+  type        = string
+}
 
-variable "region" {}
+variable "region" {
+  description = "The region to create the load balancer in"
+  type        = string
 
-variable "instance_groups" {}
+}
 
-variable "network" {}
+variable "instance_groups" {
+  description = "The instance groups to use for the load balancer"
+  type = list(object({
+    instance_grp = string
+    zone         = string
+    failover     = bool
+    instances    = list(string)
+  }))
+}
 
-variable "project" {}
+variable "network" {
+  description = "The network to create the load balancer in"
+  type        = string
+}
 
-variable "health_checks" {}
+variable "project" {
+  description = "The project to create the load balancer in"
+  type        = string
+}
 
-variable "protocol" {}
+variable "health_checks" {
+  description = "The health checks to use for the load balancer"
+  type = list(object({
+    port_name   = string
+    port_number = number
+  }))
+}
 
-variable "fwd_rules" {}
+variable "protocol" {
+  description = "The protocol to use for the load balancer"
+  type        = string
+}
 
-variable "forward_all_ports" {}
+variable "fwd_rules" {
+  description = "The forwarding rules to create for the load balancer"
+  type = list(object({
+    ports      = number
+    ip_address = string
+    subnet     = string
+  }))
+}
+
+variable "forward_all_ports" {
+  description = "Whether to forward all ports to the backend service"
+  type        = bool
+}
