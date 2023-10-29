@@ -7,17 +7,17 @@ locals {
 }
 
 module "load_balancers" {
-  source            = "./module"
-  for_each          = local.lbs
-  name_prefix       = each.value.name
-  region            = each.value.region
-  instance_groups   = each.value.backends
-  forwarding_rules  = each.value.frontends
-  project           = each.value.project
-  network           = each.value.network
-  health_check_port = each.value.health_check_port
-  protocol          = lower(each.value.protocol)
-  forward_all_ports = each.value.forward_all_ports
+  source                = "./module"
+  for_each              = local.lbs
+  name_prefix           = each.value.name
+  region                = each.value.region
+  instance_groups       = each.value.backends
+  forwarding_rules      = each.value.frontends
+  project               = each.value.project
+  network               = each.value.network
+  tcp_health_check_port = each.value.tcp_health_check_port
+  protocol              = lower(each.value.protocol)
+  forward_all_ports     = each.value.forward_all_ports
 }
 
 output "load_balancers" {

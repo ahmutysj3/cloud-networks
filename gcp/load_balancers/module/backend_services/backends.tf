@@ -1,5 +1,5 @@
 locals {
-  backend_service_name = "${var.name_prefix}-${var.protocol}-backend-service"
+  backend_service_name = "${var.name_prefix}-backend-service"
 }
 
 data "google_compute_network" "this" {

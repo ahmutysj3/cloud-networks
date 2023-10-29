@@ -4,7 +4,7 @@ lbs:
     network: protected-network
     region: us-east1
     protocol: tcp
-    health_check_port: 22
+    tcp_health_check_port: 22
     forward_all_ports: false
     backends: 
       - instance_grp: test-instance-group3

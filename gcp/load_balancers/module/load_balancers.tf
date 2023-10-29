@@ -1,9 +1,7 @@
 locals {
   instance_groups         = { for instance_group in var.instance_groups : instance_group.instance_grp => instance_group }
   backend_instance_groups = { for k, v in module.instance_groups : k => v.backend_ig_values }
-
-  forwarding_rules = { for fwd_rule in var.forwarding_rules : var.forward_all_ports ? "${local.lb_name_prefix}-all-ports" : "${local.lb_name_prefix}-${fwd_rule.ports}" => fwd_rule }
-  lb_name_prefix   = "${var.name_prefix}-${var.protocol}"
+  lb_name_prefix          = "${var.name_prefix}-${var.protocol}"
 }
 
 module "health_checks" {
@@ -11,7 +9,7 @@ module "health_checks" {
   name_prefix = var.name_prefix
   project     = var.project
   region      = var.region
-  port        = var.health_check_port
+  port        = var.tcp_health_check_port
 }
 
 module "instance_groups" {
@@ -27,25 +25,26 @@ module "instance_groups" {
 
 module "backend_service" {
   source          = "./backend_services"
-  name_prefix     = var.name_prefix
+  name_prefix     = local.lb_name_prefix
   region          = var.region
   project         = var.project
   network         = var.network
   health_check    = module.health_checks.health_check.self_link
   instance_groups = local.backend_instance_groups
   protocol        = var.protocol
+
 }
 
 module "forwarding_rules" {
   source                    = "./forwarding_rules"
-  for_each                  = local.forwarding_rules
-  name_prefix               = var.name_prefix
+  for_each                  = { for k, v in var.forwarding_rules : k => v }
+  name_prefix               = local.lb_name_prefix
   region                    = var.region
   network                   = var.network
   project                   = var.project
   protocol                  = var.protocol
   forward_all_ports         = var.forward_all_ports
-  prefix                    = each.key
+  index                     = each.key
   fwd_rule                  = each.value
   backend_service_self_link = module.backend_service.backend_service.self_link
 }
@@ -81,7 +80,7 @@ variable "project" {
   type        = string
 }
 
-variable "health_check_port" {
+variable "tcp_health_check_port" {
   description = "The health check port to use for the load balancer"
   type        = number
 }

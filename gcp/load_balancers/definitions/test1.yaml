@@ -4,7 +4,7 @@ lbs:
     network: protected-network
     region: us-east1
     protocol: udp
-    health_check_port: 514
+    tcp_health_check_port: 514
     forward_all_ports: false
     backends:
       - instance_grp: test-instance-group

@@ -1,13 +1,13 @@
 locals {
-  forwarding_rule_name = "${var.prefix}-fwd-rule"
-  ip_address_name      = "${var.prefix}-fwd-ip"
+  forwarding_rule_name = "${var.name_prefix}-fwd-rule-${var.index}"
+  ip_address_name      = "${var.name_prefix}-fwd-rule-ip-${var.index}"
 }
 
 resource "google_compute_forwarding_rule" "this" {
   name                  = local.forwarding_rule_name
   region                = var.region
   project               = var.project
-  load_balancing_scheme = "INTERNAL"
+  load_balancing_scheme = google_compute_address.this.address_type
   ip_version            = google_compute_address.this.ip_version
   ip_address            = google_compute_address.this.address
   ip_protocol           = upper(var.protocol)
@@ -44,14 +44,9 @@ output "forwarding_rule" {
   value       = google_compute_forwarding_rule.this
 }
 
-output "frontend_ip_address" {
+output "google_compute_address" {
   description = "The allocated frontend IP address."
-  value       = google_compute_address.this.address
-}
-
-variable "prefix" {
-  type        = string
-  description = "Prefix used for naming resources."
+  value       = google_compute_address.this
 }
 
 variable "network" {
@@ -100,5 +95,9 @@ variable "backend_service_self_link" {
 variable "name_prefix" {
   type        = string
   description = "Optional: A prefix used for naming forwarding rule resources."
-  default     = ""
+}
+
+variable "index" {
+  type        = string
+  description = "value of the index"
 }
