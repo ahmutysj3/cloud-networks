@@ -26,8 +26,7 @@ module "instance_groups" {
 }
 
 module "backend_service" {
-  source = "./backend_services"
-  #depends_on      = [module.instance_groups, module.health_checks]
+  source          = "./backend_services"
   name_prefix     = var.name_prefix
   region          = var.region
   project         = var.project
