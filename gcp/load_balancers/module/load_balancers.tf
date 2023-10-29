@@ -2,12 +2,16 @@ locals {
   instance_groups         = { for instance_group in var.instance_groups : instance_group.instance_grp => instance_group }
   backend_instance_groups = { for k, v in module.instance_groups : k => v.backend_ig_values }
 
-  health_checks         = [for health_check in var.health_checks : health_check]
-  backend_health_checks = [for hc in google_compute_region_health_check.this : hc.id]
+  forwarding_rules = { for fwd_rule in var.forwarding_rules : var.forward_all_ports ? "${local.lb_name_prefix}-all-ports" : "${local.lb_name_prefix}-${fwd_rule.ports}" => fwd_rule }
+  lb_name_prefix   = "${var.name_prefix}-${var.protocol}"
+}
 
-
-  forwarding_rules = { for fwd_rule in var.forwarding_rules : var.forward_all_ports ? "${local.fwd_name_prefix}-all-ports" : "${local.fwd_name_prefix}-${fwd_rule.ports}" => fwd_rule }
-  fwd_name_prefix  = "${var.name_prefix}-${var.protocol}"
+module "health_checks" {
+  source      = "./health_checks"
+  name_prefix = var.name_prefix
+  project     = var.project
+  region      = var.region
+  port        = var.health_check_port
 }
 
 module "instance_groups" {
@@ -17,18 +21,18 @@ module "instance_groups" {
   zone      = each.value.zone
   failover  = each.value.failover
   project   = var.project
-  network   = data.google_compute_network.this.self_link
+  network   = var.network
   instances = each.value.instances
 }
 
 module "backend_service" {
-  source          = "./backend_services"
-  depends_on      = [module.instance_groups]
+  source = "./backend_services"
+  #depends_on      = [module.instance_groups, module.health_checks]
   name_prefix     = var.name_prefix
   region          = var.region
   project         = var.project
   network         = var.network
-  health_checks   = local.backend_health_checks
+  health_check    = module.health_checks.health_check.self_link
   instance_groups = local.backend_instance_groups
   protocol        = var.protocol
 }
@@ -46,24 +50,6 @@ module "forwarding_rules" {
   fwd_rule                  = each.value
   backend_service_self_link = module.backend_service.backend_service.self_link
 }
-
-
-resource "google_compute_region_health_check" "this" {
-  count   = length(local.health_checks)
-  name    = "${var.name_prefix}-${local.health_checks[count.index].port_name}-health-check"
-  project = var.project
-  region  = var.region
-
-  tcp_health_check {
-    port = local.health_checks[count.index].port_number
-  }
-}
-
-data "google_compute_network" "this" {
-  project = var.project
-  name    = var.network
-}
-
 
 variable "name_prefix" {
   description = "The prefix to use for the load balancer name"
@@ -96,12 +82,9 @@ variable "project" {
   type        = string
 }
 
-variable "health_checks" {
-  description = "The health checks to use for the load balancer"
-  type = list(object({
-    port_name   = string
-    port_number = number
-  }))
+variable "health_check_port" {
+  description = "The health check port to use for the load balancer"
+  type        = number
 }
 
 variable "protocol" {

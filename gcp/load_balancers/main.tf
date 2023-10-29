@@ -15,7 +15,7 @@ module "load_balancers" {
   forwarding_rules  = each.value.frontends
   project           = each.value.project
   network           = each.value.network
-  health_checks     = each.value.health_checks
+  health_check_port = each.value.health_check_port
   protocol          = lower(each.value.protocol)
   forward_all_ports = each.value.forward_all_ports
 }

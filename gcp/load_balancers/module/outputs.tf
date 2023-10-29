@@ -3,7 +3,7 @@ locals {
   frontend_ip_address_outputs = { for k, v in module.forwarding_rules : k => v.frontend_ip_address }
   forwarding_rules_outputs    = { for k, v in module.forwarding_rules : k => v.forwarding_rule }
   backend_services_outputs    = { for k, v in module.backend_service : k => v }
-  health_checks_outputs       = google_compute_region_health_check.this
+  health_checks_outputs       = { for k, v in module.health_checks : k => v }
 }
 
 output "instance_groups" {
@@ -20,7 +20,6 @@ output "tcp_health_checks" {
 
 output "forwarding_rules" {
   value = local.forwarding_rules_outputs
-
 }
 
 output "frontend_ip_address" {

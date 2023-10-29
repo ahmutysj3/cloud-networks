@@ -5,11 +5,16 @@ data "google_compute_instance" "instance_group" {
   name     = each.key
 }
 
+data "google_compute_network" "this" {
+  project = var.project
+  name    = var.network
+}
+
 resource "google_compute_instance_group" "this" {
   name      = var.name
   zone      = var.zone
   project   = var.project
-  network   = var.network
+  network   = data.google_compute_network.this.self_link
   instances = [for instance in data.google_compute_instance.instance_group : instance.self_link]
 }
 
