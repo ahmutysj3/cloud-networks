@@ -26,7 +26,7 @@ output "instance_group" {
   value       = google_compute_instance_group.this
 }
 
-output "backend_instance_group" {
+output "backend_ig_values" {
   description = "Values for backend instance group."
   value       = local.backend_ig_values
 }

@@ -1,6 +1,6 @@
 locals {
   instance_groups         = { for instance_group in var.instance_groups : instance_group.instance_grp => instance_group }
-  backend_instance_groups = { for k, v in module.instance_groups : k => v }
+  backend_instance_groups = { for k, v in module.instance_groups : k => v.backend_ig_values }
 
   health_checks         = [for health_check in var.health_checks : health_check]
   backend_health_checks = values({ for k, v in google_compute_region_health_check.this : v.name => v.id })
@@ -121,3 +121,4 @@ variable "forward_all_ports" {
   description = "Whether to forward all ports to the backend service"
   type        = bool
 }
+

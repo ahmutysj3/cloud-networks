@@ -16,8 +16,9 @@ resource "google_compute_region_backend_service" "this" {
   dynamic "backend" {
     for_each = var.instance_groups
     content {
-      group    = backend.value.backend_instance_group.self_link
-      failover = backend.value.backend_instance_group.failover
+      description = "Backend for ${backend.value.name}"
+      group       = backend.value.self_link
+      failover    = backend.value.failover
     }
   }
 }
@@ -56,5 +57,14 @@ variable "health_checks" {
   type        = string
   description = "The health check for the backend service."
 }
-variable "instance_groups" {}
+
+
+variable "instance_groups" {
+  type = map(object({
+    failover  = bool
+    name      = string
+    self_link = string
+  }))
+}
+
 
