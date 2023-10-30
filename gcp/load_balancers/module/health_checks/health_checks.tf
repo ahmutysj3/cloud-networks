@@ -1,5 +1,5 @@
 resource "google_compute_region_health_check" "this" {
-  name               = "${var.name_prefix}-${var.region}-health-check"
+  name               = "${var.name_prefix}-backend-health-check"
   project            = var.project
   region             = var.region
   timeout_sec        = 5

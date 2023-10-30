@@ -1,6 +1,6 @@
 locals {
-  forwarding_rule_name = "${var.name_prefix}-fwd-rule-${var.index}"
-  ip_address_name      = "${var.name_prefix}-fwd-rule-ip-${var.index}"
+  forwarding_rule_name = "${var.name_prefix}-frontend${var.index}-fwd-rule"
+  ip_address_name      = "${var.name_prefix}-frontend${var.index}-fwd-rule-ip"
 }
 
 resource "google_compute_forwarding_rule" "this" {
