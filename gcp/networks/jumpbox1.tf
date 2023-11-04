@@ -77,9 +77,9 @@ resource "google_compute_disk" "ubuntu_data" {
   physical_block_size_bytes = 4096
 }
 
-data "google_compute_zones" "available" {
+/* data "google_compute_zones" "available" {
   region = var.gcp_region
 }
 
 data "google_compute_default_service_account" "default" {
-}
+} */
