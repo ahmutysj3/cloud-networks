@@ -43,6 +43,7 @@ resource "google_compute_network_peering_routes_config" "trusted" {
 }
 
 resource "google_compute_network_peering" "protected" {
+  depends_on   = [google_compute_network_peering.trusted]
   name         = "protected-to-trusted-peering"
   network      = google_compute_network.protected.self_link
   peer_network = google_compute_network.trusted.self_link
