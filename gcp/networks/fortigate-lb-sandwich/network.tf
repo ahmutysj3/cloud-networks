@@ -22,35 +22,21 @@ resource "google_compute_network" "protected" {
 }
 
 resource "google_compute_network_peering" "trusted" {
-  name         = "trusted-to-protected-peering"
-  network      = google_compute_network.trusted.self_link
-  peer_network = google_compute_network.protected.self_link
-}
-
-resource "google_compute_network_peering_routes_config" "trusted" {
-  depends_on = [google_compute_network_peering.trusted]
-  peering    = google_compute_network_peering.trusted.name
-  network    = google_compute_network.trusted.name
-
+  name                 = "trusted-to-protected-peering"
+  network              = google_compute_network.trusted.self_link
+  peer_network         = google_compute_network.protected.self_link
   import_custom_routes = false
   export_custom_routes = true
 }
 
 resource "google_compute_network_peering" "protected" {
-  depends_on   = [google_compute_network_peering.trusted]
-  name         = "protected-to-trusted-peering"
-  network      = google_compute_network.protected.self_link
-  peer_network = google_compute_network.trusted.self_link
-}
-
-resource "google_compute_network_peering_routes_config" "protected" {
-  peering = google_compute_network_peering.protected.name
-  network = google_compute_network.protected.name
-
+  depends_on           = [google_compute_network_peering.trusted]
+  name                 = "protected-to-trusted-peering"
+  network              = google_compute_network.protected.self_link
+  peer_network         = google_compute_network.trusted.self_link
   import_custom_routes = true
   export_custom_routes = false
 }
-
 
 resource "google_compute_subnetwork" "trusted" {
   project       = var.gcp_project
