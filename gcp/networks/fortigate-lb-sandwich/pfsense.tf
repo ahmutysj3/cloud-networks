@@ -51,6 +51,7 @@ resource "google_compute_instance" "pfsense" {
 
 }
 
+
 resource "google_compute_disk" "pfsense_boot" {
   image                     = data.google_compute_image.pfsense.self_link
   name                      = "pfsense-boot-disk"
@@ -67,3 +68,9 @@ data "google_compute_image" "pfsense" {
   name        = "pfsense-gcp-image"
 }
 
+resource "google_compute_instance_group" "pfsense" {
+  depends_on = [google_compute_instance.pfsense]
+  name       = "pfsense-instance-group"
+  zone       = data.google_compute_zones.available.names[0]
+  instances  = [google_compute_instance.pfsense.self_link]
+}
