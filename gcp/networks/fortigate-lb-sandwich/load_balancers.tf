@@ -23,7 +23,7 @@ resource "google_compute_region_backend_service" "pfsense_wan" {
   protocol              = "UNSPECIFIED"
   load_balancing_scheme = "EXTERNAL"
   backend {
-    group = google_compute_instance_group.pfsense_wan.self_link
+    group = google_compute_instance_group.pfsense.self_link
   }
 }
 
@@ -38,12 +38,11 @@ resource "google_compute_forwarding_rule" "pfsense_wan" {
 }
 
 
-resource "google_compute_instance_group" "pfsense_wan" {
-  name      = "pfsense-wan-instance-group"
+resource "google_compute_instance_group" "pfsense" {
+  name      = "pfsense-instance-group"
   project   = var.gcp_project
   zone      = google_compute_instance.pfsense.zone
   instances = [google_compute_instance.pfsense.self_link]
-  network   = google_compute_instance.pfsense.network_interface[0].network
 }
 
 # Internal LB
