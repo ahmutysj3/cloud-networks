@@ -156,9 +156,10 @@ resource "google_compute_instance" "pfsense" {
   zone                      = data.google_compute_zones.available.names[0]
 } */
 
-data "google_storage_bucket_object" "picture" {
-  name   = "pfsense.2.7.img.tar.gz"
-  bucket = "trace-main"
+data "google_compute_image" "pfsense" {
+  project     = var.gcp_project
+  most_recent = "true"
+  name        = "pfsense-gcp-image"
 }
 
 resource "google_compute_address" "lan" {
