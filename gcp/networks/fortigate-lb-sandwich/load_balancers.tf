@@ -18,7 +18,7 @@ resource "google_compute_region_backend_service" "pfsense_untrusted" {
   depends_on            = [google_compute_instance.pfsense]
   region                = var.gcp_region
   project               = var.gcp_project
-  name                  = "pfsense-backend-service"
+  name                  = "pfsense-untrusted-backend-service"
   health_checks         = [google_compute_region_health_check.pfsense.id]
   protocol              = "UNSPECIFIED"
   load_balancing_scheme = "EXTERNAL"
