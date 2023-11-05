@@ -279,7 +279,7 @@ resource "google_compute_instance_group" "pfsense_lan" {
 resource "google_compute_forwarding_rule" "pfsense_lan" {
   name                  = "pfsense-forwarding-rule"
   load_balancing_scheme = "EXTERNAL"
-  ip_address            = google_compute_address.wan_external.address
+  ip_address            = google_compute_address.lan.address
   ip_protocol           = "L3_DEFAULT"
   backend_service       = google_compute_region_backend_service.pfsense_lan.self_link
   all_ports             = true
