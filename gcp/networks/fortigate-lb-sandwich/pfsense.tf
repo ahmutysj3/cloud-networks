@@ -38,9 +38,10 @@ resource "google_compute_instance" "pfsense" {
   }
 
   scheduling { # Discounted Rates
-    automatic_restart  = false
-    preemptible        = true
-    provisioning_model = "SPOT"
+    automatic_restart           = false
+    preemptible                 = true
+    provisioning_model          = "SPOT"
+    instance_termination_action = "STOP"
   }
 
   service_account {
