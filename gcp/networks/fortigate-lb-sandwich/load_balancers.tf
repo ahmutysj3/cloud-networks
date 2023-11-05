@@ -45,7 +45,6 @@ resource "google_compute_forwarding_rule" "elb" {
 # Internal LB
 
 resource "google_compute_region_backend_service" "ilb" {
-  provider              = google-beta
   depends_on            = [google_compute_instance.pfsense]
   region                = var.gcp_region
   project               = var.gcp_project
@@ -57,10 +56,6 @@ resource "google_compute_region_backend_service" "ilb" {
   backend {
     group = google_compute_instance_group.pfsense.self_link
   }
-  connection_tracking_policy {
-    connection_persistence_on_unhealthy_backends = "ALWAYS_PERSIST"
-  }
-
 }
 
 resource "google_compute_forwarding_rule" "ilb" {

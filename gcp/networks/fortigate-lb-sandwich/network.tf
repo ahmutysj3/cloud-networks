@@ -1,31 +1,24 @@
 resource "google_compute_network" "trusted" {
-  project                                   = var.gcp_project
-  name                                      = "test-trusted-vpc-network"
-  auto_create_subnetworks                   = false
-  delete_default_routes_on_create           = true
-  network_firewall_policy_enforcement_order = "AFTER_CLASSIC_FIREWALL"
-  enable_ula_internal_ipv6                  = false
-  routing_mode                              = "REGIONAL"
+  project                 = var.gcp_project
+  name                    = "test-trusted-vpc-network"
+  auto_create_subnetworks = false
+  #delete_default_routes_on_create           = true
+
 }
 
 resource "google_compute_network" "untrusted" {
-  project                                   = var.gcp_project
-  name                                      = "test-untrusted-vpc-network"
-  auto_create_subnetworks                   = false
-  delete_default_routes_on_create           = true
-  network_firewall_policy_enforcement_order = "AFTER_CLASSIC_FIREWALL"
-  enable_ula_internal_ipv6                  = false
-  routing_mode                              = "REGIONAL"
+  project                 = var.gcp_project
+  name                    = "test-untrusted-vpc-network"
+  auto_create_subnetworks = false
+  #delete_default_routes_on_create           = true
+
 }
 
 resource "google_compute_network" "protected" {
-  project                                   = var.gcp_project
-  name                                      = "test-protected-vpc-network"
-  auto_create_subnetworks                   = false
-  delete_default_routes_on_create           = true
-  network_firewall_policy_enforcement_order = "AFTER_CLASSIC_FIREWALL"
-  enable_ula_internal_ipv6                  = false
-  routing_mode                              = "REGIONAL"
+  project                 = var.gcp_project
+  name                    = "test-protected-vpc-network"
+  auto_create_subnetworks = false
+  #delete_default_routes_on_create           = true
 }
 
 resource "google_compute_network_peering" "trusted" {
@@ -35,8 +28,9 @@ resource "google_compute_network_peering" "trusted" {
 }
 
 resource "google_compute_network_peering_routes_config" "trusted" {
-  peering = google_compute_network_peering.trusted.name
-  network = google_compute_network.trusted.name
+  depends_on = [google_compute_network_peering.trusted]
+  peering    = google_compute_network_peering.trusted.name
+  network    = google_compute_network.trusted.name
 
   import_custom_routes = false
   export_custom_routes = true

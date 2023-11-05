@@ -14,5 +14,5 @@ resource "google_compute_route" "default_route" {
   network      = google_compute_network.trusted.self_link
   dest_range   = "0.0.0.0/0"
   priority     = 100
-  next_hop_ilb = google_compute_forwarding_rule.pfsense_trusted.ip_address
+  next_hop_ilb = google_compute_forwarding_rule.ilb.ip_address
 }
