@@ -1,8 +1,8 @@
 resource "google_compute_network" "trusted" {
-  project                 = var.gcp_project
-  name                    = "test-trusted-vpc-network"
-  auto_create_subnetworks = false
-  #delete_default_routes_on_create           = true
+  project                         = var.gcp_project
+  name                            = "test-trusted-vpc-network"
+  auto_create_subnetworks         = false
+  delete_default_routes_on_create = true
 
 }
 
@@ -15,10 +15,10 @@ resource "google_compute_network" "untrusted" {
 }
 
 resource "google_compute_network" "protected" {
-  project                 = var.gcp_project
-  name                    = "test-protected-vpc-network"
-  auto_create_subnetworks = false
-  #delete_default_routes_on_create           = true
+  project                         = var.gcp_project
+  name                            = "test-protected-vpc-network"
+  auto_create_subnetworks         = false
+  delete_default_routes_on_create = true
 }
 
 resource "google_compute_network_peering" "trusted" {
