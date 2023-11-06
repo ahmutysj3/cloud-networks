@@ -10,7 +10,7 @@ resource "google_compute_network" "untrusted" {
   project                         = var.gcp_project
   name                            = "test-untrusted-vpc-network"
   auto_create_subnetworks         = false
-  delete_default_routes_on_create = true
+  delete_default_routes_on_create = false
 
 }
 
