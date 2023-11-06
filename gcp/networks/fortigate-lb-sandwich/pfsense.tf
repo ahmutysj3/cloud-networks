@@ -20,21 +20,15 @@ resource "google_compute_instance" "pfsense" {
 
 
   network_interface { # nic0: WAN Interface
-    nic_type = "VIRTIO_NET"
-    #network            = google_compute_network.untrusted.name
+    nic_type   = "VIRTIO_NET"
     network_ip = google_compute_address.wan.address
-    #stack_type         = "IPV4_ONLY"
     subnetwork = google_compute_subnetwork.untrusted.self_link
-    #subnetwork_project = var.gcp_project
   }
 
   network_interface { # nic1: LAN Interface
-    nic_type = "VIRTIO_NET"
-    #network            = google_compute_network.trusted.name
+    nic_type   = "VIRTIO_NET"
     network_ip = google_compute_address.lan.address
-    #stack_type         = "IPV4_ONLY"
     subnetwork = google_compute_subnetwork.trusted.self_link
-    #subnetwork_project = var.gcp_project
   }
 
   scheduling { # Discounted Rates
