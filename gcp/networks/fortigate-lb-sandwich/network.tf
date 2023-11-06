@@ -1,14 +1,13 @@
 resource "google_compute_network" "trusted" {
   project                         = var.gcp_project
-  name                            = "test-trusted-vpc-network"
+  name                            = "trusted-vpc"
   auto_create_subnetworks         = false
   delete_default_routes_on_create = true
-
 }
 
 resource "google_compute_network" "untrusted" {
   project                         = var.gcp_project
-  name                            = "test-untrusted-vpc-network"
+  name                            = "untrusted-vpc"
   auto_create_subnetworks         = false
   delete_default_routes_on_create = false
 
@@ -16,7 +15,7 @@ resource "google_compute_network" "untrusted" {
 
 resource "google_compute_network" "protected" {
   project                         = var.gcp_project
-  name                            = "test-protected-vpc-network"
+  name                            = "workload-tier-vpc"
   auto_create_subnetworks         = false
   delete_default_routes_on_create = true
 }
@@ -41,7 +40,7 @@ resource "google_compute_network_peering" "protected" {
 resource "google_compute_subnetwork" "trusted" {
   project       = var.gcp_project
   name          = "test-trusted-subnet"
-  ip_cidr_range = "10.0.0.0/16"
+  ip_cidr_range = local.vpc_trusted_cidr_range
   region        = var.gcp_region
   network       = google_compute_network.trusted.name
   purpose       = "PRIVATE"
@@ -51,7 +50,7 @@ resource "google_compute_subnetwork" "trusted" {
 resource "google_compute_subnetwork" "untrusted" {
   project       = var.gcp_project
   name          = "test-untrusted-subnet"
-  ip_cidr_range = "10.255.0.0/16"
+  ip_cidr_range = local.vpc_untrusted_cidr_range
   region        = var.gcp_region
   network       = google_compute_network.untrusted.name
   purpose       = "PRIVATE"
@@ -61,9 +60,15 @@ resource "google_compute_subnetwork" "untrusted" {
 resource "google_compute_subnetwork" "protected" {
   project       = var.gcp_project
   name          = "test-protected-subnet"
-  ip_cidr_range = "192.168.0.0/24"
+  ip_cidr_range = local.vpc_protected_cidr_range
   region        = var.gcp_region
   network       = google_compute_network.protected.name
   purpose       = "PRIVATE"
   stack_type    = "IPV4_ONLY"
+}
+
+locals {
+  vpc_protected_cidr_range = "192.168.0.0/24"
+  vpc_untrusted_cidr_range = "10.255.0.0/16"
+  vpc_trusted_cidr_range   = "10.0.0.0/16"
 }

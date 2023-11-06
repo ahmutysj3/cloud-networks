@@ -8,7 +8,7 @@ resource "google_compute_address" "lan" {
 }
 
 resource "google_compute_address" "wan" {
-  name         = "fw-wan-internal-ip"
+  name         = "fw-wan-ip"
   address_type = "INTERNAL"
   purpose      = "GCE_ENDPOINT"
   ip_version   = "IPV4"
