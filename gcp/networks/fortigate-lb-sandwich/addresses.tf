@@ -16,13 +16,6 @@ resource "google_compute_address" "wan" {
   address      = cidrhost(google_compute_subnetwork.untrusted.ip_cidr_range, 2)
 }
 
-resource "google_compute_address" "external_lb" {
-  name         = "external-lb-ip"
-  address_type = "EXTERNAL"
-  ip_version   = "IPV4"
-  region       = var.gcp_region
-}
-
 resource "google_compute_address" "internal_lb" {
   name         = "internal-lb-ip"
   address_type = "INTERNAL"
@@ -31,5 +24,11 @@ resource "google_compute_address" "internal_lb" {
   purpose      = "GCE_ENDPOINT"
   region       = var.gcp_region
   address      = cidrhost(google_compute_subnetwork.trusted.ip_cidr_range, 255)
+}
 
+resource "google_compute_address" "external_lb" {
+  name         = "external-lb-ip"
+  address_type = "EXTERNAL"
+  ip_version   = "IPV4"
+  region       = var.gcp_region
 }
