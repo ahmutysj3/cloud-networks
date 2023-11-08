@@ -11,7 +11,7 @@ variable "gcp_region" {
 variable "boot_disk_size" {
   description = "Size of the boot disk in GB"
   type        = number
-  default     = 50
+  default     = 100
 }
 
 
