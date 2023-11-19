@@ -14,6 +14,33 @@ resource "google_compute_firewall" "untrusted" {
   allow {
     protocol = "all"
   }
+
+  target_tags = ["firewall"]
+}
+
+resource "google_compute_firewall" "mgmt" {
+  name      = "default-mgmt-allow-https"
+  project   = var.gcp_project
+  network   = google_compute_network.mgmt.name
+  priority  = 1000
+  direction = "INGRESS"
+
+  source_ranges = ["0.0.0.0/0"]
+
+  log_config {
+    metadata = "INCLUDE_ALL_METADATA"
+  }
+
+  allow {
+    protocol = "tcp"
+    ports    = ["443"]
+  }
+
+  allow {
+    protocol = "icmp"
+  }
+
+  target_tags = ["firewall"]
 }
 
 resource "google_compute_firewall" "trusted" {
@@ -32,6 +59,8 @@ resource "google_compute_firewall" "trusted" {
   allow {
     protocol = "all"
   }
+
+  target_tags = ["firewall"]
 }
 
 resource "google_compute_firewall" "protected" {

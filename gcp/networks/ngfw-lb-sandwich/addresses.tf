@@ -32,3 +32,19 @@ resource "google_compute_address" "external_lb" {
   ip_version   = "IPV4"
   region       = var.gcp_region
 }
+
+resource "google_compute_address" "mgmt" {
+  name         = "fw-mgmt-ip"
+  address_type = "INTERNAL"
+  purpose      = "GCE_ENDPOINT"
+  ip_version   = "IPV4"
+  subnetwork   = google_compute_subnetwork.mgmt.self_link
+  address      = cidrhost(google_compute_subnetwork.mgmt.ip_cidr_range, 2)
+}
+
+resource "google_compute_address" "fw_mgmt_external" {
+  name         = "fortigate-mgmt-address"
+  address_type = "EXTERNAL"
+  region       = var.gcp_region
+  project      = var.gcp_project
+}

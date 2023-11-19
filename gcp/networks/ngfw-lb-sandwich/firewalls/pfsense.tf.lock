@@ -22,6 +22,10 @@ resource "google_compute_instance" "pfsense" {
     nic_type   = "VIRTIO_NET"
     network_ip = google_compute_address.wan.address
     subnetwork = google_compute_subnetwork.untrusted.self_link
+
+    access_config {
+      nat_ip = google_compute_address.fw_wan_external.address
+    }
   }
 
   network_interface { # nic1: LAN Interface
@@ -44,6 +48,13 @@ resource "google_compute_instance" "pfsense" {
 
 }
 
+resource "google_compute_address" "fw_wan_external" {
+  name         = "pfsense-wan-address"
+  address_type = "EXTERNAL"
+  region       = var.gcp_region
+  project      = var.gcp_project
+
+}
 
 resource "google_compute_disk" "pfsense_boot" {
   image                     = data.google_compute_image.pfsense.self_link
@@ -60,6 +71,12 @@ data "google_compute_image" "pfsense" {
   most_recent = true
   name        = "pfsense-gcp-image"
 }
+
+/* data "google_compute_image" "pfsense" {
+  project     = var.gcp_project
+  most_recent = true
+  name        = "pfsense-partitioned-image-1"
+} */
 
 resource "google_compute_instance_group" "pfsense" {
   depends_on = [google_compute_instance.pfsense]
