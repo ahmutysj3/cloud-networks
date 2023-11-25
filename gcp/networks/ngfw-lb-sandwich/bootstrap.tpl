@@ -17,35 +17,37 @@ config system interface
 end
 config router static
     edit 1
-       set dst ${port1_gateway}/32
-       set device port1
+        set gateway ${port1_gateway} 
+        set device port1 
     next
     edit 2
         set dst ${port2_gateway}/32
         set device port2
-    edit 2
+    next
+    edit 3
+        set dst ${port1_gateway}/32
+        set device port1
+    next
+    edit 4    
        set dst ${trusted_subnet} 
        set gateway ${port2_gateway} 
        set device port2
     next
-    edit 3
+    edit 5
        set dst ${untrusted_subnet}
        set gateway ${port1_gateway}
        set device port1 
     next
-    edit 4
+    edit 6
        set dst 35.191.0.0 255.255.0.0
        set gateway ${port2_gateway} 
        set device port2
     next
-    edit 5
+    edit 7
        set dst 130.211.0.0 255.255.252.0 
        set gateway ${port2_gateway} 
-       set device port2
+       set device port2       
     next
-    edit 6 
-       set gateway ${port1_gateway} 
-       set device port1 
 end
 config system vdom-exception
     edit 1

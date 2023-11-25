@@ -100,7 +100,7 @@ resource "google_compute_image" "fortigate" {
   name         = "fortigate-74-payg"
   source_image = data.google_compute_image.fortigate.self_link
 
-  guest_os_features {
+  /*   guest_os_features {
     type = "GVNIC"
-  }
+  } */
 }
