@@ -24,7 +24,7 @@ resource "google_compute_instance" "pfsense" {
     subnetwork = google_compute_subnetwork.untrusted.self_link
 
     access_config {
-      nat_ip = google_compute_address.fw_wan_external.address
+      nat_ip = google_compute_address.wan_external.address
     }
   }
 

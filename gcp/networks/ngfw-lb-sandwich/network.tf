@@ -12,13 +12,6 @@ resource "google_compute_network" "untrusted" {
   delete_default_routes_on_create = false
 }
 
-resource "google_compute_network" "mgmt" {
-  project                         = var.gcp_project
-  name                            = "mgmt-vpc"
-  auto_create_subnetworks         = false
-  delete_default_routes_on_create = false
-}
-
 resource "google_compute_network" "protected" {
   project                         = var.gcp_project
   name                            = "workload-tier-vpc"
@@ -73,19 +66,8 @@ resource "google_compute_subnetwork" "protected" {
   stack_type    = "IPV4_ONLY"
 }
 
-resource "google_compute_subnetwork" "mgmt" {
-  project       = var.gcp_project
-  name          = "test-mgmt-subnet"
-  ip_cidr_range = local.vpc_mgmt_cidr_range
-  region        = var.gcp_region
-  network       = google_compute_network.mgmt.name
-  purpose       = "PRIVATE"
-  stack_type    = "IPV4_ONLY"
-}
-
 locals {
   vpc_protected_cidr_range = "192.168.0.0/24"
-  vpc_untrusted_cidr_range = "10.255.0.0/16"
-  vpc_trusted_cidr_range   = "10.0.0.0/16"
-  vpc_mgmt_cidr_range      = "172.16.0.0/24"
+  vpc_untrusted_cidr_range = "10.255.0.0/24"
+  vpc_trusted_cidr_range   = "10.0.0.0/24"
 }
