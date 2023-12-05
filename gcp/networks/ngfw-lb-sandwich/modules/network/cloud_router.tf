@@ -1,3 +1,4 @@
+# Creates a Cloud Router for the untrusted network
 resource "google_compute_router" "untrusted" {
   name    = "trace-untrusted-cloud-router"
   region  = var.gcp_region
@@ -5,6 +6,7 @@ resource "google_compute_router" "untrusted" {
   network = google_compute_network.untrusted.name
 }
 
+# Creates a Cloud Router for the untrusted network
 resource "google_compute_router_nat" "untrusted" {
   name                               = "${google_compute_router.untrusted.name}-nat"
   router                             = google_compute_router.untrusted.name

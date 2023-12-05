@@ -54,6 +54,17 @@ config system vdom-exception
         set object system.interface
     next
 end
+config system probe-response
+    set mode http-probe
+    set http-probe-value OK
+    set port port1
+end
+config firewall service custom
+    edit "ProbeService-8008"
+        set comment "Default Probe for GCP on port 8008"
+        set tcp-portrange 8008
+    next
+end
 config firewall policy
     edit 1
         set name "inet_access"
