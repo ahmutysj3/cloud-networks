@@ -17,9 +17,10 @@ config system interface
         set description "trusted"
         config secondaryip
             edit 0
-            set ip ${ilb_ip}/32
-            set allowaccess probe-response
+                set ip ${ilb_ip}/32
+                set allowaccess probe-response
             next
+        end
     next
     edit "probe"
         set vdom "root"
