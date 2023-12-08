@@ -62,6 +62,22 @@ config router static
        set device port2       
     next
 end
+config firewall ippool
+    edit "elb-eip"
+        set startip ${elb_ip}
+        set endip ${elb_ip}
+    next
+end
+config firewall vip
+    edit "probe-vip"
+        set extip ${elb_ip}
+        set mappedip "169.254.255.100"
+        set extintf "port1"
+        set portforward enable
+        set extport 8008
+        set mappedport 8008
+    next
+end
 config system probe-response
     set mode http-probe
     set http-probe-value OK
@@ -85,7 +101,8 @@ config firewall policy
         set nat enable
         set logtraffic all
         set utm-status enable
-        set ippool enableset poolname "elb-eip"
+        set ippool enable 
+        set poolname "elb-eip"
         set comments "default egress nat policy"
     next
     edit 2
@@ -99,19 +116,4 @@ config firewall policy
         set service "ProbeService-8008"
     next
 end
-config firewall ippool
-    edit "elb-eip"
-        set startip ${elb_ip}
-        set endip ${elb_ip}
-    next
-end
-config firewall vip
-    edit "probe-vip"
-        set extip ${elb_ip}
-        set mappedip "169.254.255.100"
-        set extintf "port1"
-        set portforward enable
-        set extport 8008
-        set mappedport 8008
-    next
-end
+
