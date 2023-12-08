@@ -19,12 +19,12 @@ resource "google_compute_address" "wan" {
 }
 
 # Creates the external firewall outside ip
-resource "google_compute_address" "wan_external" {
+/* resource "google_compute_address" "wan_external" {
   name         = "fortigate-wan-address"
   address_type = "EXTERNAL"
   region       = var.gcp_region
   project      = var.gcp_project
-}
+} */
 
 # Creates the external load balancer ip
 resource "google_compute_address" "lb_external" {

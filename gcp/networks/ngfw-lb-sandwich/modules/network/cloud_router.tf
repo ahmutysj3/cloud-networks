@@ -7,7 +7,7 @@ resource "google_compute_router" "untrusted" {
 }
 
 # Creates a Cloud Router for the untrusted network
-resource "google_compute_router_nat" "untrusted" {
+/* resource "google_compute_router_nat" "untrusted" {
   name                               = "${google_compute_router.untrusted.name}-nat"
   router                             = google_compute_router.untrusted.name
   region                             = var.gcp_region
@@ -24,4 +24,4 @@ resource "google_compute_router_nat" "untrusted" {
     filter = "ERRORS_ONLY"
   }
 }
-
+ */

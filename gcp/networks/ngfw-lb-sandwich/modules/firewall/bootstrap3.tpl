@@ -25,7 +25,7 @@ config system interface
     edit "probe"
         set vdom "root"
         set ip 169.254.255.100 255.255.255.255
-        set allowaccess probe-response
+        set allowaccess probe-response https
         set type loopback
 end
 config router static

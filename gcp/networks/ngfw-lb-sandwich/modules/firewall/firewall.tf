@@ -40,10 +40,10 @@ resource "google_compute_instance" "firewall" {
     subnetwork = var.subnets.untrusted.self_link
 
 
-    access_config {
+    /*     access_config {
       nat_ip       = google_compute_address.wan_external.address
       network_tier = "PREMIUM"
-    }
+    } */
   }
 
   network_interface { # nic1: LAN Interface
