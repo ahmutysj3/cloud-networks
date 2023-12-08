@@ -19,6 +19,7 @@ config system interface
             edit 0
             set ip ${ilb_ip}/32
             set allowaccess probe-response
+            next
     next
     edit "probe"
         set vdom "root"
