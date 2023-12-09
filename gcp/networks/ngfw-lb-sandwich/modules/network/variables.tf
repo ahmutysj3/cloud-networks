@@ -1,11 +1,12 @@
 variable "gcp_project" {
-  type    = string
-  default = "terraform-project-trace-lab"
+  type = string
 }
 
 variable "gcp_region" {
-  type    = string
-  default = "us-east1"
+  type = string
 }
 
+variable "cloud_nat_enabled" {
+  type = bool
+}
 

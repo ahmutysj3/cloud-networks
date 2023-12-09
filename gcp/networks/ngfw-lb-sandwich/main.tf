@@ -11,9 +11,10 @@ data "google_compute_image" "fortigate" {
 }
 
 module "network" {
-  source      = "./modules/network"
-  gcp_project = var.gcp_project
-  gcp_region  = var.gcp_region
+  source            = "./modules/network"
+  gcp_project       = var.gcp_project
+  gcp_region        = var.gcp_region
+  cloud_nat_enabled = var.cloud_nat_enabled
 }
 
 module "firewall" {
