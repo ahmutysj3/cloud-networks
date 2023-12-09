@@ -6,12 +6,12 @@ locals {
 
 resource "google_compute_instance" "firewall" {
   name           = local.firewall_name
-  machine_type   = "e2-standard-4"
+  machine_type   = "e2-standard-2"
   zone           = var.zones[0]
   can_ip_forward = true
   project        = var.gcp_project
   metadata = {
-    user-data = templatefile("${path.module}/bootstrap3.tpl", {
+    user-data = templatefile("${path.module}/bootstrap.tpl", {
       hostname         = local.firewall_name
       port1_ip         = google_compute_address.wan.address
       port2_ip         = google_compute_address.lan.address
@@ -38,12 +38,6 @@ resource "google_compute_instance" "firewall" {
     nic_type   = "VIRTIO_NET"
     network_ip = google_compute_address.wan.address
     subnetwork = var.subnets.untrusted.self_link
-
-
-    /*     access_config {
-      nat_ip       = google_compute_address.wan_external.address
-      network_tier = "PREMIUM"
-    } */
   }
 
   network_interface { # nic1: LAN Interface

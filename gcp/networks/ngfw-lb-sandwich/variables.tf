@@ -16,7 +16,7 @@ variable "boot_disk_size" {
 
 variable "cloud_nat_enabled" {
   type    = bool
-  default = "false"
+  default = "true"
 }
 
 

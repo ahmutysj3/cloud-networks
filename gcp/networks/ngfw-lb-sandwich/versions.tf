@@ -21,7 +21,6 @@ terraform {
     path    = "gcp/peered-network/terraform.tfstate"
   } */
 
-
   backend "local" {
     path = "./terraform.tfstate"
   }

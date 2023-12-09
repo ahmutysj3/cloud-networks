@@ -4,23 +4,29 @@ end
 config system interface
     edit port1 
         set mode static
+        set type physical
         set ip ${port1_ip}/32
-        set allowaccess ping https ssh http fgfm
+        set allowaccess ping
         set description "untrusted"
     next
     edit port2 
         set mode static
+        set type physical
         set ip ${port2_ip}/32
-        set allowaccess ping https ssh http fgfm
+        set allowaccess ping
         set description "trusted"
+        config secondaryip
+            edit 0
+                set ip ${ilb_ip}/32
+                set allowaccess probe-response
+            next
+        end
     next
-    edit "loopback"
+    edit "probe"
         set vdom "root"
-        set ip 192.168.199.1 255.255.255.255
-        set allowaccess ping probe-response
+        set ip 169.254.255.100 255.255.255.255
+        set allowaccess probe-response
         set type loopback
-        set role lan
-    next
 end
 config router static
     edit 1
@@ -56,23 +62,33 @@ config router static
        set device port2       
     next
 end
-config system vdom-exception
-    edit 1
-        set object system.interface
+config firewall ippool
+    edit "elb-eip"
+        set startip ${elb_ip}
+        set endip ${elb_ip}
     next
 end
 config firewall vip
-    edit "lb-probe"
-        set extip ${fgt_public_ip}
+    edit "probe-vip"
+        set extip ${elb_ip}
+        set mappedip "169.254.255.100"
         set extintf "port1"
         set portforward enable
-        set mappedip "192.168.199.1"
         set extport 8008
         set mappedport 8008
     next
+    edit "mgmt-vip"
+        set extip ${elb_ip}
+        set mappedip "169.254.255.100"
+        set extintf "port1"
+        set portforward enable
+        set extport 443
+        set mappedport 443
+    next
 end
 config system probe-response
-set mode http-probe
+    set mode http-probe
+    set http-probe-value OK
 end
 config firewall service custom
     edit "ProbeService-8008"
@@ -91,18 +107,31 @@ config firewall policy
         set schedule "always"
         set service "ALL"
         set nat enable
+        set logtraffic all
+        set utm-status enable
+        set ippool enable 
+        set poolname "elb-eip"
         set comments "default egress nat policy"
     next
     edit 2
-        set name "DefaultGCPProbePolicy"
+        set name "allow-probe-vip"
         set srcintf "port1"
-        set dstintf "loopback"
-        set srcaddr "all"
-        set dstaddr "lb-probe"
+        set dstintf "probe"
         set action accept
+        set srcaddr "all"
+        set dstaddr "probe-vip"
         set schedule "always"
         set service "ProbeService-8008"
-        set nat enable
-        set comments "Default Policy to allow GCP loadbalancer probe traffics on port 8008"
+    next
+    edit 3
+        set name "allow-mgmt-vip"
+        set srcintf "port1"
+        set dstintf "probe"
+        set action accept
+        set srcaddr "all"
+        set dstaddr "mgmt-vip"
+        set schedule "always"
+        set service "https"
     next
 end
+
