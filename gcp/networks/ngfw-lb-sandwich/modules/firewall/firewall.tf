@@ -11,7 +11,7 @@ resource "google_compute_instance" "firewall" {
   can_ip_forward = true
   project        = var.gcp_project
   metadata = {
-    user-data = templatefile("${path.module}/bootstrap.tpl", {
+    user-data = templatefile("${path.module}/bootstrap2.tpl", {
       hostname         = local.firewall_name
       port1_ip         = google_compute_address.wan.address
       port2_ip         = google_compute_address.lan.address
@@ -74,11 +74,11 @@ resource "google_compute_disk" "firewall_boot" {
 
 
 
-/* resource "google_compute_instance_group" "firewall" {
+resource "google_compute_instance_group" "firewall" {
   name      = "firewall-instancegroup"
   zone      = var.zones[0]
   network   = var.vpcs.untrusted.self_link
   project   = var.gcp_project
   instances = [google_compute_instance.firewall.self_link]
-} */
+}
 
