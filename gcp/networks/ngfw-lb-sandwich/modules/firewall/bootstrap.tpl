@@ -131,7 +131,7 @@ config firewall policy
         set srcaddr "all"
         set dstaddr "mgmt-vip"
         set schedule "always"
-        set service "https"
+        set service "HTTPS"
     next
 end
 
