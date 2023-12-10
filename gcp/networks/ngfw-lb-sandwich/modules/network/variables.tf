@@ -5,8 +5,3 @@ variable "gcp_project" {
 variable "gcp_region" {
   type = string
 }
-
-variable "cloud_nat_enabled" {
-  type = bool
-}
-

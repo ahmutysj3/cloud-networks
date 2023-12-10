@@ -14,9 +14,8 @@ variable "boot_disk_size" {
   default     = 100
 }
 
-variable "cloud_nat_enabled" {
-  type    = bool
-  default = "true"
+variable "hc_port" {
+  type    = number
+  default = 8008
+
 }
-
-

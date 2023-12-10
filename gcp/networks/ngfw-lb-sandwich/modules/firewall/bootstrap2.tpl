@@ -22,11 +22,19 @@ config system interface
             next
         end
     next
+    edit port3
+        set mode static
+        set type physical
+        set ip ${port3_ip}/32
+        set allowaccess ping https fgfm ssh
+        set description "mgmt"
+    next
     edit "probe"
         set vdom "root"
         set ip 169.254.255.100 255.255.255.255
-        set allowaccess probe-response https
+        set allowaccess probe-response
         set type loopback
+    next
 end
 config router static
     edit 1
@@ -61,6 +69,25 @@ config router static
        set gateway ${port2_gateway} 
        set device port2       
     next
+    edit 8
+        set dst ${port3_gateway}/32
+        set device port3
+    next
+    edit 9
+        set dst ${mgmt_subnet}
+        set gateway ${port3_gateway}
+        set device port3
+    next
+    edit 10
+        set dst 35.191.0.0 255.255.0.0
+        set gateway ${port3_gateway}
+        set device port3
+    next
+    edit 11
+        set 130.211.0.0 255.255.252.0
+        set gateway ${port3_gateway}
+        set device port3
+    next
 end
 config firewall ippool
     edit "elb-eip"
@@ -74,26 +101,19 @@ config firewall vip
         set mappedip "169.254.255.100"
         set extintf "port1"
         set portforward enable
-        set extport 443
-        set mappedport 443
-    next
-    edit "mgmt-vip"
-        set extip ${elb_ip}
-        set mappedip "169.254.255.100"
-        set extintf "port1"
-        set portforward enable
-        set extport 443
-        set mappedport 443
+        set extport ${hc_port}
+        set mappedport ${hc_port}
     next
 end
 config system probe-response
     set mode http-probe
     set http-probe-value OK
+    set port ${hc_port}
 end
 config firewall service custom
-    edit "ProbeService-8008"
-        set comment "Default Probe for GCP on port 8008"
-        set tcp-portrange 8008
+    edit "ProbeService-${hc_port}"
+        set comment "Default Probe for GCP on port ${hc_port}"
+        set tcp-portrange ${hc_port}
     next
 end
 config firewall policy
@@ -121,17 +141,7 @@ config firewall policy
         set srcaddr "all"
         set dstaddr "probe-vip"
         set schedule "always"
-        set service "ProbeService-8008"
-    next
-    edit 3
-        set name "allow-mgmt-vip"
-        set srcintf "port1"
-        set dstintf "probe"
-        set action accept
-        set srcaddr "all"
-        set dstaddr "mgmt-vip"
-        set schedule "always"
-        set service "HTTPS"
+        set service "ProbeService-${hc_port}"
     next
 end
 

@@ -6,7 +6,7 @@ locals {
 
 resource "google_compute_instance" "firewall" {
   name           = local.firewall_name
-  machine_type   = "e2-standard-2"
+  machine_type   = "e2-standard-4"
   zone           = var.zones[0]
   can_ip_forward = true
   project        = var.gcp_project
@@ -15,12 +15,16 @@ resource "google_compute_instance" "firewall" {
       hostname         = local.firewall_name
       port1_ip         = google_compute_address.wan.address
       port2_ip         = google_compute_address.lan.address
+      port3_ip         = google_compute_address.mgmt_internal.address
       port1_gateway    = var.subnets.untrusted.gateway
       port2_gateway    = var.subnets.trusted.gateway
+      port3_gateway    = var.subnets.mgmt.gateway
       trusted_subnet   = var.subnets.trusted.cidr
       untrusted_subnet = var.subnets.untrusted.cidr
+      mgmt_subnet      = var.subnets.mgmt.cidr
       elb_ip           = google_compute_address.lb_external.address
       ilb_ip           = google_compute_address.lb_internal.address
+      hc_port          = var.hc_port
     })
     ssh-keys = "trace:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCjI2kHRd2kAMmb8wbVmu66q/MfHhGiop6tZ1s7e9iJ+TzOK0S92cfIxrBTu08J6MhTg/CUfZwHe6WKB3sA5A2tWOLLpYdkvvwAojOh0z7hD9l8UZ57agRu0aaVfOofQwhQBWZFiOWIOUWmLAtHCxejV24ICJt/+pk1D+0MhqulKccC1Si7RZgzBqGzeH64mwgTbbl/QD3Hf2NcT5PvUZL9yWJDonoh1CZ5j4SfU/YJBBQXXsI3LJkH5gGCz2+CY+ZhZbtnCLrDMsgzK9uUSamdZ7bIiBi0LAM8P9O+QK75kBwnyRvQly92sIP50uxMGAfI8D/MfmHoP9pcTmHFbWcv trace@trace-laptop"
   }
@@ -44,6 +48,16 @@ resource "google_compute_instance" "firewall" {
     nic_type   = "VIRTIO_NET"
     network_ip = google_compute_address.lan.address
     subnetwork = var.subnets.trusted.self_link
+  }
+
+  network_interface { # nic2: MGMT Interface
+    nic_type   = "VIRTIO_NET"
+    network_ip = google_compute_address.mgmt_internal.address
+    subnetwork = var.subnets.mgmt.self_link
+
+    access_config {
+      nat_ip = google_compute_address.mgmt_external.address
+    }
   }
 
   scheduling { # Discounted Rates
@@ -74,11 +88,11 @@ resource "google_compute_disk" "firewall_boot" {
 
 
 
-resource "google_compute_instance_group" "firewall" {
+/* resource "google_compute_instance_group" "firewall" {
   name      = "firewall-instancegroup"
   zone      = var.zones[0]
   network   = var.vpcs.untrusted.self_link
   project   = var.gcp_project
   instances = [google_compute_instance.firewall.self_link]
-}
+} */
 

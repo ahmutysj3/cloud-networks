@@ -18,6 +18,12 @@ output "subnets" {
       self_link = google_compute_subnetwork.protected.self_link
       gateway   = google_compute_subnetwork.protected.gateway_address
     }
+    mgmt = {
+      name      = google_compute_subnetwork.mgmt.name
+      cidr      = google_compute_subnetwork.mgmt.ip_cidr_range
+      self_link = google_compute_subnetwork.mgmt.self_link
+      gateway   = google_compute_subnetwork.mgmt.gateway_address
+    }
   }
 }
 
@@ -34,6 +40,10 @@ output "vpcs" {
     protected = {
       name      = google_compute_network.protected.name
       self_link = google_compute_network.protected.self_link
+    }
+    mgmt = {
+      name      = google_compute_network.mgmt.name
+      self_link = google_compute_network.mgmt.self_link
     }
   }
 

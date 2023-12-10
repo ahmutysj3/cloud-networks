@@ -42,3 +42,6 @@ variable "image" {
   type = string
 }
 
+variable "hc_port" {
+  type = number
+}

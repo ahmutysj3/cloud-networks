@@ -14,6 +14,13 @@ resource "google_compute_network" "untrusted" {
   delete_default_routes_on_create = false
 }
 
+resource "google_compute_network" "mgmt" {
+  project                         = var.gcp_project
+  name                            = "mgmt-vpc"
+  auto_create_subnetworks         = false
+  delete_default_routes_on_create = false
+}
+
 # Create protected VPC network
 resource "google_compute_network" "protected" {
   project                         = var.gcp_project
@@ -41,15 +48,6 @@ resource "google_compute_network_peering" "protected" {
   export_custom_routes = false
 }
 
-# Create default route for protected VPC network going to fortigate
-/* resource "google_compute_route" "protected_vpc_default" {
-  name              = "protected-vpc-default-route"
-  network           = google_compute_network.protected.self_link
-  dest_range        = "0.0.0.0/0"
-  priority          = 100
-  next_hop_instance = google_compute_instance.firewall.self_link
-}
- */
 # Create trusted subnet
 resource "google_compute_subnetwork" "trusted" {
   project       = var.gcp_project
@@ -73,6 +71,17 @@ resource "google_compute_subnetwork" "untrusted" {
   stack_type               = "IPV4_ONLY"
 }
 
+# Create mgmt subnet
+resource "google_compute_subnetwork" "mgmt" {
+  project       = var.gcp_project
+  name          = "test-mgmt-subnet"
+  ip_cidr_range = local.vpc_mgmt_cidr_range
+  region        = var.gcp_region
+  network       = google_compute_network.mgmt.name
+  purpose       = "PRIVATE"
+  stack_type    = "IPV4_ONLY"
+}
+
 # Create protected subnet
 resource "google_compute_subnetwork" "protected" {
   project       = var.gcp_project
@@ -89,4 +98,5 @@ locals {
   vpc_protected_cidr_range = "192.168.0.0/24"
   vpc_untrusted_cidr_range = "10.255.0.0/24"
   vpc_trusted_cidr_range   = "10.0.0.0/24"
+  vpc_mgmt_cidr_range      = "10.100.100.0/24"
 }

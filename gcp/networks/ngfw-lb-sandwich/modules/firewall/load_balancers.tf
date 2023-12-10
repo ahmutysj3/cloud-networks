@@ -1,4 +1,4 @@
-/* 
+
 
 #### External Load Balancer (using target pool) ###
 resource "google_compute_forwarding_rule" "elb" {
@@ -30,10 +30,10 @@ resource "google_compute_http_health_check" "elb" {
   unhealthy_threshold = 3
   port                = "8008"
 }
- */
+
 
 ## Alternate External LB
-resource "google_compute_forwarding_rule" "firewall" {
+/* resource "google_compute_forwarding_rule" "firewall" {
   name                  = "firewall-lb-fwd-rule"
   region                = var.gcp_region
   ip_address            = google_compute_address.lb_external.address
@@ -69,7 +69,7 @@ resource "google_compute_region_backend_service" "firewall" {
   health_checks = [
     google_compute_region_health_check.firewall.self_link
   ]
-}
+} */
 
 
 

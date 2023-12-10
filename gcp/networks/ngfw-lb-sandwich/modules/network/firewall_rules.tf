@@ -64,3 +64,26 @@ resource "google_compute_firewall" "protected" {
     protocol = "all"
   }
 }
+
+// This resource represents a firewall rule for mgmt networks
+resource "google_compute_firewall" "mgmt" {
+  name      = "allow-all-from-trusted-to-mgmt" // Name of the firewall rule
+  project   = var.gcp_project                  // GCP project ID
+  network   = google_compute_network.mgmt.name // Network name
+  priority  = 1000                             // Priority of the rule
+  direction = "INGRESS"                        // Direction of traffic
+
+  source_ranges = ["0.0.0.0/0"] // Source IP ranges
+
+  // Log configuration
+  log_config {
+    metadata = "INCLUDE_ALL_METADATA" // Include all metadata in logs
+  }
+
+  // Allow all protocols
+  allow {
+    protocol = "tcp"
+    ports    = ["443"]
+  }
+
+}
