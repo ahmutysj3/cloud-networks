@@ -17,5 +17,10 @@ variable "boot_disk_size" {
 variable "hc_port" {
   type    = number
   default = 8008
+}
+
+variable "web_subnets" {
+  type    = list(string)
+  default = ["tracecloud", "birdperson", "squanchy"]
 
 }

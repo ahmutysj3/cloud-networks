@@ -1,5 +1,5 @@
 # Creates a Cloud Router for the mgmt network
-resource "google_compute_router" "mgmt" {
+/* resource "google_compute_router" "mgmt" {
   name    = "trace-mgmt-cloud-router"
   region  = var.gcp_region
   project = var.gcp_project
@@ -23,5 +23,5 @@ resource "google_compute_router_nat" "mgmt" {
     enable = true
     filter = "ERRORS_ONLY"
   }
-}
+} */
 

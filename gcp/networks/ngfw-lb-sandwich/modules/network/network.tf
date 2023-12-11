@@ -93,6 +93,17 @@ resource "google_compute_subnetwork" "protected" {
   stack_type    = "IPV4_ONLY"
 }
 
+resource "google_compute_subnetwork" "web" {
+  count         = length(var.web_subnets)
+  project       = var.gcp_project
+  name          = "web-subnet-${count.index}"
+  ip_cidr_range = "10.0.${(count.index + 1)}.0/24"
+  region        = var.gcp_region
+  purpose       = "PRIVATE"
+  stack_type    = "IPV4_ONLY"
+  network       = google_compute_network.protected.name
+}
+
 # Define local variables
 locals {
   vpc_protected_cidr_range = "192.168.0.0/24"

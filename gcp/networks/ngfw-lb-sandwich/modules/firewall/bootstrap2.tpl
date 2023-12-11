@@ -32,7 +32,7 @@ config system interface
     edit "probe"
         set vdom "root"
         set ip 169.254.255.100 255.255.255.255
-        set allowaccess probe-response
+        set allowaccess probe-response https
         set type loopback
     next
 end
@@ -84,7 +84,7 @@ config router static
         set device port3
     next
     edit 11
-        set 130.211.0.0 255.255.252.0
+        set dst 130.211.0.0 255.255.252.0
         set gateway ${port3_gateway}
         set device port3
     next
@@ -104,6 +104,13 @@ config firewall vip
         set extport ${hc_port}
         set mappedport ${hc_port}
     next
+    edit "mgmt-vip"
+        set extip ${elb_ip}
+        set mappedip "169.254.255.100"
+        set extintf "port1"
+        set portforward enable
+        set extport 443
+        set mappedport 443
 end
 config system probe-response
     set mode http-probe
@@ -142,6 +149,16 @@ config firewall policy
         set dstaddr "probe-vip"
         set schedule "always"
         set service "ProbeService-${hc_port}"
+    next
+    edit 3
+        set name "allow-mgmt-vip"
+        set srcintf "port1"
+        set dstintf "probe"
+        set action accept
+        set srcaddr "all"
+        set dstaddr "mgmt-vip"
+        set schedule "always"
+        set service "HTTPS"
     next
 end
 

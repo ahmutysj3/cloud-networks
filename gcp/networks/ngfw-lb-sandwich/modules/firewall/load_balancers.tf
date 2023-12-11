@@ -28,7 +28,7 @@ resource "google_compute_http_health_check" "elb" {
   check_interval_sec  = 3
   timeout_sec         = 2
   unhealthy_threshold = 3
-  port                = "8008"
+  port                = var.hc_port
 }
 
 
@@ -50,7 +50,7 @@ resource "google_compute_region_health_check" "firewall" {
   unhealthy_threshold = 3
 
   tcp_health_check {
-    port = "8008"
+    port = var.hc_port
   }
 }
 

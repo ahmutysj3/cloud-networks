@@ -14,6 +14,7 @@ module "network" {
   source      = "./modules/network"
   gcp_project = var.gcp_project
   gcp_region  = var.gcp_region
+  web_subnets = var.web_subnets
 }
 
 module "firewall" {
@@ -28,6 +29,14 @@ module "firewall" {
   zones                   = data.google_compute_zones.available.names
   image                   = data.google_compute_image.fortigate.self_link
   hc_port                 = var.hc_port
+}
+
+module "instances" {
+  depends_on  = [module.firewall]
+  source      = "./modules/instances"
+  gcp_project = var.gcp_project
+  gcp_region  = var.gcp_region
+  web_subnets = var.web_subnets
 }
 
 output "subnets" {

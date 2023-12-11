@@ -85,5 +85,8 @@ resource "google_compute_firewall" "mgmt" {
     protocol = "tcp"
     ports    = ["443"]
   }
+  allow {
+    protocol = "icmp"
+  }
 
 }
