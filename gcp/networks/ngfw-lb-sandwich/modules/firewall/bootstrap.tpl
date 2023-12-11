@@ -25,8 +25,9 @@ config system interface
     edit "probe"
         set vdom "root"
         set ip 169.254.255.100 255.255.255.255
-        set allowaccess probe-response
+        set allowaccess probe-response https
         set type loopback
+    next
 end
 config router static
     edit 1
@@ -61,6 +62,11 @@ config router static
        set gateway ${port2_gateway} 
        set device port2       
     next
+    edit 8
+        set dst ${protected_subnet}
+        set gateway ${port2_gateway}
+        set device port2
+    next
 end
 config firewall ippool
     edit "elb-eip"
@@ -74,8 +80,8 @@ config firewall vip
         set mappedip "169.254.255.100"
         set extintf "port1"
         set portforward enable
-        set extport 8008
-        set mappedport 8008
+        set extport ${hc_port}
+        set mappedport ${hc_port}
     next
     edit "mgmt-vip"
         set extip ${elb_ip}
@@ -84,16 +90,16 @@ config firewall vip
         set portforward enable
         set extport 443
         set mappedport 443
-    next
 end
 config system probe-response
     set mode http-probe
     set http-probe-value OK
+    set port ${hc_port}
 end
 config firewall service custom
-    edit "ProbeService-8008"
-        set comment "Default Probe for GCP on port 8008"
-        set tcp-portrange 8008
+    edit "ProbeService-${hc_port}"
+        set comment "Default Probe for GCP on port ${hc_port}"
+        set tcp-portrange ${hc_port}
     next
 end
 config firewall policy
@@ -121,7 +127,7 @@ config firewall policy
         set srcaddr "all"
         set dstaddr "probe-vip"
         set schedule "always"
-        set service "ProbeService-8008"
+        set service "ProbeService-${hc_port}"
     next
     edit 3
         set name "allow-mgmt-vip"

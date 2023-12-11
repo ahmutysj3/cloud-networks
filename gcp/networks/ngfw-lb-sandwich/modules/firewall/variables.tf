@@ -15,19 +15,11 @@ variable "boot_disk_size" {
 }
 
 variable "subnets" {
-  type = map(object({
-    name      = string
-    cidr      = string
-    self_link = string
-    gateway   = string
-  }))
+  type = map(any)
 }
 
 variable "vpcs" {
-  type = map(object({
-    name      = string
-    self_link = string
-  }))
+  type = map(any)
 }
 
 variable "default_service_account" {
@@ -44,4 +36,8 @@ variable "image" {
 
 variable "hc_port" {
   type = number
+}
+
+variable "vpc_protected_cidr_range" {
+  type = string
 }

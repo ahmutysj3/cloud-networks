@@ -1,94 +1,34 @@
-# Create trusted VPC network
-resource "google_compute_network" "trusted" {
+resource "google_compute_network" "this" {
+  for_each                        = local.vpcs
   project                         = var.gcp_project
-  name                            = "trusted-vpc"
+  name                            = each.key
   auto_create_subnetworks         = false
-  delete_default_routes_on_create = true
+  delete_default_routes_on_create = each.key == "untrusted" ? false : true
 }
 
-# Create untrusted VPC network
-resource "google_compute_network" "untrusted" {
-  project                         = var.gcp_project
-  name                            = "untrusted-vpc"
-  auto_create_subnetworks         = false
-  delete_default_routes_on_create = false
+locals {
+  vpc_peering = {
+    trusted   = google_compute_network.this["protected"],
+    protected = google_compute_network.this["trusted"]
+  }
 }
 
-resource "google_compute_network" "mgmt" {
-  project                         = var.gcp_project
-  name                            = "mgmt-vpc"
-  auto_create_subnetworks         = false
-  delete_default_routes_on_create = false
+resource "google_compute_network_peering" "this" {
+  for_each             = local.vpc_peering
+  name                 = "${each.key}-to-${each.value.name}-peering"
+  network              = google_compute_network.this[each.key].self_link
+  peer_network         = each.value.self_link
+  import_custom_routes = each.key == "protected" ? true : false
+  export_custom_routes = each.key == "trusted" ? true : false
 }
 
-# Create protected VPC network
-resource "google_compute_network" "protected" {
-  project                         = var.gcp_project
-  name                            = "protected-vpc"
-  auto_create_subnetworks         = false
-  delete_default_routes_on_create = true
-}
-
-# Create peering between trusted and protected VPC networks
-resource "google_compute_network_peering" "trusted" {
-  name                 = "trusted-to-protected-peering"
-  network              = google_compute_network.trusted.self_link
-  peer_network         = google_compute_network.protected.self_link
-  import_custom_routes = false
-  export_custom_routes = true
-}
-
-# Create peering between protected and trusted VPC networks
-resource "google_compute_network_peering" "protected" {
-  depends_on           = [google_compute_network_peering.trusted]
-  name                 = "protected-to-trusted-peering"
-  network              = google_compute_network.protected.self_link
-  peer_network         = google_compute_network.trusted.self_link
-  import_custom_routes = true
-  export_custom_routes = false
-}
-
-# Create trusted subnet
-resource "google_compute_subnetwork" "trusted" {
+resource "google_compute_subnetwork" "hub" {
+  for_each      = { for k, v in local.vpcs : k => v if k != "protected" }
   project       = var.gcp_project
-  name          = "test-trusted-subnet"
-  ip_cidr_range = local.vpc_trusted_cidr_range
+  name          = "${each.key}-subnet"
+  ip_cidr_range = each.value
   region        = var.gcp_region
-  network       = google_compute_network.trusted.name
-  purpose       = "PRIVATE"
-  stack_type    = "IPV4_ONLY"
-}
-
-# Create untrusted subnet
-resource "google_compute_subnetwork" "untrusted" {
-  project                  = var.gcp_project
-  name                     = "test-untrusted-subnet"
-  ip_cidr_range            = local.vpc_untrusted_cidr_range
-  region                   = var.gcp_region
-  network                  = google_compute_network.untrusted.name
-  private_ip_google_access = true
-  purpose                  = "PRIVATE"
-  stack_type               = "IPV4_ONLY"
-}
-
-# Create mgmt subnet
-resource "google_compute_subnetwork" "mgmt" {
-  project       = var.gcp_project
-  name          = "test-mgmt-subnet"
-  ip_cidr_range = local.vpc_mgmt_cidr_range
-  region        = var.gcp_region
-  network       = google_compute_network.mgmt.name
-  purpose       = "PRIVATE"
-  stack_type    = "IPV4_ONLY"
-}
-
-# Create protected subnet
-resource "google_compute_subnetwork" "protected" {
-  project       = var.gcp_project
-  name          = "test-protected-subnet"
-  ip_cidr_range = local.vpc_protected_cidr_range
-  region        = var.gcp_region
-  network       = google_compute_network.protected.name
+  network       = google_compute_network.this[each.key].name
   purpose       = "PRIVATE"
   stack_type    = "IPV4_ONLY"
 }
@@ -97,17 +37,17 @@ resource "google_compute_subnetwork" "web" {
   count         = length(var.web_subnets)
   project       = var.gcp_project
   name          = "web-subnet-${count.index}"
-  ip_cidr_range = "10.0.${(count.index + 1)}.0/24"
+  ip_cidr_range = cidrsubnet(local.vpcs.protected, 8, count.index)
   region        = var.gcp_region
   purpose       = "PRIVATE"
   stack_type    = "IPV4_ONLY"
-  network       = google_compute_network.protected.name
+  network       = google_compute_network.this["protected"].name
 }
 
-# Define local variables
 locals {
-  vpc_protected_cidr_range = "192.168.0.0/24"
-  vpc_untrusted_cidr_range = "10.255.0.0/24"
-  vpc_trusted_cidr_range   = "10.0.0.0/24"
-  vpc_mgmt_cidr_range      = "10.100.100.0/24"
+  vpcs = {
+    protected = "192.168.0.0/16"
+    untrusted = "10.255.0.0/24"
+    trusted   = "10.0.0.0/24"
+  }
 }
