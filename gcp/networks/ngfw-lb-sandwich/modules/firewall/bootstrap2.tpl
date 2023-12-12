@@ -6,15 +6,16 @@ config system interface
         set mode static
         set type physical
         set ip ${port1_ip}/32
-        set allowaccess ping
+        set allowaccess ping probe-response
         set description "untrusted"
     next
     edit port2 
         set mode static
         set type physical
         set ip ${port2_ip}/32
-        set allowaccess ping
+        set allowaccess ping https ssh http fgfm probe-response
         set description "trusted"
+        set secondary-IP enable
         config secondaryip
             edit 0
                 set ip ${ilb_ip}/32
@@ -27,6 +28,7 @@ config system interface
         set ip 169.254.255.100 255.255.255.255
         set allowaccess probe-response https
         set type loopback
+        set role lan
     next
 end
 config router static
@@ -68,10 +70,9 @@ config router static
         set device port2
     next
 end
-config firewall ippool
-    edit "elb-eip"
-        set startip ${elb_ip}
-        set endip ${elb_ip}
+config system vdom-exception
+    edit 1
+        set object system.interface
     next
 end
 config firewall vip
@@ -83,18 +84,9 @@ config firewall vip
         set extport ${hc_port}
         set mappedport ${hc_port}
     next
-    edit "mgmt-vip"
-        set extip ${elb_ip}
-        set mappedip "169.254.255.100"
-        set extintf "port1"
-        set portforward enable
-        set extport 443
-        set mappedport 443
 end
 config system probe-response
     set mode http-probe
-    set http-probe-value OK
-    set port ${hc_port}
 end
 config firewall service custom
     edit "ProbeService-${hc_port}"
@@ -115,8 +107,6 @@ config firewall policy
         set nat enable
         set logtraffic all
         set utm-status enable
-        set ippool enable 
-        set poolname "elb-eip"
         set comments "default egress nat policy"
     next
     edit 2
@@ -127,27 +117,8 @@ config firewall policy
         set srcaddr "all"
         set dstaddr "probe-vip"
         set schedule "always"
+        set nat enable
         set service "ProbeService-${hc_port}"
-    next
-    edit 3
-        set name "allow-mgmt-vip"
-        set srcintf "port1"
-        set dstintf "probe"
-        set action accept
-        set srcaddr "all"
-        set dstaddr "mgmt-vip"
-        set schedule "always"
-        set service "HTTPS"
-    next
-    edit 4
-        set name "allow-ilb-probe"
-        set srcintf "port2"
-        set dstintf "port2"
-        set action accept
-        set srcaddr "all"
-        set dstaddr "all"
-        set schedule "always"
-        set service "ALL"
     next
 end
 

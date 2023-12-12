@@ -5,12 +5,12 @@ resource "google_compute_address" "lan" {
   purpose      = "GCE_ENDPOINT"
   ip_version   = "IPV4"
   subnetwork   = var.subnets.trusted-subnet.self_link
-  address      = cidrhost(var.subnets.trusted-subnet.ip_cidr_range, 2)
+  address      = cidrhost(var.subnets.trusted-subnet.ip_cidr_range, 100)
 }
 
 # Creates the firewall outside ip
 resource "google_compute_address" "wan" {
-  name         = "fw-wan-ip"
+  name         = "fw-internal-wan-ip"
   address_type = "INTERNAL"
   purpose      = "GCE_ENDPOINT"
   ip_version   = "IPV4"
@@ -19,8 +19,8 @@ resource "google_compute_address" "wan" {
 }
 
 # Creates the external load balancer ip
-resource "google_compute_address" "lb_external" {
-  name         = "external-lb-ip"
+resource "google_compute_address" "wan_external" {
+  name         = "external-wan-ip"
   address_type = "EXTERNAL"
   region       = var.gcp_region
   project      = var.gcp_project
@@ -33,5 +33,13 @@ resource "google_compute_address" "lb_internal" {
   region       = var.gcp_region
   project      = var.gcp_project
   subnetwork   = var.subnets.trusted-subnet.self_link
-  address      = cidrhost(var.subnets.trusted-subnet.ip_cidr_range, 3)
+  address      = cidrhost(var.subnets.trusted-subnet.ip_cidr_range, 2)
+}
+
+resource "google_compute_address" "lb_external" {
+  name         = "external-lb-ip"
+  address_type = "EXTERNAL"
+  region       = var.gcp_region
+  project      = var.gcp_project
+
 }

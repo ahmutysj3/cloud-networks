@@ -7,7 +7,7 @@ resource "google_compute_route" "default" {
   project     = var.gcp_project
   network     = var.vpcs["trusted"].name
   dest_range  = "0.0.0.0/0"
-  next_hop_ip = google_compute_instance.firewall.network_interface[1].network_ip
+  next_hop_ip = google_compute_forwarding_rule.ilb.ip_address
 }
 
 
@@ -18,7 +18,8 @@ resource "google_compute_instance" "firewall" {
   can_ip_forward = true
   project        = var.gcp_project
   metadata = {
-    user-data = templatefile("${path.module}/bootstrap.tpl", {
+    fortigate_user_password = "trace"
+    user-data = templatefile("${path.module}/bootstrap2.tpl", {
       hostname         = local.firewall_name
       port1_ip         = google_compute_address.wan.address
       port2_ip         = google_compute_address.lan.address
@@ -47,6 +48,10 @@ resource "google_compute_instance" "firewall" {
     nic_type   = "VIRTIO_NET"
     network_ip = google_compute_address.wan.address
     subnetwork = var.subnets.untrusted-subnet.self_link
+
+    access_config {
+      nat_ip = google_compute_address.wan_external.address
+    }
   }
 
   network_interface { # nic1: LAN Interface
