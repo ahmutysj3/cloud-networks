@@ -3,11 +3,11 @@ locals {
 }
 
 resource "google_compute_route" "default" {
-  name        = "default-route-to-fw"
-  project     = var.gcp_project
-  network     = var.vpcs["trusted"].name
-  dest_range  = "0.0.0.0/0"
-  next_hop_ip = google_compute_forwarding_rule.ilb.ip_address
+  name         = "default-route-to-fw"
+  project      = var.gcp_project
+  network      = var.vpcs["trusted"].name
+  dest_range   = "0.0.0.0/0"
+  next_hop_ilb = google_compute_forwarding_rule.ilb.ip_address
 }
 
 
