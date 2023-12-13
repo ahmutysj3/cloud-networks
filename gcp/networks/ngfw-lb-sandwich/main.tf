@@ -24,7 +24,6 @@ module "instances" {
   gcp_project = var.gcp_project
   gcp_region  = var.gcp_region
   web_subnets = var.web_subnets
-  zones       = data.google_compute_zones.available.names
   vpcs        = module.network.vpcs
 }
 

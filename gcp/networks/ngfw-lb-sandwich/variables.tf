@@ -29,14 +29,6 @@ variable "pfsense_name" {
   default = "pfsense-active-fw"
 }
 
-variable "wan_nic_ip" {
-  type = string
-}
-
-variable "lan_nic_ip" {
-  type = string
-}
-
 variable "pfsense_machine_image" {
   type    = string
   default = "projects/terraform-project-trace-lab/global/machineImages/pfsense-full-configure-machine-image"

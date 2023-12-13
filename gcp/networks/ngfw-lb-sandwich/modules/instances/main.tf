@@ -4,7 +4,7 @@ resource "google_compute_instance" "this" {
   project      = var.gcp_project
   provider     = google
   machine_type = "e2-small"
-  zone         = var.zones[0]
+  zone         = data.google_compute_zones.available.names[0]
 
   boot_disk {
     initialize_params {
@@ -55,4 +55,8 @@ data "google_compute_subnetwork" "this" {
 
 output "web_subnets" {
   value = data.google_compute_subnetwork.this
+}
+
+data "google_compute_zones" "available" {
+  region = var.gcp_region
 }

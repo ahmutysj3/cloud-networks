@@ -10,11 +10,6 @@ variable "web_subnets" {
   type = list(string)
 }
 
-variable "zones" {
-  type = list(string)
-
-}
-
 variable "vpcs" {
   type = map(object({
     name      = string

@@ -21,3 +21,11 @@ variable "wan_nic_ip" {
 variable "lan_nic_ip" {
   type = string
 }
+
+variable "wan_subnet" {
+  type = string
+}
+
+variable "lan_subnet" {
+  type = string
+}
