@@ -25,3 +25,7 @@ variable "pfsense_machine_image" {
 variable "pfsense_name" {
   type = string
 }
+
+variable "ilb_next_hop" {
+  type = bool
+}

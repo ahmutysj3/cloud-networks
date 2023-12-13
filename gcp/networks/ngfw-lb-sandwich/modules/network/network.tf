@@ -39,6 +39,54 @@ resource "google_compute_instance_from_machine_image" "pfsense" {
   source_machine_image = "projects/${var.gcp_project}/global/machineImages/${var.pfsense_machine_image}"
 }
 
+resource "google_compute_forwarding_rule" "this" {
+  count                 = var.ilb_next_hop ? 1 : 0
+  provider              = google-beta
+  name                  = "fw-ilb-forwarding-rule"
+  region                = var.gcp_region
+  ip_protocol           = "L3_DEFAULT"
+  load_balancing_scheme = "INTERNAL"
+  all_ports             = true
+  backend_service       = google_compute_region_backend_service.this[0].self_link
+  network               = google_compute_network.this["trusted"].self_link
+  subnetwork            = google_compute_subnetwork.hub["trusted"].self_link
+  ip_address            = cidrhost(google_compute_subnetwork.hub["trusted"].ip_cidr_range, 252)
+}
+
+resource "google_compute_region_health_check" "this" {
+  count               = var.ilb_next_hop ? 1 : 0
+  name                = "fw-ilb-hc"
+  region              = var.gcp_region
+  check_interval_sec  = 3
+  timeout_sec         = 2
+  unhealthy_threshold = 3
+  tcp_health_check {
+    port = 443
+  }
+}
+
+resource "google_compute_instance_group" "this" {
+  count     = var.ilb_next_hop ? 1 : 0
+  name      = "fw-ilb-instance-group"
+  zone      = data.google_compute_zones.available.names[0]
+  instances = [google_compute_instance_from_machine_image.pfsense[0].self_link]
+
+}
+resource "google_compute_region_backend_service" "this" {
+  count                 = var.ilb_next_hop ? 1 : 0
+  name                  = "fw-ilb-backend-service"
+  region                = var.gcp_region
+  network               = google_compute_network.this["trusted"].self_link
+  session_affinity      = "CLIENT_IP"
+  protocol              = "UNSPECIFIED"
+  load_balancing_scheme = "INTERNAL"
+  health_checks         = [google_compute_region_health_check.this[0].id]
+
+  backend {
+    group = google_compute_instance_group.this[0].self_link
+  }
+}
+
 data "google_compute_zones" "available" {
   region = var.gcp_region
 }

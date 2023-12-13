@@ -7,6 +7,7 @@ module "network" {
   deploy_pfsense        = var.deploy_pfsense
   pfsense_name          = var.pfsense_name
   pfsense_machine_image = var.pfsense_machine_image
+  ilb_next_hop          = var.ilb_next_hop
 }
 
 module "instances" {
