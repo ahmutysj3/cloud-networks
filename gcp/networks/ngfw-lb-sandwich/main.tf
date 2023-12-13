@@ -1,22 +1,13 @@
-module "pfsense" {
-  source                = "./modules/pfsense"
-  pfsense_machine_image = var.pfsense_machine_image
-  pfsense_name          = var.pfsense_name
+module "network" {
+  source                = "./modules/network"
   gcp_project           = var.gcp_project
   gcp_region            = var.gcp_region
-  wan_nic_ip            = cidrhost(module.network.subnets["untrusted-subnet"].ip_cidr_range, 2)
-  lan_nic_ip            = cidrhost(module.network.subnets["trusted-subnet"].ip_cidr_range, 2)
-  wan_subnet            = module.network.subnets["untrusted-subnet"].self_link
-  lan_subnet            = module.network.subnets["trusted-subnet"].self_link
+  web_subnets           = var.web_subnets
+  default_fw_route      = true
+  deploy_pfsense        = true
+  pfsense_name          = var.pfsense_name
+  pfsense_machine_image = var.pfsense_machine_image
 }
-
-module "network" {
-  source      = "./modules/network"
-  gcp_project = var.gcp_project
-  gcp_region  = var.gcp_region
-  web_subnets = var.web_subnets
-}
-
 
 module "instances" {
   depends_on  = [module.network]

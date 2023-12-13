@@ -9,3 +9,19 @@ variable "gcp_region" {
 variable "web_subnets" {
   type = list(string)
 }
+
+variable "default_fw_route" {
+  type = bool
+}
+
+variable "deploy_pfsense" {
+  type = bool
+}
+
+variable "pfsense_machine_image" {
+  type = string
+}
+
+variable "pfsense_name" {
+  type = string
+}

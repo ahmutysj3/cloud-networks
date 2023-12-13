@@ -22,6 +22,26 @@ resource "google_compute_network_peering" "this" {
   export_custom_routes = each.key == "trusted" ? true : false
 }
 
+resource "google_compute_route" "this" {
+  count       = var.default_fw_route ? 1 : 0
+  name        = "default-fw-route"
+  network     = google_compute_network.this["trusted"].name
+  dest_range  = "0.0.0.0/0"
+  next_hop_ip = cidrhost(google_compute_subnetwork.hub["trusted"].ip_cidr_range, 2)
+}
+
+resource "google_compute_instance_from_machine_image" "pfsense" {
+  count                = var.deploy_pfsense ? 1 : 0
+  provider             = google-beta
+  zone                 = data.google_compute_zones.available.names[0]
+  name                 = var.pfsense_name
+  source_machine_image = var.pfsense_machine_image
+}
+
+data "google_compute_zones" "available" {
+  region = var.gcp_region
+}
+
 resource "google_compute_subnetwork" "hub" {
   for_each      = { for k, v in local.vpcs : k => v if k != "protected" }
   project       = var.gcp_project
