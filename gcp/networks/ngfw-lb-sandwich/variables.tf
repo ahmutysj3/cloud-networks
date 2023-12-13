@@ -33,3 +33,18 @@ variable "pfsense_machine_image" {
   type    = string
   default = "projects/terraform-project-trace-lab/global/machineImages/pfsense-full-configure-machine-image"
 }
+
+variable "deploy_fortigate" {
+  type    = bool
+  default = false
+}
+
+variable "deploy_pfsense" {
+  type    = bool
+  default = true
+}
+
+variable "default_fw_route" {
+  type    = bool
+  default = true
+}

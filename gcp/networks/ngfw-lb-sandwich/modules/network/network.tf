@@ -35,7 +35,7 @@ resource "google_compute_instance_from_machine_image" "pfsense" {
   provider             = google-beta
   zone                 = data.google_compute_zones.available.names[0]
   name                 = var.pfsense_name
-  source_machine_image = var.pfsense_machine_image
+  source_machine_image = "projects/${var.gcp_project}/global/machineImages/${var.pfsense_machine_image}"
 }
 
 data "google_compute_zones" "available" {

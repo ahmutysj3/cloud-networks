@@ -92,5 +92,5 @@ resource "google_compute_disk" "firewall_boot" {
   project                   = var.gcp_project
   size                      = var.boot_disk_size
   type                      = "pd-standard"
-  zone                      = var.zones[0]
+  zone                      = data.google_compute_zones.available.names[0]
 }
