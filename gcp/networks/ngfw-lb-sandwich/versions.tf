@@ -2,16 +2,12 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = "5.0.0"
+      version = "5.9"
     }
-    google-beta = {
-      source  = "hashicorp/google-beta"
-      version = "5.0.0"
-    }
-    random = {
-      source  = "hashicorp/random"
-      version = "3.5.1"
-    }
+  }
+
+  backend "local" {
+    path = "./terraform.tfstate"
   }
   /*   backend "consul" {
     address = "consul-01.tracecloud.us:8500"
@@ -21,13 +17,10 @@ terraform {
     path    = "gcp/peered-network/terraform.tfstate"
   } */
 
-  backend "local" {
-    path = "./terraform.tfstate"
-  }
+
 
 
 }
-
 
 
 

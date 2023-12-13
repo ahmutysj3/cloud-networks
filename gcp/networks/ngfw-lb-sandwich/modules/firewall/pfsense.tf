@@ -1,3 +1,8 @@
+/* 
+data "google_compute_zones" "available" {
+  region = var.gcp_region
+}
+
 resource "google_compute_instance" "pfsense" {
   name           = "pfsense-active1-fw"
   machine_type   = "e2-standard-4"
@@ -5,9 +10,7 @@ resource "google_compute_instance" "pfsense" {
   can_ip_forward = true
   project        = var.gcp_project
   metadata = {
-    google-logging-enable    = "0"
-    google-monitoring-enable = "0"
-    ssh-keys                 = "trace:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCjI2kHRd2kAMmb8wbVmu66q/MfHhGiop6tZ1s7e9iJ+TzOK0S92cfIxrBTu08J6MhTg/CUfZwHe6WKB3sA5A2tWOLLpYdkvvwAojOh0z7hD9l8UZ57agRu0aaVfOofQwhQBWZFiOWIOUWmLAtHCxejV24ICJt/+pk1D+0MhqulKccC1Si7RZgzBqGzeH64mwgTbbl/QD3Hf2NcT5PvUZL9yWJDonoh1CZ5j4SfU/YJBBQXXsI3LJkH5gGCz2+CY+ZhZbtnCLrDMsgzK9uUSamdZ7bIiBi0LAM8P9O+QK75kBwnyRvQly92sIP50uxMGAfI8D/MfmHoP9pcTmHFbWcv trace@trace-laptop"
+    ssh-keys = "trace:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCjI2kHRd2kAMmb8wbVmu66q/MfHhGiop6tZ1s7e9iJ+TzOK0S92cfIxrBTu08J6MhTg/CUfZwHe6WKB3sA5A2tWOLLpYdkvvwAojOh0z7hD9l8UZ57agRu0aaVfOofQwhQBWZFiOWIOUWmLAtHCxejV24ICJt/+pk1D+0MhqulKccC1Si7RZgzBqGzeH64mwgTbbl/QD3Hf2NcT5PvUZL9yWJDonoh1CZ5j4SfU/YJBBQXXsI3LJkH5gGCz2+CY+ZhZbtnCLrDMsgzK9uUSamdZ7bIiBi0LAM8P9O+QK75kBwnyRvQly92sIP50uxMGAfI8D/MfmHoP9pcTmHFbWcv trace@trace-laptop"
   }
 
   boot_disk {
@@ -20,18 +23,18 @@ resource "google_compute_instance" "pfsense" {
 
   network_interface { # nic0: WAN Interface
     nic_type   = "VIRTIO_NET"
-    network_ip = google_compute_address.wan.address
-    subnetwork = google_compute_subnetwork.untrusted.self_link
+    network_ip = cidrhost(google_compute_subnetwork.hub["untrusted"].ip_cidr_range, 2)
+    subnetwork = google_compute_subnetwork.hub["untrusted"].self_link
 
     access_config {
-      nat_ip = google_compute_address.wan_external.address
+      nat_ip = google_compute_address.fw_external.address
     }
   }
 
   network_interface { # nic1: LAN Interface
     nic_type   = "VIRTIO_NET"
-    network_ip = google_compute_address.lan.address
-    subnetwork = google_compute_subnetwork.trusted.self_link
+    network_ip = cidrhost(google_compute_subnetwork.hub["trusted"].ip_cidr_range, 2)
+    subnetwork = google_compute_subnetwork.hub["trusted"].self_link
   }
 
   scheduling { # Discounted Rates
@@ -46,9 +49,18 @@ resource "google_compute_instance" "pfsense" {
     scopes = ["cloud-platform"]
   }
 
+  lifecycle {
+    ignore_changes = [
+      metadata
+    ]
+  }
+
 }
 
-resource "google_compute_address" "fw_wan_external" {
+data "google_compute_default_service_account" "default" {
+}
+
+resource "google_compute_address" "fw_external" {
   name         = "pfsense-wan-address"
   address_type = "EXTERNAL"
   region       = var.gcp_region
@@ -61,7 +73,7 @@ resource "google_compute_disk" "pfsense_boot" {
   name                      = "pfsense-boot-disk"
   physical_block_size_bytes = 4096
   project                   = var.gcp_project
-  size                      = var.boot_disk_size
+  size                      = 100
   type                      = "pd-standard"
   zone                      = data.google_compute_zones.available.names[0]
 }
@@ -69,14 +81,8 @@ resource "google_compute_disk" "pfsense_boot" {
 data "google_compute_image" "pfsense" {
   project     = var.gcp_project
   most_recent = true
-  name        = "pfsense-gcp-image"
-}
-
-/* data "google_compute_image" "pfsense" {
-  project     = var.gcp_project
-  most_recent = true
   name        = "pfsense-partitioned-image-1"
-} */
+}
 
 resource "google_compute_instance_group" "pfsense" {
   depends_on = [google_compute_instance.pfsense]
@@ -84,3 +90,4 @@ resource "google_compute_instance_group" "pfsense" {
   zone       = data.google_compute_zones.available.names[0]
   instances  = [google_compute_instance.pfsense.self_link]
 }
+ */

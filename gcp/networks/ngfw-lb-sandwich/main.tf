@@ -17,8 +17,29 @@ module "network" {
   web_subnets = var.web_subnets
 }
 
-module "firewall" {
-  depends_on               = [module.network]
+locals {
+  pfsense_machine_image = "projects/terraform-project-trace-lab/global/machineImages/pfsense-full-configure-machine-image"
+}
+
+resource "google_compute_instance_from_machine_image" "pfsense" {
+  depends_on           = [module.network]
+  provider             = google-beta
+  zone                 = data.google_compute_zones.available.names[0]
+  name                 = "pfsense-active1-fw"
+  source_machine_image = local.pfsense_machine_image
+}
+
+module "instances" {
+  depends_on  = [module.network, google_compute_instance_from_machine_image.pfsense]
+  source      = "./modules/instances"
+  gcp_project = var.gcp_project
+  gcp_region  = var.gcp_region
+  web_subnets = var.web_subnets
+  zones       = data.google_compute_zones.available.names
+  vpcs        = module.network.vpcs
+}
+
+/* module "firewall" {
   source                   = "./modules/firewall"
   gcp_project              = var.gcp_project
   gcp_region               = var.gcp_region
@@ -30,15 +51,7 @@ module "firewall" {
   image                    = data.google_compute_image.fortigate.self_link
   hc_port                  = var.hc_port
   vpc_protected_cidr_range = module.network.vpc_protected_cidr_range
-}
+} */
 
-module "instances" {
-  depends_on  = [module.firewall]
-  source      = "./modules/instances"
-  gcp_project = var.gcp_project
-  gcp_region  = var.gcp_region
-  web_subnets = var.web_subnets
-  zones       = data.google_compute_zones.available.names
-  vpcs        = module.network.vpcs
-}
+
 
