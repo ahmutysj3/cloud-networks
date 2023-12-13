@@ -10,11 +10,15 @@ resource "google_compute_route" "default" {
   next_hop_ilb = google_compute_forwarding_rule.ilb.ip_address
 }
 
+data "google_compute_image" "fortigate" {
+  family  = "fortigate-74-payg"
+  project = "fortigcp-project-001"
+}
 
 resource "google_compute_instance" "firewall" {
   name           = local.firewall_name
   machine_type   = "e2-standard-4"
-  zone           = var.zones[0]
+  zone           = data.google_compute_zones.available.names[0]
   can_ip_forward = true
   project        = var.gcp_project
   metadata = {
@@ -68,14 +72,21 @@ resource "google_compute_instance" "firewall" {
   }
 
   service_account {
-    email  = var.default_service_account
+    email  = data.google_compute_default_service_account.default.email
     scopes = ["cloud-platform"]
   }
 
 }
 
+data "google_compute_zones" "available" {
+  region = var.gcp_region
+}
+
+data "google_compute_default_service_account" "default" {
+}
+
 resource "google_compute_disk" "firewall_boot" {
-  image                     = var.image
+  image                     = data.google_compute_image.fortigate.self_link
   name                      = "firewall-boot-disk"
   physical_block_size_bytes = 4096
   project                   = var.gcp_project

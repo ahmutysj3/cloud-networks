@@ -22,18 +22,6 @@ variable "vpcs" {
   type = map(any)
 }
 
-variable "default_service_account" {
-  type = string
-}
-
-variable "zones" {
-  type = list(string)
-}
-
-variable "image" {
-  type = string
-}
-
 variable "hc_port" {
   type = number
 }

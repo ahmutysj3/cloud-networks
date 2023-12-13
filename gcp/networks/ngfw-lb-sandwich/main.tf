@@ -1,13 +1,13 @@
-data "google_compute_zones" "available" {
-  region = var.gcp_region
-}
-
-data "google_compute_default_service_account" "default" {
-}
-
-data "google_compute_image" "fortigate" {
-  family  = "fortigate-74-payg"
-  project = "fortigcp-project-001"
+module "pfsense" {
+  source                = "./modules/pfsense"
+  pfsense_machine_image = var.pfsense_machine_image
+  pfsense_name          = var.pfsense_name
+  gcp_project           = var.gcp_project
+  gcp_region            = var.gcp_region
+  wan_nic_ip            = cidrhost(module.network.subnets["untrusted-subnet"].ip_cidr_range, 2)
+  lan_nic_ip            = cidrhost(module.network.subnets["trusted-subnet"].ip_cidr_range, 2)
+  wan_subnet            = module.network.subnets["untrusted-subnet"].self_link
+  lan_subnet            = module.network.subnets["trusted-subnet"].self_link
 }
 
 module "network" {
@@ -17,20 +17,9 @@ module "network" {
   web_subnets = var.web_subnets
 }
 
-locals {
-  pfsense_machine_image = "projects/terraform-project-trace-lab/global/machineImages/pfsense-full-configure-machine-image"
-}
-
-resource "google_compute_instance_from_machine_image" "pfsense" {
-  depends_on           = [module.network]
-  provider             = google-beta
-  zone                 = data.google_compute_zones.available.names[0]
-  name                 = "pfsense-active1-fw"
-  source_machine_image = local.pfsense_machine_image
-}
 
 module "instances" {
-  depends_on  = [module.network, google_compute_instance_from_machine_image.pfsense]
+  depends_on  = [module.network]
   source      = "./modules/instances"
   gcp_project = var.gcp_project
   gcp_region  = var.gcp_region
@@ -39,16 +28,13 @@ module "instances" {
   vpcs        = module.network.vpcs
 }
 
-/* module "firewall" {
-  source                   = "./modules/firewall"
+/* module "fortigate" {
+  source                   = "./modules/fortigate"
   gcp_project              = var.gcp_project
   gcp_region               = var.gcp_region
   boot_disk_size           = var.boot_disk_size
   subnets                  = module.network.subnets
   vpcs                     = module.network.vpcs
-  default_service_account  = data.google_compute_default_service_account.default.email
-  zones                    = data.google_compute_zones.available.names
-  image                    = data.google_compute_image.fortigate.self_link
   hc_port                  = var.hc_port
   vpc_protected_cidr_range = module.network.vpc_protected_cidr_range
 } */

@@ -22,5 +22,22 @@ variable "hc_port" {
 variable "web_subnets" {
   type    = list(string)
   default = ["tracecloud", "birdperson", "squanchy"]
+}
 
+variable "pfsense_name" {
+  type    = string
+  default = "pfsense-active-fw"
+}
+
+variable "wan_nic_ip" {
+  type = string
+}
+
+variable "lan_nic_ip" {
+  type = string
+}
+
+variable "pfsense_machine_image" {
+  type    = string
+  default = "projects/terraform-project-trace-lab/global/machineImages/pfsense-full-configure-machine-image"
 }
