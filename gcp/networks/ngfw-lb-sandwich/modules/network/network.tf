@@ -31,6 +31,7 @@ resource "google_compute_route" "this" {
 }
 
 resource "google_compute_instance_from_machine_image" "pfsense" {
+  depends_on           = [google_compute_subnetwork.hub]
   count                = var.deploy_pfsense ? 1 : 0
   provider             = google-beta
   zone                 = data.google_compute_zones.available.names[0]
