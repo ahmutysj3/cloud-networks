@@ -3,12 +3,12 @@ module "network" {
   gcp_project           = var.gcp_project
   gcp_region            = var.gcp_region
   web_subnets           = var.web_subnets
-  default_fw_route      = var.default_fw_route
-  deploy_pfsense        = var.deploy_pfsense
-  pfsense_name          = var.pfsense_name
-  pfsense_machine_image = var.pfsense_machine_image
-  ilb_next_hop          = var.ilb_next_hop
-  hc_port               = var.hc_port
+  default_fw_route      = true
+  deploy_pfsense        = true
+  pfsense_name          = "pfsense-active-fw"
+  pfsense_machine_image = "pfsense-full-configure"
+  ilb_next_hop          = true
+  hc_port               = 443
 }
 
 module "instances" {
@@ -25,10 +25,10 @@ module "fortigate" {
   source                  = "./modules/fortigate"
   gcp_project             = var.gcp_project
   gcp_region              = var.gcp_region
-  boot_disk_size          = var.boot_disk_size
+  boot_disk_size          = 100
   subnets                 = module.network.subnets
   vpcs                    = module.network.vpcs
-  hc_port                 = var.hc_port
+  hc_port                 = 443
   vpc_prod_app_cidr_range = module.network.vpc_prod_app_cidr_range
 }
 
