@@ -26,6 +26,6 @@ variable "hc_port" {
   type = number
 }
 
-variable "vpc_protected_cidr_range" {
+variable "vpc_prod_app_cidr_range" {
   type = string
 }

@@ -29,3 +29,7 @@ variable "pfsense_name" {
 variable "ilb_next_hop" {
   type = bool
 }
+
+variable "hc_port" {
+  type = number
+}

@@ -8,6 +8,7 @@ module "network" {
   pfsense_name          = var.pfsense_name
   pfsense_machine_image = var.pfsense_machine_image
   ilb_next_hop          = var.ilb_next_hop
+  hc_port               = var.hc_port
 }
 
 module "instances" {
@@ -20,15 +21,15 @@ module "instances" {
 }
 
 module "fortigate" {
-  count                    = var.deploy_fortigate ? 1 : 0
-  source                   = "./modules/fortigate"
-  gcp_project              = var.gcp_project
-  gcp_region               = var.gcp_region
-  boot_disk_size           = var.boot_disk_size
-  subnets                  = module.network.subnets
-  vpcs                     = module.network.vpcs
-  hc_port                  = var.hc_port
-  vpc_protected_cidr_range = module.network.vpc_protected_cidr_range
+  count                   = var.deploy_fortigate ? 1 : 0
+  source                  = "./modules/fortigate"
+  gcp_project             = var.gcp_project
+  gcp_region              = var.gcp_region
+  boot_disk_size          = var.boot_disk_size
+  subnets                 = module.network.subnets
+  vpcs                    = module.network.vpcs
+  hc_port                 = var.hc_port
+  vpc_prod_app_cidr_range = module.network.vpc_prod_app_cidr_range
 }
 
 

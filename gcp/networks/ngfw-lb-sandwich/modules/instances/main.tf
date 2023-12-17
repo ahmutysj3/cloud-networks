@@ -18,7 +18,7 @@ resource "google_compute_instance" "this" {
   }
 
   network_interface {
-    network    = var.vpcs["protected"].id
+    network    = var.vpcs["prod-app"].id
     subnetwork = data.google_compute_subnetwork.this[count.index].id
   }
 
