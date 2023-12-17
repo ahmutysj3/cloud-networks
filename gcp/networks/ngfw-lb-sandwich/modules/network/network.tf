@@ -1,13 +1,13 @@
 locals {
   vpc_peering = {
-    edge-prod = google_compute_network.this["prod-app"],
-    prod-app  = google_compute_network.this["edge-prod"]
+    trusted   = google_compute_network.this["protected"],
+    protected = google_compute_network.this["trusted"]
   }
 
   vpcs = {
-    prod-app  = "192.168.0.0/16"
-    edge-ext  = "10.255.0.0/24"
-    edge-prod = "10.0.0.0/24"
+    protected = "192.168.0.0/16"
+    untrusted = "10.255.0.0/24"
+    trusted   = "10.0.0.0/24"
   }
 }
 
@@ -16,7 +16,7 @@ resource "google_compute_network" "this" {
   project                         = var.gcp_project
   name                            = each.key
   auto_create_subnetworks         = false
-  delete_default_routes_on_create = each.key == "edge-ext" ? false : true
+  delete_default_routes_on_create = each.key == "untrusted" ? false : true
 }
 
 resource "google_compute_network_peering" "this" {
@@ -24,17 +24,17 @@ resource "google_compute_network_peering" "this" {
   name                                = "${each.key}-to-${each.value.name}-peering"
   network                             = google_compute_network.this[each.key].self_link
   peer_network                        = each.value.self_link
-  import_custom_routes                = each.key == "prod-app" ? true : false
-  export_custom_routes                = each.key == "edge-prod" ? true : false
+  import_custom_routes                = each.key == "protected" ? true : false
+  export_custom_routes                = each.key == "trusted" ? true : false
   export_subnet_routes_with_public_ip = false
 }
 
 resource "google_compute_route" "this" {
   count       = var.default_fw_route ? 1 : 0
   name        = "default-fw-route"
-  network     = google_compute_network.this["edge-prod"].name
+  network     = google_compute_network.this["trusted"].name
   dest_range  = "0.0.0.0/0"
-  next_hop_ip = cidrhost(google_compute_subnetwork.hub["edge-prod"].ip_cidr_range, 2)
+  next_hop_ip = cidrhost(google_compute_subnetwork.hub["trusted"].ip_cidr_range, 2)
 }
 
 resource "google_compute_firewall" "ingress" {
@@ -63,15 +63,15 @@ resource "google_compute_firewall" "egress" {
   }
 }
 
-# Creates a Cloud Router for the edge-ext network
+# Creates a Cloud Router for the untrusted network
 resource "google_compute_router" "edge_ext" {
-  name    = "trace-edge-ext-cloud-router"
+  name    = "trace-untrusted-cloud-router"
   region  = var.gcp_region
   project = var.gcp_project
-  network = google_compute_network.this["edge-ext"].name
+  network = google_compute_network.this["untrusted"].name
 }
 
-# Creates a Cloud Router for the edge-ext network
+# Creates a Cloud Router for the untrusted network
 resource "google_compute_router_nat" "edge_ext" {
   name                               = "${google_compute_router.edge_ext.name}-nat"
   router                             = google_compute_router.edge_ext.name
@@ -80,7 +80,7 @@ resource "google_compute_router_nat" "edge_ext" {
   source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
 
   subnetwork {
-    name                    = google_compute_subnetwork.hub["edge-ext"].self_link
+    name                    = google_compute_subnetwork.hub["untrusted"].self_link
     source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
   }
 
@@ -108,9 +108,9 @@ resource "google_compute_forwarding_rule" "this" {
   load_balancing_scheme = "INTERNAL"
   all_ports             = true
   backend_service       = google_compute_region_backend_service.this[0].self_link
-  network               = google_compute_network.this["edge-prod"].self_link
-  subnetwork            = google_compute_subnetwork.hub["edge-prod"].self_link
-  ip_address            = cidrhost(google_compute_subnetwork.hub["edge-prod"].ip_cidr_range, 252)
+  network               = google_compute_network.this["trusted"].self_link
+  subnetwork            = google_compute_subnetwork.hub["trusted"].self_link
+  ip_address            = cidrhost(google_compute_subnetwork.hub["trusted"].ip_cidr_range, 252)
 }
 
 resource "google_compute_region_health_check" "this" {
@@ -136,7 +136,7 @@ resource "google_compute_region_backend_service" "this" {
   count                 = var.ilb_next_hop ? 1 : 0
   name                  = "fw-ilb-backend-service"
   region                = var.gcp_region
-  network               = google_compute_network.this["edge-prod"].self_link
+  network               = google_compute_network.this["trusted"].self_link
   session_affinity      = "CLIENT_IP"
   protocol              = "UNSPECIFIED"
   load_balancing_scheme = "INTERNAL"
@@ -152,7 +152,7 @@ data "google_compute_zones" "available" {
 }
 
 resource "google_compute_subnetwork" "hub" {
-  for_each      = { for k, v in local.vpcs : k => v if k != "prod-app" }
+  for_each      = { for k, v in local.vpcs : k => v if k != "protected" }
   project       = var.gcp_project
   name          = "${each.key}-subnet"
   ip_cidr_range = each.value
@@ -166,9 +166,9 @@ resource "google_compute_subnetwork" "web" {
   count         = length(var.web_subnets)
   project       = var.gcp_project
   name          = "web-subnet-${count.index}"
-  ip_cidr_range = cidrsubnet(local.vpcs.prod-app, 8, count.index)
+  ip_cidr_range = cidrsubnet(local.vpcs.protected, 8, count.index)
   region        = var.gcp_region
   purpose       = "PRIVATE"
   stack_type    = "IPV4_ONLY"
-  network       = google_compute_network.this["prod-app"].name
+  network       = google_compute_network.this["protected"].name
 }
