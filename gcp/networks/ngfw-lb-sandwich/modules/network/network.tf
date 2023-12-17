@@ -182,3 +182,13 @@ resource "google_compute_subnetwork" "proxy" {
   network       = google_compute_network.this["protected"].name
   role          = "ACTIVE"
 }
+
+resource "google_compute_subnetwork" "ilb" {
+  name          = "ilb-subnet"
+  project       = var.gcp_project
+  ip_cidr_range = cidrsubnet(local.vpcs.protected, 8, 100)
+  region        = var.gcp_region
+  network       = google_compute_network.this["protected"].name
+  purpose       = "PRIVATE"
+  stack_type    = "IPV4_ONLY"
+}
