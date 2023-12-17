@@ -34,24 +34,24 @@ locals {
     gw_ip  = cidrhost(aws_subnet.firewall[portk].cidr_block, 1)
   } }
   firewall_conf_inputs = {
-    fgt_id           = "${var.firewall_params.firewall_name}"
-    type             = "payg"
-    fgt_inside_ip    = element([for portk, port in local.firewall_port_map : port.int_ip if portk == "inside"], 0)
-    fgt_outside_ip   = element([for portk, port in local.firewall_port_map : port.int_ip if portk == "outside"], 0)
-    fgt_heartbeat_ip = element([for portk, port in local.firewall_port_map : port.int_ip if portk == "heartbeat"], 0)
-    fgt_mgmt_ip      = element([for portk, port in local.firewall_port_map : port.int_ip if portk == "mgmt"], 0)
-    inside_gw        = element([for portk, port in local.firewall_port_map : port.gw_ip if portk == "inside"], 0)
-    outside_gw       = element([for portk, port in local.firewall_port_map : port.gw_ip if portk == "outside"], 0)
-    spoke1_cidr      = element([for vpck, vpc in aws_vpc.spoke : vpc.cidr_block if vpck == "public"], 0)
-    spoke2_cidr      = element([for vpck, vpc in aws_vpc.spoke : vpc.cidr_block if vpck == "dmz"], 0)
-    spoke3_cidr      = element([for vpck, vpc in aws_vpc.spoke : vpc.cidr_block if vpck == "protected"], 0)
-    mgmt_cidr        = element([for vpck, vpc in aws_vpc.spoke : vpc.cidr_block if vpck == "management"], 0)
-    password         = "${var.network_prefix}-${var.network_prefix}"
-    mgmt_gw          = element([for portk, port in local.firewall_port_map : port.gw_ip if portk == "mgmt"], 0)
-    heartbeat_gw     = element([for portk, port in local.firewall_port_map : port.gw_ip if portk == "heartbeat"], 0)
-    fgt_priority     = "255"
-    supernet         = "10.200.0.0 255.255.0.0"
-    net_name         = "${var.network_prefix}"
+    fgt_id             = "${var.firewall_params.firewall_name}"
+    type               = "payg"
+    fgt_inside_ip      = element([for portk, port in local.firewall_port_map : port.int_ip if portk == "inside"], 0)
+    fgt_outside_ip     = element([for portk, port in local.firewall_port_map : port.int_ip if portk == "outside"], 0)
+    fgt_heartbeat_ip   = element([for portk, port in local.firewall_port_map : port.int_ip if portk == "heartbeat"], 0)
+    fgt_mgmt_ip        = element([for portk, port in local.firewall_port_map : port.int_ip if portk == "mgmt"], 0)
+    inside_gw          = element([for portk, port in local.firewall_port_map : port.gw_ip if portk == "inside"], 0)
+    outside_gw         = element([for portk, port in local.firewall_port_map : port.gw_ip if portk == "outside"], 0)
+    spoke1_cidr        = element([for vpck, vpc in aws_vpc.spoke : vpc.cidr_block if vpck == "public"], 0)
+    spoke2_cidr        = element([for vpck, vpc in aws_vpc.spoke : vpc.cidr_block if vpck == "dmz"], 0)
+    spoke3_cidr        = element([for vpck, vpc in aws_vpc.spoke : vpc.cidr_block if vpck == "protected"], 0)
+    mgmt_cidr          = element([for vpck, vpc in aws_vpc.spoke : vpc.cidr_block if vpck == "management"], 0)
+    password           = "${var.network_prefix}-${var.network_prefix}"
+    mgmt_gw            = element([for portk, port in local.firewall_port_map : port.gw_ip if portk == "mgmt"], 0)
+    heartbeat_gw       = element([for portk, port in local.firewall_port_map : port.gw_ip if portk == "heartbeat"], 0)
+    fgt_priority       = "255"
+    supernet           = "10.200.0.0 255.255.0.0"
+    net_name           = "${var.network_prefix}"
     outside_gw_netmask = "255.255.255.192"
   }
 }
@@ -69,7 +69,7 @@ locals {
 
 resource "aws_network_interface" "firewall" {
   for_each                = { for index, subnet in var.firewall_defaults.subnets : subnet => index if subnet != "tgw" }
-  description = "fw_${each.key}_interface"
+  description             = "fw_${each.key}_interface"
   subnet_id               = aws_subnet.firewall[each.key].id
   private_ip_list_enabled = true
   private_ip_list         = each.key == "mgmt" || each.key == "heartbeat" ? [cidrhost(aws_subnet.firewall[each.key].cidr_block, 4)] : each.key == "outside" ? concat([cidrhost(aws_subnet.firewall[each.key].cidr_block, 4)], values(local.outside_extra_ips_map)) : concat([cidrhost(aws_subnet.firewall[each.key].cidr_block, 4)], local.inside_extra_ips_list)

@@ -16,7 +16,7 @@ terraform {
     key    = "network/azure-terraform.tfstate"
     region = "us-east-1"
   }
-}  
+}
 
 provider "azurerm" {
   features {}

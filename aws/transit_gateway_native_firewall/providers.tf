@@ -12,6 +12,6 @@ data "vault_aws_access_credentials" "creds" {
 provider "vault" {
   auth_login_cert {
     cert_file = var.vault_client_cert
-    key_file = var.vault_client_key
+    key_file  = var.vault_client_key
   }
 }
