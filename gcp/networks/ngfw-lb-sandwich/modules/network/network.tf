@@ -172,3 +172,13 @@ resource "google_compute_subnetwork" "web" {
   stack_type    = "IPV4_ONLY"
   network       = google_compute_network.this["protected"].name
 }
+
+resource "google_compute_subnetwork" "proxy" {
+  project       = var.gcp_project
+  name          = "protected-proxy-subnet"
+  ip_cidr_range = cidrsubnet(local.vpcs.protected, 8, 255)
+  region        = var.gcp_region
+  purpose       = "REGIONAL_MANAGED_PROXY"
+  network       = google_compute_network.this["protected"].name
+  role          = "ACTIVE"
+}

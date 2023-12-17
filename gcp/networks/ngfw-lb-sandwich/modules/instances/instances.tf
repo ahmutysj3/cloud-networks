@@ -1,10 +1,10 @@
 resource "google_compute_instance" "this" {
   count        = length(var.web_subnets)
-  name         = "web-server-instance-${count.index}"
+  name         = "${var.web_subnets[count.index]}-web-server-instance"
   project      = var.gcp_project
   provider     = google
   machine_type = "e2-small"
-  zone         = data.google_compute_zones.available.names[0]
+  zone         = data.google_compute_zones.available.names[count.index]
 
   boot_disk {
     initialize_params {
