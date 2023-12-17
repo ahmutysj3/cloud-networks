@@ -2,6 +2,10 @@ output "subnets" {
   value = merge(local.hub_subnets, local.protected_web)
 }
 
+output "web_subnets" {
+  value = { for subnets, subnet in google_compute_subnetwork.web : subnet.name => subnet.id }
+}
+
 output "vpcs" {
   value = google_compute_network.this
 }

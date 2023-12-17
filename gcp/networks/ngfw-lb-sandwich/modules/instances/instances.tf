@@ -1,10 +1,10 @@
 resource "google_compute_instance" "this" {
-  count        = length(var.web_subnets)
-  name         = "${var.web_subnets[count.index]}-web-server-instance"
+  for_each     = var.web_subnets
+  name         = "${element(split("-web-subnet", each.key), 0)}-web-server-instance"
   project      = var.gcp_project
   provider     = google
   machine_type = "e2-small"
-  zone         = data.google_compute_zones.available.names[count.index]
+  zone         = var.zones[0]
 
   boot_disk {
     initialize_params {
@@ -19,7 +19,7 @@ resource "google_compute_instance" "this" {
 
   network_interface {
     network    = var.vpcs["protected"].id
-    subnetwork = data.google_compute_subnetwork.this[count.index].id
+    subnetwork = each.value
   }
 
   metadata_startup_script = <<-EOF1
@@ -42,21 +42,4 @@ resource "google_compute_instance" "this" {
       </pre>
       EOF
     EOF1
-
-
-}
-
-data "google_compute_subnetwork" "this" {
-  count   = length(var.web_subnets)
-  name    = "web-subnet-${count.index}"
-  region  = var.gcp_region
-  project = var.gcp_project
-}
-
-output "web_subnets" {
-  value = data.google_compute_subnetwork.this
-}
-
-data "google_compute_zones" "available" {
-  region = var.gcp_region
 }

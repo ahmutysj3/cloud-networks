@@ -6,10 +6,6 @@ variable "gcp_region" {
   type = string
 }
 
-variable "web_subnets" {
-  type = list(string)
-}
-
 variable "deploy_fortigate" {
   type = bool
 }

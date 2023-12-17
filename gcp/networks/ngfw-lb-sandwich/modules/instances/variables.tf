@@ -7,7 +7,7 @@ variable "gcp_region" {
 }
 
 variable "web_subnets" {
-  type = list(string)
+  type = map(string)
 }
 
 variable "vpcs" {
@@ -16,4 +16,8 @@ variable "vpcs" {
     self_link = string
     id        = string
   }))
+}
+
+variable "zones" {
+  type = list(string)
 }

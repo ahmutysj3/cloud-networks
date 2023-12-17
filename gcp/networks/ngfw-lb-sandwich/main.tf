@@ -1,8 +1,13 @@
 module "network" {
-  source                = "./modules/network"
-  gcp_project           = var.gcp_project
-  gcp_region            = var.gcp_region
-  web_subnets           = var.web_subnets
+  source      = "./modules/network"
+  gcp_project = var.gcp_project
+  gcp_region  = var.gcp_region
+  web_subnets = [
+    "rick",
+    "birdperson",
+    "squanchy",
+    "morty"
+  ]
   default_fw_route      = true
   deploy_pfsense        = true
   pfsense_name          = "pfsense-active-fw"
@@ -16,8 +21,9 @@ module "instances" {
   source      = "./modules/instances"
   gcp_project = var.gcp_project
   gcp_region  = var.gcp_region
-  web_subnets = var.web_subnets
+  web_subnets = module.network.web_subnets
   vpcs        = module.network.vpcs
+  zones       = data.google_compute_zones.available.names
 }
 
 module "fortigate" {
@@ -32,5 +38,8 @@ module "fortigate" {
   vpc_prod_app_cidr_range = module.network.vpc_prod_app_cidr_range
 }
 
-
+data "google_compute_zones" "available" {
+  project = var.gcp_project
+  region  = var.gcp_region
+}
 

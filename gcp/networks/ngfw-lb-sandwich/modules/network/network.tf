@@ -165,7 +165,7 @@ resource "google_compute_subnetwork" "hub" {
 resource "google_compute_subnetwork" "web" {
   count         = length(var.web_subnets)
   project       = var.gcp_project
-  name          = "web-subnet-${count.index}"
+  name          = "${var.web_subnets[count.index]}-web-subnet"
   ip_cidr_range = cidrsubnet(local.vpcs.protected, 8, count.index)
   region        = var.gcp_region
   purpose       = "PRIVATE"
