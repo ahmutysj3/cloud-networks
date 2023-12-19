@@ -20,3 +20,11 @@ locals {
     for key, value in data.google_secret_manager_secret_version.this : split("-${var.root_domain}-key", key)[0] => value.secret_data if length(regexall("-key", value.name)) > 0
   }
 }
+
+resource "google_compute_ssl_certificate" "this" {
+  for_each    = local.ssl_certificates
+  name        = "${each.key}-cert"
+  private_key = local.ssl_private_keys[each.key]
+  certificate = each.value
+
+}

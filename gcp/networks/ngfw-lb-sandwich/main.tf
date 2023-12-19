@@ -38,6 +38,10 @@ module "fortigate" {
   vpc_prod_app_cidr_range = module.network.vpc_prod_app_cidr_range
 }
 
+module "certs" {
+  source = "./modules/certs"
+}
+
 data "google_compute_zones" "available" {
   project = var.gcp_project
   region  = var.gcp_region
