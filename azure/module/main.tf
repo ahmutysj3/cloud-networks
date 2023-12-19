@@ -1,7 +1,11 @@
 # creates resource group for network infra
 resource "azurerm_resource_group" "network" {
   name     = "${var.network_name}-network-rg"
-  location = "East US"
+  location = var.location
+}
+
+data "azurerm_resource_group" "network_watcher" {
+  name = var.resource_group_name
 }
 
 
@@ -329,29 +333,25 @@ resource "azurerm_network_security_rule" "default_deny_all_out" {
   network_security_group_name = azurerm_network_security_group.spokes[each.key].name
 }
 
-# creates separate resource group for network watcher and flow logs
-resource "azurerm_resource_group" "logging" {
-  name     = "trace-logging-rg"
-  location = "East US"
+
+data "azurerm_network_watcher" "trace" {
+  resource_group_name = data.azurerm_resource_group.network_watcher.name
+  name                = "NetworkWatcher_eastus"
 }
 
-#network watcher service
-resource "azurerm_network_watcher" "trace" {
-  name                = "${var.network_name}-net-watcher"
-  location            = azurerm_resource_group.logging.location
-  resource_group_name = azurerm_resource_group.logging.name
-}
 
 # builds storage account to store flow logs
 resource "azurerm_storage_account" "flow_logs" {
-  name                     = "flowlogstoragetrace10420"
-  resource_group_name      = azurerm_resource_group.logging.name
-  location                 = azurerm_resource_group.logging.location
+  name                = "flowlogstoragetrace10420"
+  resource_group_name = data.azurerm_network_watcher.trace.resource_group_name
+
+  location = data.azurerm_network_watcher.trace.location
+
   account_tier             = "Standard"
   account_replication_type = "GRS"
 
   tags = {
-    environment = "Trace_AZ_Lab"
+    environment = "trace-az-lab"
   }
 }
 
@@ -359,9 +359,10 @@ resource "azurerm_storage_account" "flow_logs" {
 # builds a flow log for each network security group
 resource "azurerm_network_watcher_flow_log" "trace" {
   for_each             = { for k, v in var.subnet_params : k => v if v.flow_log == true }
-  network_watcher_name = azurerm_network_watcher.trace.name
-  resource_group_name  = azurerm_resource_group.logging.name
-  name                 = "trace-flow-log"
+  network_watcher_name = data.azurerm_network_watcher.trace.name
+
+  resource_group_name = data.azurerm_network_watcher.trace.resource_group_name
+  name                = "trace-flow-log"
 
   network_security_group_id = azurerm_network_security_group.spokes[each.value.vnet].id
   storage_account_id        = azurerm_storage_account.flow_logs.id
@@ -372,4 +373,4 @@ resource "azurerm_network_watcher_flow_log" "trace" {
     days    = 7
   }
 
-}   
+}
