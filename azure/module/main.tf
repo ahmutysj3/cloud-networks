@@ -1,20 +1,23 @@
 # creates resource group for network infra
-resource "azurerm_resource_group" "network" {
+/* resource "azurerm_resource_group" "network" {
   name     = "${var.network_name}-network-rg"
   location = var.location
-}
+} */
 
 data "azurerm_resource_group" "network_watcher" {
   name = var.resource_group_name
 }
 
+data "azurerm_resource_group" "jimbo" {
+  name = "RG1"
+}
 
 # Builds 4 conseq. /16 vnets
 resource "azurerm_virtual_network" "trace" {
   for_each            = var.vnet_params
   name                = "${var.network_name}_${each.key}_vnet"
-  location            = azurerm_resource_group.network.location
-  resource_group_name = azurerm_resource_group.network.name
+  location            = data.azurerm_resource_group.jimbo.location
+  resource_group_name = data.azurerm_resource_group.jimbo.name
   address_space       = [each.value.cidr]
 
   tags = {
@@ -26,7 +29,7 @@ resource "azurerm_virtual_network" "trace" {
 resource "azurerm_virtual_network_peering" "hub" {
   for_each                     = { for k, v in azurerm_virtual_network.trace : k => v.id if k != "hub" }
   name                         = "vnet_peering_hub_to_${each.key}"
-  resource_group_name          = azurerm_resource_group.network.name
+  resource_group_name          = data.azurerm_resource_group.jimbo.name
   virtual_network_name         = azurerm_virtual_network.trace["hub"].name
   remote_virtual_network_id    = each.value
   allow_virtual_network_access = true
@@ -38,7 +41,7 @@ resource "azurerm_virtual_network_peering" "hub" {
 resource "azurerm_virtual_network_peering" "spokes" {
   for_each                     = { for k, v in azurerm_virtual_network.trace : k => v.name if k != "hub" }
   name                         = "vnet_peering_${each.key}_to_hub"
-  resource_group_name          = azurerm_resource_group.network.name
+  resource_group_name          = data.azurerm_resource_group.jimbo.name
   virtual_network_name         = each.value
   remote_virtual_network_id    = azurerm_virtual_network.trace["hub"].id
   allow_virtual_network_access = true
@@ -53,7 +56,7 @@ resource "azurerm_subnet" "hub" {
     "inside"  = cidrsubnet(element(azurerm_virtual_network.trace["hub"].address_space, 0), 9, 1)
   }
   name                 = "hub_${each.key}_subnet"
-  resource_group_name  = azurerm_resource_group.network.name
+  resource_group_name  = data.azurerm_resource_group.jimbo.name
   virtual_network_name = azurerm_virtual_network.trace["hub"].name
   address_prefixes     = [each.value]
 }
@@ -62,8 +65,8 @@ resource "azurerm_subnet" "hub" {
 resource "azurerm_route_table" "hub" {
   for_each                      = azurerm_subnet.hub
   name                          = "hub_${each.key}_rt"
-  location                      = azurerm_resource_group.network.location
-  resource_group_name           = azurerm_resource_group.network.name
+  location                      = data.azurerm_resource_group.jimbo.location
+  resource_group_name           = data.azurerm_resource_group.jimbo.name
   disable_bgp_route_propagation = false
 
   tags = {
@@ -81,7 +84,7 @@ resource "azurerm_subnet_route_table_association" "hub" {
 resource "azurerm_subnet" "spokes" {
   for_each             = var.subnet_params
   name                 = "${each.key}_subnet"
-  resource_group_name  = azurerm_resource_group.network.name
+  resource_group_name  = data.azurerm_resource_group.jimbo.name
   virtual_network_name = azurerm_virtual_network.trace["${each.value.vnet}"].name
   address_prefixes     = [each.value.cidr]
 }
@@ -96,8 +99,8 @@ resource "azurerm_subnet_route_table_association" "spokes" {
 resource "azurerm_route_table" "spokes" {
   for_each                      = { for k, v in azurerm_virtual_network.trace : k => v if k != "hub" }
   name                          = "${each.key}_main_rt"
-  location                      = azurerm_resource_group.network.location
-  resource_group_name           = azurerm_resource_group.network.name
+  location                      = data.azurerm_resource_group.jimbo.location
+  resource_group_name           = data.azurerm_resource_group.jimbo.name
   disable_bgp_route_propagation = false
 
   tags = {
@@ -109,8 +112,8 @@ resource "azurerm_route_table" "spokes" {
 resource "azurerm_network_security_group" "hub" {
   for_each            = azurerm_subnet.hub
   name                = "hub_${each.key}_nsg"
-  location            = azurerm_resource_group.network.location
-  resource_group_name = azurerm_resource_group.network.name
+  location            = data.azurerm_resource_group.jimbo.location
+  resource_group_name = data.azurerm_resource_group.jimbo.name
 
   tags = {
     environment = "Trace_AZ_Lab"
@@ -136,7 +139,7 @@ resource "azurerm_network_security_rule" "allow_all_egress" {
   destination_port_range      = "*"
   source_address_prefix       = "*"
   destination_address_prefix  = "*"
-  resource_group_name         = azurerm_resource_group.network.name
+  resource_group_name         = data.azurerm_resource_group.jimbo.name
   network_security_group_name = azurerm_network_security_group.hub[each.key].name
 }
 
@@ -152,15 +155,15 @@ resource "azurerm_network_security_rule" "allow_all_ingress" {
   destination_port_range      = "*"
   source_address_prefix       = "*"
   destination_address_prefix  = "*"
-  resource_group_name         = azurerm_resource_group.network.name
+  resource_group_name         = data.azurerm_resource_group.jimbo.name
   network_security_group_name = azurerm_network_security_group.hub[each.key].name
 }
 
 resource "azurerm_network_security_group" "spokes" {
   for_each            = { for k, v in azurerm_virtual_network.trace : k => v if k != "hub" }
   name                = "${var.network_name}_${each.key}_nsg"
-  location            = azurerm_resource_group.network.location
-  resource_group_name = azurerm_resource_group.network.name
+  location            = data.azurerm_resource_group.jimbo.location
+  resource_group_name = data.azurerm_resource_group.jimbo.name
 
   tags = {
     environment = "Trace_AZ_Lab"
@@ -184,7 +187,7 @@ resource "azurerm_network_security_rule" "spokes_to_hub" {
   destination_port_range      = "*"
   source_address_prefix       = element(azurerm_virtual_network.trace[each.key].address_space, 0)
   destination_address_prefix  = element(azurerm_virtual_network.trace["hub"].address_space, 0)
-  resource_group_name         = azurerm_resource_group.network.name
+  resource_group_name         = data.azurerm_resource_group.jimbo.name
   network_security_group_name = azurerm_network_security_group.spokes[each.key].name
 }
 
@@ -199,7 +202,7 @@ resource "azurerm_network_security_rule" "dmz_outbound_to_app" {
   destination_port_range      = "*"
   source_address_prefix       = element(azurerm_virtual_network.trace["dmz"].address_space, 0)
   destination_address_prefix  = element(azurerm_virtual_network.trace["app"].address_space, 0)
-  resource_group_name         = azurerm_resource_group.network.name
+  resource_group_name         = data.azurerm_resource_group.jimbo.name
   network_security_group_name = azurerm_network_security_group.spokes["dmz"].name
 }
 
@@ -213,7 +216,7 @@ resource "azurerm_network_security_rule" "dmz_inbound_from_app" {
   destination_port_range      = "*"
   source_address_prefix       = element(azurerm_virtual_network.trace["app"].address_space, 0)
   destination_address_prefix  = element(azurerm_virtual_network.trace["dmz"].address_space, 0)
-  resource_group_name         = azurerm_resource_group.network.name
+  resource_group_name         = data.azurerm_resource_group.jimbo.name
   network_security_group_name = azurerm_network_security_group.spokes["dmz"].name
 }
 
@@ -227,7 +230,7 @@ resource "azurerm_network_security_rule" "app_outbound_to_db" {
   destination_port_range      = "*"
   source_address_prefix       = element(azurerm_virtual_network.trace["app"].address_space, 0)
   destination_address_prefix  = element(azurerm_virtual_network.trace["db"].address_space, 0)
-  resource_group_name         = azurerm_resource_group.network.name
+  resource_group_name         = data.azurerm_resource_group.jimbo.name
   network_security_group_name = azurerm_network_security_group.spokes["app"].name
 }
 
@@ -241,7 +244,7 @@ resource "azurerm_network_security_rule" "app_inbound_from_db" {
   destination_port_range      = "*"
   source_address_prefix       = element(azurerm_virtual_network.trace["db"].address_space, 0)
   destination_address_prefix  = element(azurerm_virtual_network.trace["app"].address_space, 0)
-  resource_group_name         = azurerm_resource_group.network.name
+  resource_group_name         = data.azurerm_resource_group.jimbo.name
   network_security_group_name = azurerm_network_security_group.spokes["app"].name
 }
 
@@ -255,7 +258,7 @@ resource "azurerm_network_security_rule" "db_outbound_to_app" {
   destination_port_range      = "*"
   source_address_prefix       = element(azurerm_virtual_network.trace["db"].address_space, 0)
   destination_address_prefix  = element(azurerm_virtual_network.trace["app"].address_space, 0)
-  resource_group_name         = azurerm_resource_group.network.name
+  resource_group_name         = data.azurerm_resource_group.jimbo.name
   network_security_group_name = azurerm_network_security_group.spokes["db"].name
 }
 
@@ -269,7 +272,7 @@ resource "azurerm_network_security_rule" "db_inbound_from_app" {
   destination_port_range      = "*"
   source_address_prefix       = element(azurerm_virtual_network.trace["app"].address_space, 0)
   destination_address_prefix  = element(azurerm_virtual_network.trace["db"].address_space, 0)
-  resource_group_name         = azurerm_resource_group.network.name
+  resource_group_name         = data.azurerm_resource_group.jimbo.name
   network_security_group_name = azurerm_network_security_group.spokes["db"].name
 }
 
@@ -284,7 +287,7 @@ resource "azurerm_network_security_rule" "default_allow_all_internal_vnet" {
   destination_port_range      = "*"
   source_address_prefix       = element(azurerm_virtual_network.trace[each.key].address_space, 0)
   destination_address_prefix  = element(azurerm_virtual_network.trace[each.key].address_space, 0)
-  resource_group_name         = azurerm_resource_group.network.name
+  resource_group_name         = data.azurerm_resource_group.jimbo.name
   network_security_group_name = azurerm_network_security_group.spokes[each.key].name
 }
 
@@ -299,7 +302,7 @@ resource "azurerm_network_security_rule" "default_allow_out_internal_vnet" {
   destination_port_range      = "*"
   source_address_prefix       = element(azurerm_virtual_network.trace[each.key].address_space, 0)
   destination_address_prefix  = element(azurerm_virtual_network.trace[each.key].address_space, 0)
-  resource_group_name         = azurerm_resource_group.network.name
+  resource_group_name         = data.azurerm_resource_group.jimbo.name
   network_security_group_name = azurerm_network_security_group.spokes[each.key].name
 }
 
@@ -314,7 +317,7 @@ resource "azurerm_network_security_rule" "default_deny_all_in" {
   destination_port_range      = "*"
   source_address_prefix       = "*"
   destination_address_prefix  = "*"
-  resource_group_name         = azurerm_resource_group.network.name
+  resource_group_name         = data.azurerm_resource_group.jimbo.name
   network_security_group_name = azurerm_network_security_group.spokes[each.key].name
 }
 
@@ -329,7 +332,7 @@ resource "azurerm_network_security_rule" "default_deny_all_out" {
   destination_port_range      = "*"
   source_address_prefix       = "*"
   destination_address_prefix  = "*"
-  resource_group_name         = azurerm_resource_group.network.name
+  resource_group_name         = data.azurerm_resource_group.jimbo.name
   network_security_group_name = azurerm_network_security_group.spokes[each.key].name
 }
 
@@ -340,7 +343,7 @@ data "azurerm_network_watcher" "trace" {
 }
 
 
-# builds storage account to store flow logs
+/* # builds storage account to store flow logs
 resource "azurerm_storage_account" "flow_logs" {
   name                = "flowlogstoragetrace10420"
   resource_group_name = data.azurerm_network_watcher.trace.resource_group_name
@@ -373,4 +376,4 @@ resource "azurerm_network_watcher_flow_log" "trace" {
     days    = 7
   }
 
-}
+} */

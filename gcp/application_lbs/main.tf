@@ -38,7 +38,6 @@ data "google_compute_zones" "available" {
 }
 
 
-
 /* resource "google_compute_instance_group" "this" {
   name = "web-ig0"
   zone =
