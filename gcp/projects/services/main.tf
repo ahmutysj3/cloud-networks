@@ -1,4 +1,4 @@
-resource "google_project_service" "vpc_edge" {
+resource "google_project_service" "this" {
   for_each = toset(var.services)
   project  = var.project
   service  = each.key
