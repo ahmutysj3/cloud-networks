@@ -1,7 +1,7 @@
 module "network" {
-  source      = "./modules/network"
-  gcp_project = var.gcp_project
-  gcp_region  = var.gcp_region
+  source  = "./modules/network"
+  project = var.gcp_project
+  region  = var.gcp_region
   web_subnets = [
     "rick",
     "birdperson",
