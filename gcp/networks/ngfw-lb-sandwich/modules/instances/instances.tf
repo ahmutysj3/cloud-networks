@@ -1,7 +1,7 @@
 resource "google_compute_instance" "this" {
   for_each     = var.web_subnets
   name         = "${element(split("-web-subnet", each.key), 0)}-web-server-instance"
-  project      = var.gcp_project
+  project      = var.project
   provider     = google
   machine_type = "e2-small"
   zone         = var.zones[0]

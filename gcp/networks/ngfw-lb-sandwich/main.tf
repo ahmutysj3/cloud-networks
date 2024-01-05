@@ -19,8 +19,7 @@ module "network" {
 module "instances" {
   depends_on  = [module.network]
   source      = "./modules/instances"
-  gcp_project = var.gcp_project
-  gcp_region  = var.gcp_region
+  project     = var.gcp_project
   web_subnets = module.network.web_subnets
   vpcs        = module.network.vpcs
   zones       = data.google_compute_zones.available.names
