@@ -9,3 +9,7 @@ variable "app_network_services" {
 variable "vm_services" {
   type = list(string)
 }
+
+variable "edge_project" {
+  type = string
+}

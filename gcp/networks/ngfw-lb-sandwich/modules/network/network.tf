@@ -1,36 +1,37 @@
 locals {
   vpc_peering = {
-    trusted   = google_compute_network.this["protected"],
-    protected = google_compute_network.this["trusted"]
-  }
-
-  vpcs = {
-    protected = "192.168.0.0/16"
-    untrusted = "10.255.0.0/24"
-    trusted   = "10.0.0.0/24"
+    app-dev = {
+      spoke = google_compute_network.this["app-dev"].self_link,
+      hub   = google_compute_network.this["trusted"].self_link
+    }
+    app-prod = {
+      spoke = google_compute_network.this["app-prod"].self_link,
+      hub   = google_compute_network.this["trusted"].self_link
+    }
   }
 }
 
 resource "google_compute_network" "this" {
-  for_each                        = local.vpcs
-  project                         = var.project
+  for_each                        = var.vpcs
+  project                         = each.value.project
   name                            = each.key
   auto_create_subnetworks         = false
-  delete_default_routes_on_create = each.key == "untrusted" ? false : true
+  delete_default_routes_on_create = each.key == "app-dev" || "app-prod" ? false : true
 }
 
 resource "google_compute_network_peering" "this" {
   for_each                            = local.vpc_peering
-  name                                = "${each.key}-to-${each.value.name}-peering"
-  network                             = google_compute_network.this[each.key].self_link
-  peer_network                        = each.value.self_link
-  import_custom_routes                = each.key == "protected" ? true : false
-  export_custom_routes                = each.key == "trusted" ? true : false
+  name                                = "${each.key}-to-trusted-peering"
+  network                             = each.value.hub
+  peer_network                        = each.value.spoke
+  import_custom_routes                = true
+  export_custom_routes                = true
   export_subnet_routes_with_public_ip = false
 }
 
 resource "google_compute_route" "this" {
   count       = var.default_fw_route ? 1 : 0
+  project     = google_compute_network.this["trusted"].project
   name        = "default-fw-route"
   network     = google_compute_network.this["trusted"].name
   dest_range  = "0.0.0.0/0"
@@ -38,9 +39,9 @@ resource "google_compute_route" "this" {
 }
 
 resource "google_compute_firewall" "ingress" {
-  for_each      = local.vpcs
+  for_each      = var.vpcs
   name          = "default-allow-all-ingress-${each.key}"
-  project       = var.project
+  project       = each.value.project
   network       = google_compute_network.this[each.key].name
   priority      = 1000
   direction     = "INGRESS"
@@ -51,9 +52,9 @@ resource "google_compute_firewall" "ingress" {
 }
 
 resource "google_compute_firewall" "egress" {
-  for_each           = local.vpcs
+  for_each           = var.vpcs
   name               = "default-allow-all-egress-${each.key}"
-  project            = var.project
+  project            = each.value.project
   network            = google_compute_network.this[each.key].name
   priority           = 1000
   direction          = "EGRESS"
@@ -66,8 +67,8 @@ resource "google_compute_firewall" "egress" {
 # Creates a Cloud Router for the untrusted network
 resource "google_compute_router" "edge_ext" {
   name    = "trace-untrusted-cloud-router"
-  region  = var.region
-  project = var.project
+  region  = google_compute_network.this["untrusted"].region
+  project = google_compute_network.this["untrusted"].project
   network = google_compute_network.this["untrusted"].name
 }
 
@@ -75,7 +76,7 @@ resource "google_compute_router" "edge_ext" {
 resource "google_compute_router_nat" "edge_ext" {
   name                               = "${google_compute_router.edge_ext.name}-nat"
   router                             = google_compute_router.edge_ext.name
-  region                             = var.region
+  region                             = google_compute_router.edge_ext.region
   nat_ip_allocate_option             = "AUTO_ONLY"
   source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
 
@@ -94,16 +95,16 @@ resource "google_compute_instance_from_machine_image" "pfsense" {
   depends_on           = [google_compute_subnetwork.hub]
   count                = var.deploy_pfsense ? 1 : 0
   provider             = google-beta
-  zone                 = data.google_compute_zones.available.names[0]
+  zone                 = var.zones[0]
   name                 = var.pfsense_name
-  source_machine_image = "projects/${var.project}/global/machineImages/${var.pfsense_machine_image}"
+  source_machine_image = "projects/${var.image_project}/global/machineImages/${var.pfsense_machine_image}"
 }
 
 resource "google_compute_forwarding_rule" "this" {
   count                 = var.ilb_next_hop ? 1 : 0
   provider              = google-beta
   name                  = "fw-ilb-forwarding-rule"
-  region                = var.region
+  region                = google_compute_network.this["trusted"].region
   ip_protocol           = "L3_DEFAULT"
   load_balancing_scheme = "INTERNAL"
   all_ports             = true
@@ -116,7 +117,7 @@ resource "google_compute_forwarding_rule" "this" {
 resource "google_compute_region_health_check" "this" {
   count               = var.ilb_next_hop ? 1 : 0
   name                = "fw-ilb-hc"
-  region              = var.region
+  region              = google_compute_network.this["trusted"].region
   check_interval_sec  = 3
   timeout_sec         = 2
   unhealthy_threshold = 3
@@ -128,14 +129,14 @@ resource "google_compute_region_health_check" "this" {
 resource "google_compute_instance_group" "this" {
   count     = var.ilb_next_hop ? 1 : 0
   name      = "fw-ilb-instance-group"
-  zone      = data.google_compute_zones.available.names[0]
+  zone      = var.zones[0]
   instances = [google_compute_instance_from_machine_image.pfsense[0].self_link]
 
 }
 resource "google_compute_region_backend_service" "this" {
   count                 = var.ilb_next_hop ? 1 : 0
   name                  = "fw-ilb-backend-service"
-  region                = var.region
+  region                = google_compute_network.this["trusted"].region
   network               = google_compute_network.this["trusted"].self_link
   session_affinity      = "CLIENT_IP"
   protocol              = "UNSPECIFIED"
@@ -147,48 +148,25 @@ resource "google_compute_region_backend_service" "this" {
   }
 }
 
-data "google_compute_zones" "available" {
-  region = var.region
-}
-
 resource "google_compute_subnetwork" "hub" {
-  for_each      = { for k, v in local.vpcs : k => v if k != "protected" }
-  project       = var.project
+  for_each      = { for k, v in var.vpcs : k => v if length(regexall("app-*", k)) > 0 }
+  project       = each.value.project
   name          = "${each.key}-subnet"
-  ip_cidr_range = each.value
-  region        = var.region
+  ip_cidr_range = each.value.cidr
+  region        = google_compute_network.this[each.key].region
   network       = google_compute_network.this[each.key].name
   purpose       = "PRIVATE"
   stack_type    = "IPV4_ONLY"
 }
 
-resource "google_compute_subnetwork" "web" {
-  count         = length(var.web_subnets)
-  project       = var.project
-  name          = "${var.web_subnets[count.index]}-web-subnet"
-  ip_cidr_range = cidrsubnet(local.vpcs.protected, 8, count.index)
-  region        = var.region
-  purpose       = "PRIVATE"
-  stack_type    = "IPV4_ONLY"
-  network       = google_compute_network.this["protected"].name
+module "spoke_subnets" {
+  source      = "./subnets"
+  count       = { for k, v in var.vpcs : k => v if length(regexall("app-*", k)) > 0 }
+  project     = google_compute_network.this[each.key].project
+  region      = google_compute_network.this[each.key].region
+  network     = google_compute_network.this[each.key].name
+  web_subnets = var.web_subnets
+  vpc         = each.key
+  ip_block    = var.vpcs[each.key].cidr
 }
 
-resource "google_compute_subnetwork" "proxy" {
-  project       = var.project
-  name          = "protected-proxy-subnet"
-  ip_cidr_range = cidrsubnet(local.vpcs.protected, 8, 255)
-  region        = var.region
-  purpose       = "REGIONAL_MANAGED_PROXY"
-  network       = google_compute_network.this["protected"].name
-  role          = "ACTIVE"
-}
-
-resource "google_compute_subnetwork" "ilb" {
-  name          = "ilb-subnet"
-  project       = var.project
-  ip_cidr_range = cidrsubnet(local.vpcs.protected, 8, 100)
-  region        = var.region
-  network       = google_compute_network.this["protected"].name
-  purpose       = "PRIVATE"
-  stack_type    = "IPV4_ONLY"
-}

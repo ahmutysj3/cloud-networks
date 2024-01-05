@@ -1,11 +1,3 @@
-variable "project" {
-  type = string
-}
-
-variable "region" {
-  type = string
-}
-
 variable "web_subnets" {
   type = list(string)
 }
@@ -32,4 +24,16 @@ variable "ilb_next_hop" {
 
 variable "hc_port" {
   type = number
+}
+
+variable "vpcs" {
+  type = map(any)
+}
+
+variable "zones" {
+  type = list(string)
+}
+
+variable "image_project" {
+  type = string
 }

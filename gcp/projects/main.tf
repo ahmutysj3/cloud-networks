@@ -3,16 +3,14 @@ data "google_projects" "this" {
 }
 
 locals {
-  project_ids       = [for project in data.google_projects.this.projects : project.project_id]
-  vm_projects       = [for project in local.project_ids : project if length(regexall("^trace-vm-.*", project)) > 0]
-  app_vpc_projects  = [for project in local.project_ids : project if length(regexall("^trace-vpc-app-.*", project)) > 0]
-  edge_vpc_projects = [for project in local.project_ids : project if length(regexall("^trace-vpc-edge-.*", project)) > 0]
+  project_ids      = [for project in data.google_projects.this.projects : project.project_id]
+  vm_projects      = [for project in local.project_ids : project if length(regexall("^trace-vm-.*", project)) > 0]
+  app_vpc_projects = [for project in local.project_ids : project if length(regexall("^trace-vpc-app-.*", project)) > 0]
 }
 
-module "edge_vpc_projects" {
+module "edge_vpc_project" {
   source   = "./services"
-  for_each = toset(local.edge_vpc_projects)
-  project  = each.key
+  project  = var.edge_project
   services = var.edge_network_services
 }
 

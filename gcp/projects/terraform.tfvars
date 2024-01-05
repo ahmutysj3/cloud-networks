@@ -35,3 +35,5 @@ vm_services = [
   "resourceviews.googleapis.com", # allows grouping of instances into igs
   "networkconnectivity.googleapis.com",
 ]
+
+edge_project = "trace-vpc-edge"
