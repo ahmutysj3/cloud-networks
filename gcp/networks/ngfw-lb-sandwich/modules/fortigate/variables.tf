@@ -1,9 +1,9 @@
-variable "gcp_project" {
+variable "project" {
   type    = string
   default = "terraform-project-trace-lab"
 }
 
-variable "gcp_region" {
+variable "region" {
   type    = string
   default = "us-east1"
 }

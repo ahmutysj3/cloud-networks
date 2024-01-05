@@ -3,7 +3,7 @@
 /* #### External Load Balancer (using target pool) ###
 resource "google_compute_forwarding_rule" "elb" {
   name                  = "trace-test-elb"
-  region                = var.gcp_region
+  region                = var.region
   ip_address            = google_compute_address.lb_external.address
   load_balancing_scheme = "EXTERNAL"
   target                = google_compute_target_pool.elb.self_link
@@ -12,7 +12,7 @@ resource "google_compute_forwarding_rule" "elb" {
 ### Target Pools ###
 resource "google_compute_target_pool" "elb" {
   name             = "fgt-instancepool"
-  region           = var.gcp_region
+  region           = var.region
   session_affinity = "CLIENT_IP"
 
   instances = [google_compute_instance.firewall.self_link]
@@ -33,7 +33,7 @@ resource "google_compute_http_health_check" "elb" {
 resource "google_compute_forwarding_rule" "ilb" {
   network               = var.vpcs["trusted"].name
   name                  = "trace-test-ilb"
-  region                = var.gcp_region
+  region                = var.region
   ip_address            = google_compute_address.lb_internal.address
   subnetwork            = var.subnets.trusted-subnet.self_link
   load_balancing_scheme = "INTERNAL"
@@ -54,7 +54,7 @@ resource "google_compute_region_health_check" "ilb" {
 }
 resource "google_compute_region_backend_service" "ilb" {
   name             = "ilb-backend-service"
-  region           = var.gcp_region
+  region           = var.region
   network          = var.vpcs["trusted"].name
   session_affinity = "CLIENT_IP"
   protocol         = "UNSPECIFIED"
@@ -69,20 +69,20 @@ resource "google_compute_region_backend_service" "ilb" {
 
 resource "google_compute_forwarding_rule" "elb" {
   name                  = "trace-test-elb"
-  region                = var.gcp_region
+  region                = var.region
   load_balancing_scheme = "EXTERNAL"
   ip_address            = google_compute_address.lb_external.address
   backend_service       = google_compute_region_backend_service.elb.self_link
   all_ports             = true
-  project               = var.gcp_project
+  project               = var.project
   ip_protocol           = "L3_DEFAULT"
 }
 
 resource "google_compute_region_backend_service" "elb" {
   name                  = "elb-backend-service"
-  region                = var.gcp_region
+  region                = var.region
   session_affinity      = "CLIENT_IP"
-  project               = var.gcp_project
+  project               = var.project
   protocol              = "UNSPECIFIED"
   load_balancing_scheme = "EXTERNAL"
 

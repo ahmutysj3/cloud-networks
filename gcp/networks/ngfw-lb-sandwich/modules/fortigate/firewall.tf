@@ -4,7 +4,7 @@ locals {
 
 resource "google_compute_route" "default" {
   name         = "default-route-to-fw"
-  project      = var.gcp_project
+  project      = var.project
   network      = var.vpcs["trusted"].name
   dest_range   = "0.0.0.0/0"
   next_hop_ilb = google_compute_forwarding_rule.ilb.ip_address
@@ -20,7 +20,7 @@ resource "google_compute_instance" "firewall" {
   machine_type   = "e2-standard-4"
   zone           = data.google_compute_zones.available.names[0]
   can_ip_forward = true
-  project        = var.gcp_project
+  project        = var.project
   metadata = {
     fortigate_user_password = "trace"
     user-data = templatefile("${path.module}/bootstrap2.tpl", {
@@ -79,7 +79,7 @@ resource "google_compute_instance" "firewall" {
 }
 
 data "google_compute_zones" "available" {
-  region = var.gcp_region
+  region = var.region
 }
 
 data "google_compute_default_service_account" "default" {
@@ -89,7 +89,7 @@ resource "google_compute_disk" "firewall_boot" {
   image                     = data.google_compute_image.fortigate.self_link
   name                      = "firewall-boot-disk"
   physical_block_size_bytes = 4096
-  project                   = var.gcp_project
+  project                   = var.project
   size                      = var.boot_disk_size
   type                      = "pd-standard"
   zone                      = data.google_compute_zones.available.names[0]

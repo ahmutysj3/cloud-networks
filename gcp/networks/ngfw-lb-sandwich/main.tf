@@ -29,8 +29,8 @@ module "instances" {
 module "fortigate" {
   count                   = var.deploy_fortigate ? 1 : 0
   source                  = "./modules/fortigate"
-  gcp_project             = var.gcp_project
-  gcp_region              = var.gcp_region
+  project                 = var.gcp_project
+  region                  = var.gcp_region
   boot_disk_size          = 100
   subnets                 = module.network.subnets
   vpcs                    = module.network.vpcs

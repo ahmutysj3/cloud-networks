@@ -22,16 +22,16 @@ resource "google_compute_address" "wan" {
 resource "google_compute_address" "wan_external" {
   name         = "external-wan-ip"
   address_type = "EXTERNAL"
-  region       = var.gcp_region
-  project      = var.gcp_project
+  region       = var.region
+  project      = var.project
 }
 
 # creates the internal load balancer private ip
 resource "google_compute_address" "lb_internal" {
   name         = "internal-lb-ip"
   address_type = "INTERNAL"
-  region       = var.gcp_region
-  project      = var.gcp_project
+  region       = var.region
+  project      = var.project
   subnetwork   = var.subnets.trusted-subnet.self_link
   address      = cidrhost(var.subnets.trusted-subnet.ip_cidr_range, 2)
 }
@@ -39,7 +39,7 @@ resource "google_compute_address" "lb_internal" {
 resource "google_compute_address" "lb_external" {
   name         = "external-lb-ip"
   address_type = "EXTERNAL"
-  region       = var.gcp_region
-  project      = var.gcp_project
+  region       = var.region
+  project      = var.project
 
 }
