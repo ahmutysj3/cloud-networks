@@ -1,3 +1,6 @@
+data "google_client_config" "this" {
+}
+
 # Creates a Cloud Router for the untrusted network
 resource "google_compute_router" "this" {
   name    = "${var.vpc_name}-cloud-router"
@@ -17,36 +20,5 @@ resource "google_compute_router_nat" "this" {
   log_config {
     enable = var.log_config.enable
     filter = var.log_config.filter
-  }
-}
-
-variable "vpc_name" {
-  type = string
-}
-
-variable "network" {
-  type = string
-}
-
-
-data "google_client_config" "this" {
-}
-
-
-variable "nat_ip_allocate_option" {
-  type    = string
-  default = "AUTO_ONLY"
-}
-
-variable "source_subnetwork_ip_ranges_to_nat" {
-  type    = string
-  default = "ALL_SUBNETWORKS_ALL_IP_RANGES"
-}
-
-variable "log_config" {
-  type = map(string)
-  default = {
-    enable = true
-    filter = "ERRORS_ONLY"
   }
 }

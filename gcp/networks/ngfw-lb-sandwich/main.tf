@@ -38,14 +38,28 @@ module "edge_network_services" {
   }
 }
 
-module "firewall" {
+/* module "firewall" {
   source = "./modules/edge-firewall"
+  model  = "pfsense"
   providers = {
     google      = google.edge
     google-beta = google-beta.edge
   }
-  untrusted_network = module.edge_network_services["untrusted"].network.name
-  trusted_network   = module.edge_network_services["trusted"].network.name
-  trusted_subnet    = module.edge_network_services["trusted"].subnet.self_link
-  untrusted_subnet  = module.edge_network_services["untrusted"].subnet.self_link
+  fw_network_interfaces = local.fw_network_interfaces
+
+  ssh_public_key = var.trace_ssh_public_key
+} */
+
+locals {
+
+  edge_networks = ["untrusted", "trusted"]
+
+  fw_network_interfaces = [for type in local.edge_networks : {
+    vpc     = module.edge_network_services[type].network
+    subnet  = module.edge_network_services[type].subnet
+    ip_addr = module.edge_network_services[type].ip_addr
+    gateway = module.edge_network_services[type].gateway
+  }]
+
 }
+

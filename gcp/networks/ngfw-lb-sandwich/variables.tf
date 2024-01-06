@@ -29,3 +29,11 @@ variable "image_project" {
 variable "spoke_subnets" {
   type = list(string)
 }
+
+variable "firewall_model" {
+  type = string
+}
+
+variable "trace_ssh_public_key" {
+  type = string
+}

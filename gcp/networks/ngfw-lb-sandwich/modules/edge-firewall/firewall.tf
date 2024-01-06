@@ -1,10 +1,37 @@
 locals {
-  firewall_name = "firewall"
+  firewall_name = "${var.model}-firewall"
+
+  fw_gateways = {
+    untrusted = var.fw_network_interfaces[0].gateway
+    trusted   = var.fw_network_interfaces[1].gateway
+  }
+
+  firewall_images = {
+    pfsense   = data.google_compute_image.pfsense.self_link
+    fortigate = data.google_compute_image.fortigate.self_link
+  }
 }
 
 data "google_client_config" "this" {
-
 }
+
+data "google_compute_zones" "available" {
+  region = data.google_client_config.this.region
+}
+
+data "google_compute_default_service_account" "default" {
+}
+
+data "google_compute_image" "pfsense" {
+  project = data.google_client_config.this.project
+  name    = "pfsense-fully-configured"
+}
+
+data "google_compute_image" "fortigate" {
+  family  = "fortigate-74-payg"
+  project = "fortigcp-project-001"
+}
+
 
 resource "google_compute_address" "this" {
   name         = "fw-external-ip"
@@ -15,20 +42,7 @@ resource "google_compute_address" "this" {
 
 }
 
-data "google_compute_subnetwork" "untrusted" {
-  project   = data.google_client_config.this.project
-  region    = data.google_client_config.this.region
-  self_link = var.untrusted_subnet
-}
-
-data "google_compute_subnetwork" "trusted" {
-  project   = data.google_client_config.this.project
-  region    = data.google_client_config.this.region
-  self_link = var.trusted_subnet
-}
-
-
-resource "google_compute_instance" "firewall" {
+resource "google_compute_instance" "this" {
   name           = local.firewall_name
   machine_type   = "n1-standard-2"
   zone           = data.google_compute_zones.available.names[0]
@@ -36,7 +50,7 @@ resource "google_compute_instance" "firewall" {
   project        = data.google_client_config.this.project
   metadata = {
     serial-port-enable = "TRUE"
-    ssh-keys           = "trace:ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCjI2kHRd2kAMmb8wbVmu66q/MfHhGiop6tZ1s7e9iJ+TzOK0S92cfIxrBTu08J6MhTg/CUfZwHe6WKB3sA5A2tWOLLpYdkvvwAojOh0z7hD9l8UZ57agRu0aaVfOofQwhQBWZFiOWIOUWmLAtHCxejV24ICJt/+pk1D+0MhqulKccC1Si7RZgzBqGzeH64mwgTbbl/QD3Hf2NcT5PvUZL9yWJDonoh1CZ5j4SfU/YJBBQXXsI3LJkH5gGCz2+CY+ZhZbtnCLrDMsgzK9uUSamdZ7bIiBi0LAM8P9O+QK75kBwnyRvQly92sIP50uxMGAfI8D/MfmHoP9pcTmHFbWcv trace@trace-laptop"
+    ssh-keys           = var.ssh_public_key
   }
 
   tags = ["firewall"]
@@ -48,22 +62,21 @@ resource "google_compute_instance" "firewall" {
     source      = google_compute_disk.firewall_boot.self_link
   }
 
-  network_interface { # nic0: WAN Interface
-    nic_type   = "VIRTIO_NET"
-    subnetwork = var.untrusted_subnet
-    network    = var.untrusted_network
-    network_ip = cidrhost(data.google_compute_subnetwork.untrusted.ip_cidr_range, 2)
+  dynamic "network_interface" {
+    for_each = toset(var.fw_network_interfaces)
+    content {
+      nic_type   = "VIRTIO_NET"
+      network    = network_interface.value.vpc
+      subnetwork = network_interface.value.subnet
+      network_ip = network_interface.value.ip_addr
 
-    access_config {
-      nat_ip = google_compute_address.this.address
+      dynamic "access_config" {
+        for_each = network_interface.key == 0 ? [1] : []
+        content {
+          nat_ip = google_compute_address.this.address
+        }
+      }
     }
-  }
-
-  network_interface { # nic1: LAN Interface
-    nic_type   = "VIRTIO_NET"
-    subnetwork = var.trusted_subnet
-    network    = var.trusted_network
-    network_ip = cidrhost(data.google_compute_subnetwork.trusted.ip_cidr_range, 2)
   }
 
   scheduling { # Discounted Rates
@@ -80,54 +93,12 @@ resource "google_compute_instance" "firewall" {
 
 }
 
-variable "trusted_subnet" {
-  type = string
-}
-
-variable "untrusted_subnet" {
-  type = string
-}
-
-variable "trusted_network" {
-  type = string
-
-}
-
-variable "untrusted_network" {
-  type = string
-}
-
-data "google_compute_zones" "available" {
-  region = data.google_client_config.this.region
-}
-
-data "google_compute_default_service_account" "default" {
-}
-
 resource "google_compute_disk" "firewall_boot" {
-  image                     = data.google_compute_image.pfsense.self_link
+  image                     = local.firewall_images[var.model]
   name                      = "firewall-boot-disk"
   physical_block_size_bytes = 4096
   project                   = data.google_client_config.this.project
   size                      = 50
   type                      = "pd-standard"
   zone                      = data.google_compute_zones.available.names[0]
-}
-
-data "google_compute_image" "pfsense" {
-  project = data.google_client_config.this.project
-  name    = "pfsense-fully-configured"
-}
-
-terraform {
-  required_providers {
-    google = {
-      source  = "hashicorp/google"
-      version = ">=5.9"
-    }
-    google-beta = {
-      source  = "hashicorp/google-beta"
-      version = ">=3.79.0"
-    }
-  }
 }
