@@ -37,3 +37,15 @@ module "edge_network_services" {
     google-beta = google-beta.edge
   }
 }
+
+module "firewall" {
+  source = "./modules/edge-firewall"
+  providers = {
+    google      = google.edge
+    google-beta = google-beta.edge
+  }
+  untrusted_network = module.edge_network_services["untrusted"].network.name
+  trusted_network   = module.edge_network_services["trusted"].network.name
+  trusted_subnet    = module.edge_network_services["trusted"].subnet.self_link
+  untrusted_subnet  = module.edge_network_services["untrusted"].subnet.self_link
+}
