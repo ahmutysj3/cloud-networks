@@ -34,6 +34,7 @@ resource "google_compute_firewall" "egress" {
 }
 
 resource "google_compute_route" "this" {
+  depends_on  = [google_compute_subnetwork.this]
   count       = var.vpc == "trusted" ? 1 : 0
   project     = data.google_client_config.this.project
   name        = "default-fw-route"

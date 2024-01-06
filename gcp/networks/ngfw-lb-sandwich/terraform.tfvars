@@ -1,14 +1,8 @@
-image_project = "trace-vpc-edge"
+image_project = "trace-terraform-"
 edge_project  = "trace-vpc-edge"
-prod_project  = "trace-vpc-app-prod"
-dev_project   = "trace-vpc-app-dev"
-bu1_project   = "trace-vm-business-unit1"
-bu2_project   = "trace-vm-business-unit2"
 
+gcp_region = "us-east1"
 
-
-gcp_region       = "us-east1"
-deploy_fortigate = false
 edge_vpcs = {
   untrusted = {
     cidr    = "10.255.0.0/24"

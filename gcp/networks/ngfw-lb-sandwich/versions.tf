@@ -10,8 +10,9 @@ terraform {
     }
   }
 
-  backend "local" {
-    path = "./terraform.tfstate"
+  backend "gcs" {
+    bucket = "trace_terraform_perm_bucket"
+    prefix = "gcp/networks/edge"
   }
 }
 

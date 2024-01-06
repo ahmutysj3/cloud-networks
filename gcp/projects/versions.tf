@@ -6,7 +6,7 @@ terraform {
     }
   }
   backend "gcs" {
-    bucket = "trace-terraform-state-bucket"
-    prefix = "gcp/networks/projects"
+    bucket = "trace_terraform_perm_bucket"
+    prefix = "gcp/projects"
   }
 }
