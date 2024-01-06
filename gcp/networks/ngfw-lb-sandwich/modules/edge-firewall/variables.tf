@@ -3,6 +3,7 @@ variable "fw_network_interfaces" {
     vpc     = string
     subnet  = string
     ip_addr = string
+    gateway = string
   }))
 }
 

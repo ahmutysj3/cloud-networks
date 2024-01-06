@@ -79,7 +79,7 @@ resource "google_compute_forwarding_rule" "elb" {
 }
 
 resource "google_compute_region_backend_service" "elb" {
-  name                  = "elb-backend-service"
+  name                  = "firewall-elb"
   region                = var.region
   session_affinity      = "CLIENT_IP"
   project               = var.project
@@ -109,4 +109,5 @@ resource "google_compute_instance_group" "firewall" {
   name      = "firewall-instance-group"
   zone      = google_compute_instance.firewall.zone
   instances = [google_compute_instance.firewall.self_link]
+  network   = google_compute_instance.firewall.network_interface[0].network
 }

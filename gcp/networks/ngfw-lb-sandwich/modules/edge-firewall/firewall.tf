@@ -24,7 +24,7 @@ data "google_compute_default_service_account" "default" {
 
 data "google_compute_image" "pfsense" {
   project = data.google_client_config.this.project
-  name    = "pfsense-fully-configured"
+  name    = "pfsense-272-configured"
 }
 
 data "google_compute_image" "fortigate" {
@@ -33,13 +33,63 @@ data "google_compute_image" "fortigate" {
 }
 
 
-resource "google_compute_address" "this" {
-  name         = "fw-external-ip"
+resource "google_compute_address" "elb" {
+  name         = "firewall-elb-vip"
   address_type = "EXTERNAL"
   project      = data.google_client_config.this.project
   ip_version   = "IPV4"
   region       = data.google_client_config.this.region
+}
 
+resource "google_compute_address" "test" {
+  name         = "fw-test-external-ip"
+  address_type = "EXTERNAL"
+  project      = data.google_client_config.this.project
+  ip_version   = "IPV4"
+  region       = data.google_client_config.this.region
+}
+
+resource "google_compute_forwarding_rule" "elb" {
+  provider        = google-beta
+  name            = "firewall-elb-fwd-rule"
+  backend_service = google_compute_region_backend_service.elb.id
+  ip_protocol     = "L3_DEFAULT"
+  ip_address      = google_compute_address.elb.address
+  all_ports       = true
+}
+
+resource "google_compute_region_backend_service" "elb" {
+  provider              = google-beta
+  region                = data.google_client_config.this.region
+  name                  = "firewall-elb"
+  health_checks         = [google_compute_region_health_check.elb.id]
+  protocol              = "UNSPECIFIED"
+  load_balancing_scheme = "EXTERNAL"
+
+  backend {
+    group = google_compute_instance_group.this.self_link
+  }
+
+}
+
+resource "google_compute_region_health_check" "elb" {
+  provider            = google-beta
+  name                = "firewall-elb-health-check"
+  region              = data.google_client_config.this.region
+  timeout_sec         = 3
+  check_interval_sec  = 5
+  unhealthy_threshold = 2
+
+  tcp_health_check {
+    port = 8001
+  }
+}
+
+resource "google_compute_instance_group" "this" {
+  provider  = google
+  name      = "firewall-elb-instance-group"
+  zone      = google_compute_instance.this.zone
+  instances = [google_compute_instance.this.id]
 }
 
 resource "google_compute_instance" "this" {
@@ -63,7 +113,7 @@ resource "google_compute_instance" "this" {
   }
 
   dynamic "network_interface" {
-    for_each = toset(var.fw_network_interfaces)
+    for_each = var.fw_network_interfaces
     content {
       nic_type   = "VIRTIO_NET"
       network    = network_interface.value.vpc
@@ -71,9 +121,9 @@ resource "google_compute_instance" "this" {
       network_ip = network_interface.value.ip_addr
 
       dynamic "access_config" {
-        for_each = network_interface.key == 0 ? [1] : []
+        for_each = network_interface.value.vpc == "untrusted-vpc" ? [1] : []
         content {
-          nat_ip = google_compute_address.this.address
+          nat_ip = google_compute_address.test.address
         }
       }
     }

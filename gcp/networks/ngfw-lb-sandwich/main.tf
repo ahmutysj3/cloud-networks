@@ -38,7 +38,7 @@ module "edge_network_services" {
   }
 }
 
-/* module "firewall" {
+module "firewall" {
   source = "./modules/edge-firewall"
   model  = "pfsense"
   providers = {
@@ -48,7 +48,7 @@ module "edge_network_services" {
   fw_network_interfaces = local.fw_network_interfaces
 
   ssh_public_key = var.trace_ssh_public_key
-} */
+}
 
 locals {
 
