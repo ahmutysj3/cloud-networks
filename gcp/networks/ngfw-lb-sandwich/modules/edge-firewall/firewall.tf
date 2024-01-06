@@ -14,6 +14,20 @@ resource "google_compute_address" "this" {
   region       = data.google_client_config.this.region
 
 }
+
+data "google_compute_subnetwork" "untrusted" {
+  project   = data.google_client_config.this.project
+  region    = data.google_client_config.this.region
+  self_link = var.untrusted_subnet
+}
+
+data "google_compute_subnetwork" "trusted" {
+  project   = data.google_client_config.this.project
+  region    = data.google_client_config.this.region
+  self_link = var.trusted_subnet
+}
+
+
 resource "google_compute_instance" "firewall" {
   name           = local.firewall_name
   machine_type   = "n1-standard-2"
@@ -38,6 +52,7 @@ resource "google_compute_instance" "firewall" {
     nic_type   = "VIRTIO_NET"
     subnetwork = var.untrusted_subnet
     network    = var.untrusted_network
+    network_ip = cidrhost(data.google_compute_subnetwork.untrusted.ip_cidr_range, 2)
 
     access_config {
       nat_ip = google_compute_address.this.address
@@ -48,6 +63,7 @@ resource "google_compute_instance" "firewall" {
     nic_type   = "VIRTIO_NET"
     subnetwork = var.trusted_subnet
     network    = var.trusted_network
+    network_ip = cidrhost(data.google_compute_subnetwork.trusted.ip_cidr_range, 2)
   }
 
   scheduling { # Discounted Rates
@@ -99,13 +115,13 @@ resource "google_compute_disk" "firewall_boot" {
 }
 
 data "google_compute_snapshot" "pfsense" {
-  project = "trace-terraform-perm"
-  name    = "pfsense-partioned"
+  project = data.google_client_config.this.project
+  name    = "pfsense-configured"
 }
 
 resource "google_compute_image" "pfsense" {
   project         = data.google_client_config.this.project
-  name            = "pfsense-partioned-blank-image"
+  name            = "pfsense-configured-image"
   source_snapshot = data.google_compute_snapshot.pfsense.self_link
 }
 
