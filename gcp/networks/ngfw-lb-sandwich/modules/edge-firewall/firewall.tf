@@ -105,7 +105,7 @@ data "google_compute_default_service_account" "default" {
 }
 
 resource "google_compute_disk" "firewall_boot" {
-  image                     = google_compute_image.pfsense.self_link
+  image                     = data.google_compute_image.pfsense.self_link
   name                      = "firewall-boot-disk"
   physical_block_size_bytes = 4096
   project                   = data.google_client_config.this.project
@@ -114,15 +114,9 @@ resource "google_compute_disk" "firewall_boot" {
   zone                      = data.google_compute_zones.available.names[0]
 }
 
-data "google_compute_snapshot" "pfsense" {
+data "google_compute_image" "pfsense" {
   project = data.google_client_config.this.project
-  name    = "pfsense-configured"
-}
-
-resource "google_compute_image" "pfsense" {
-  project         = data.google_client_config.this.project
-  name            = "pfsense-configured-image"
-  source_snapshot = data.google_compute_snapshot.pfsense.self_link
+  name    = "pfsense-fully-configured"
 }
 
 terraform {
