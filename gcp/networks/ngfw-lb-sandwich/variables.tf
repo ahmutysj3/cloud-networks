@@ -2,6 +2,14 @@ variable "edge_project" {
   type = string
 }
 
+variable "prod_vpc_project" {
+  type = string
+}
+
+variable "dev_vpc_project" {
+  type = string
+}
+
 variable "gcp_region" {
   type = string
 }
@@ -16,4 +24,8 @@ variable "edge_vpcs" {
 
 variable "image_project" {
   type = string
+}
+
+variable "spoke_subnets" {
+  type = list(string)
 }

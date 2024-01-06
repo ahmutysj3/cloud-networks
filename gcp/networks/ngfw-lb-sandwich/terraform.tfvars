@@ -1,18 +1,18 @@
-image_project = "trace-terraform-"
-edge_project  = "trace-vpc-edge"
+image_project    = "trace-terraform-perm"
+edge_project     = "trace-vpc-edge"
+prod_vpc_project = "trace-vpc-app-prod"
+dev_vpc_project  = "trace-vpc-app-dev"
 
 gcp_region = "us-east1"
 
 edge_vpcs = {
   untrusted = {
-    cidr    = "10.255.0.0/24"
-    project = "trace-vpc-edge"
-    router  = true
+    cidr   = "10.255.0.0/24"
+    router = true
   }
   trusted = {
-    cidr    = "10.0.0.0/24"
-    project = "trace-vpc-edge"
-    router  = false
+    cidr   = "10.0.0.0/24"
+    router = false
   }
 }
 
@@ -26,3 +26,5 @@ spoke_vpcs = {
     project = "trace-vpc-app-dev"
   }
 }
+
+spoke_subnets = ["application", "database", "management"]
