@@ -61,7 +61,8 @@ resource "google_compute_address" "ilb" {
   ip_version   = "IPV4"
   region       = data.google_client_config.this.region
   subnetwork   = data.google_compute_subnetwork.trusted.self_link
-  address      = cidrhost(data.google_compute_subnetwork.trusted.ip_cidr_range, 3)
+  #network      = data.google_compute_network.trusted.self_link
+  address = cidrhost(data.google_compute_subnetwork.trusted.ip_cidr_range, 3)
 }
 
 resource "google_compute_forwarding_rule" "ilb" {
@@ -69,7 +70,7 @@ resource "google_compute_forwarding_rule" "ilb" {
   name                  = "firewall-ilb-fwd-rule"
   load_balancing_scheme = "INTERNAL"
   project               = data.google_client_config.this.project
-  network               = google_compute_instance.this.network_interface[1].network
+  network               = data.google_compute_network.trusted.self_link
   subnetwork            = google_compute_instance.this.network_interface[1].subnetwork
   ip_protocol           = "L3_DEFAULT"
   all_ports             = true
@@ -91,6 +92,21 @@ resource "google_compute_region_health_check" "ilb" {
   }
 }
 
+data "google_compute_network" "trusted" {
+  project = data.google_client_config.this.project
+  name    = var.fw_network_interfaces[1].vpc
+}
+
+resource "google_compute_route" "this" {
+  provider    = google
+  name        = "default-fw-ilbnh-route"
+  network     = data.google_compute_network.trusted.self_link
+  dest_range  = "0.0.0.0/0"
+  priority    = 1
+  next_hop_ip = google_compute_forwarding_rule.ilb.ip_address
+
+}
+
 resource "google_compute_region_backend_service" "ilb" {
   provider              = google-beta
   project               = data.google_client_config.this.project
@@ -99,7 +115,7 @@ resource "google_compute_region_backend_service" "ilb" {
   health_checks         = [google_compute_region_health_check.ilb.id]
   protocol              = "UNSPECIFIED"
   load_balancing_scheme = "INTERNAL"
-  network               = google_compute_instance.this.network_interface[1].network
+  network               = data.google_compute_network.trusted.self_link
   session_affinity      = "NONE"
 
   backend {

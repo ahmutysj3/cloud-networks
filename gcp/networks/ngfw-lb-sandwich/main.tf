@@ -39,8 +39,9 @@ module "edge_network_services" {
 }
 
 module "firewall" {
-  source = "./modules/edge-firewall"
-  model  = "pfsense"
+  depends_on = [module.edge_network_services]
+  source     = "./modules/edge-firewall"
+  model      = "pfsense"
   providers = {
     google      = google.edge
     google-beta = google-beta.edge
