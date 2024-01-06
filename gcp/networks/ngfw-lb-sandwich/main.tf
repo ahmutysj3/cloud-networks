@@ -48,6 +48,7 @@ module "edge_network_services" {
   for_each = var.edge_vpcs
   ip_block = each.value.cidr
   project  = each.value.project
+  router   = each.value.router
   vpc      = each.key
   providers = {
     google      = google.edge

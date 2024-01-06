@@ -64,33 +64,6 @@ resource "google_compute_firewall" "egress" {
   }
 }
 
-# Creates a Cloud Router for the untrusted network
-resource "google_compute_router" "edge_ext" {
-  name    = "trace-untrusted-cloud-router"
-  region  = google_compute_network.this["untrusted"].region
-  project = google_compute_network.this["untrusted"].project
-  network = google_compute_network.this["untrusted"].name
-}
-
-# Creates a Cloud Router for the untrusted network
-resource "google_compute_router_nat" "edge_ext" {
-  name                               = "${google_compute_router.edge_ext.name}-nat"
-  router                             = google_compute_router.edge_ext.name
-  region                             = google_compute_router.edge_ext.region
-  nat_ip_allocate_option             = "AUTO_ONLY"
-  source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
-
-  subnetwork {
-    name                    = google_compute_subnetwork.hub["untrusted"].self_link
-    source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
-  }
-
-  log_config {
-    enable = true
-    filter = "ERRORS_ONLY"
-  }
-}
-
 resource "google_compute_instance_from_machine_image" "pfsense" {
   depends_on           = [google_compute_subnetwork.hub]
   count                = var.deploy_pfsense ? 1 : 0
@@ -148,16 +121,7 @@ resource "google_compute_region_backend_service" "this" {
   }
 }
 
-resource "google_compute_subnetwork" "hub" {
-  for_each      = { for k, v in var.vpcs : k => v if length(regexall("app-*", k)) > 0 }
-  project       = each.value.project
-  name          = "${each.key}-subnet"
-  ip_cidr_range = each.value.cidr
-  region        = google_compute_network.this[each.key].region
-  network       = google_compute_network.this[each.key].name
-  purpose       = "PRIVATE"
-  stack_type    = "IPV4_ONLY"
-}
+
 
 module "spoke_subnets" {
   source      = "./subnets"

@@ -13,10 +13,12 @@ edge_vpcs = {
   untrusted = {
     cidr    = "10.255.0.0/24"
     project = "trace-vpc-edge"
+    router  = true
   }
   trusted = {
     cidr    = "10.0.0.0/24"
     project = "trace-vpc-edge"
+    router  = false
   }
 }
 

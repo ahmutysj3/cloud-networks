@@ -13,3 +13,7 @@ variable "vm_services" {
 variable "edge_project" {
   type = string
 }
+
+variable "vm_project" {
+  type = string
+}

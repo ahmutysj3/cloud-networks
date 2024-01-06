@@ -4,7 +4,6 @@ data "google_projects" "this" {
 
 locals {
   project_ids      = [for project in data.google_projects.this.projects : project.project_id]
-  vm_projects      = [for project in local.project_ids : project if length(regexall("^trace-vm-.*", project)) > 0]
   app_vpc_projects = [for project in local.project_ids : project if length(regexall("^trace-vpc-app-.*", project)) > 0]
 }
 
@@ -21,9 +20,8 @@ module "app_vpc_projects" {
   services = var.app_network_services
 }
 
-module "vm_projects" {
+module "vm_project" {
   source   = "./services"
-  for_each = toset(local.vm_projects)
-  project  = each.key
+  project  = var.vm_project
   services = var.vm_services
 }

@@ -33,6 +33,33 @@ resource "google_compute_firewall" "egress" {
   }
 }
 
+resource "google_compute_route" "this" {
+  count       = var.vpc == "trusted" ? 1 : 0
+  project     = data.google_client_config.this.project
+  name        = "default-fw-route"
+  network     = google_compute_network.this.name
+  dest_range  = "0.0.0.0/0"
+  next_hop_ip = cidrhost(var.ip_block, 2)
+  priority    = 1
+}
+
+resource "google_compute_subnetwork" "this" {
+  project       = data.google_client_config.this.project
+  name          = "${var.vpc}-subnet"
+  ip_cidr_range = var.ip_block
+  region        = data.google_client_config.this.region
+  network       = google_compute_network.this.name
+  purpose       = "PRIVATE"
+  stack_type    = "IPV4_ONLY"
+}
+
+module "cloud_router" {
+  source   = "./cloud-router"
+  count    = var.router ? 1 : 0
+  vpc_name = var.vpc
+  network  = google_compute_network.this.name
+}
+
 data "google_compute_zones" "available" {
   project = data.google_client_config.this.project
   region  = data.google_client_config.this.region
@@ -41,14 +68,12 @@ data "google_compute_zones" "available" {
 data "google_client_config" "this" {
 }
 
-output "google_client_config" {
-  value = data.google_client_config.this
-
-}
-
 variable "ip_block" {
   type = string
+}
 
+variable "router" {
+  type = bool
 }
 
 variable "project" {
