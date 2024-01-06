@@ -24,7 +24,7 @@ data "google_compute_default_service_account" "default" {
 
 data "google_compute_image" "pfsense" {
   project = data.google_client_config.this.project
-  name    = "pfsense-272-configured"
+  name    = "pfsense-272-full-configure"
 }
 
 data "google_compute_image" "fortigate" {
@@ -47,6 +47,64 @@ resource "google_compute_address" "test" {
   project      = data.google_client_config.this.project
   ip_version   = "IPV4"
   region       = data.google_client_config.this.region
+}
+
+data "google_compute_subnetwork" "trusted" {
+  project   = data.google_client_config.this.project
+  self_link = var.fw_network_interfaces[1].subnet
+}
+
+resource "google_compute_address" "ilb" {
+  name         = "firewall-ilb-vip"
+  address_type = "INTERNAL"
+  project      = data.google_client_config.this.project
+  ip_version   = "IPV4"
+  region       = data.google_client_config.this.region
+  subnetwork   = data.google_compute_subnetwork.trusted.self_link
+  address      = cidrhost(data.google_compute_subnetwork.trusted.ip_cidr_range, 3)
+}
+
+resource "google_compute_forwarding_rule" "ilb" {
+  provider              = google-beta
+  name                  = "firewall-ilb-fwd-rule"
+  load_balancing_scheme = "INTERNAL"
+  project               = data.google_client_config.this.project
+  network               = google_compute_instance.this.network_interface[1].network
+  subnetwork            = google_compute_instance.this.network_interface[1].subnetwork
+  ip_protocol           = "L3_DEFAULT"
+  all_ports             = true
+  ip_address            = google_compute_address.ilb.address
+  backend_service       = google_compute_region_backend_service.ilb.id
+}
+
+resource "google_compute_region_health_check" "ilb" {
+  provider            = google-beta
+  project             = data.google_client_config.this.project
+  name                = "firewall-ilb-health-check"
+  region              = data.google_client_config.this.region
+  timeout_sec         = 3
+  check_interval_sec  = 5
+  unhealthy_threshold = 2
+
+  tcp_health_check {
+    port = 8001
+  }
+}
+
+resource "google_compute_region_backend_service" "ilb" {
+  provider              = google-beta
+  project               = data.google_client_config.this.project
+  region                = data.google_client_config.this.region
+  name                  = "firewall-ilb"
+  health_checks         = [google_compute_region_health_check.ilb.id]
+  protocol              = "UNSPECIFIED"
+  load_balancing_scheme = "INTERNAL"
+  network               = google_compute_instance.this.network_interface[1].network
+  session_affinity      = "NONE"
+
+  backend {
+    group = google_compute_instance_group.this.self_link
+  }
 }
 
 resource "google_compute_forwarding_rule" "elb" {
