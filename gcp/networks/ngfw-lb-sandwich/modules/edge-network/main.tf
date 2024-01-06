@@ -6,6 +6,11 @@ resource "google_compute_network" "this" {
   delete_default_routes_on_create = true
 }
 
+output "network" {
+  value = google_compute_network.this
+
+}
+
 locals {
   default_fw_rules = ["ingress", "egress"]
 }
@@ -36,6 +41,11 @@ resource "google_compute_address" "this" {
   purpose      = "SHARED_LOADBALANCER_VIP"
   address      = cidrhost(google_compute_subnetwork.this.ip_cidr_range, 2)
   subnetwork   = google_compute_subnetwork.this.self_link
+}
+
+output "next_hop_ip" {
+  value = google_compute_address.this.address
+
 }
 
 resource "google_compute_route" "this" {
