@@ -24,7 +24,7 @@ data "google_compute_default_service_account" "default" {
 
 data "google_compute_image" "pfsense" {
   project = data.google_client_config.this.project
-  name    = "pfsense-272-full-configure"
+  name    = "pfsense-272-fully-configured-image"
 }
 
 data "google_compute_image" "fortigate" {
