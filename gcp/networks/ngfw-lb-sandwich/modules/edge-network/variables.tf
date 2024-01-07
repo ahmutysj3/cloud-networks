@@ -9,3 +9,7 @@ variable "router" {
 variable "vpc" {
   type = string
 }
+
+variable "spoke_vpcs" {
+  type = map(string)
+}

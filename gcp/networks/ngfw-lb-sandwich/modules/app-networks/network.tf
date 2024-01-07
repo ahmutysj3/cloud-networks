@@ -18,6 +18,11 @@ resource "google_compute_subnetwork" "this" {
   network       = google_compute_network.this.name
 }
 
+output "network" {
+  value = {
+    "${var.vpc_name}" : google_compute_network.this.self_link
+  }
+}
 
 variable "ip_block" {
   type = string

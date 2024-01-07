@@ -27,11 +27,12 @@ module "spoke_vpc_dev" {
 }
 
 module "edge_network_services" {
-  source   = "./modules/edge-network"
-  for_each = var.edge_vpcs
-  ip_block = each.value.cidr
-  router   = each.value.router
-  vpc      = each.key
+  source     = "./modules/edge-network"
+  for_each   = var.edge_vpcs
+  ip_block   = each.value.cidr
+  router     = each.value.router
+  vpc        = each.key
+  spoke_vpcs = merge(module.spoke_vpc_prod.network, module.spoke_vpc_dev.network)
   providers = {
     google      = google.edge
     google-beta = google-beta.edge
@@ -61,6 +62,5 @@ locals {
     ip_addr = module.edge_network_services[type].ip_addr
     gateway = module.edge_network_services[type].gateway
   }]
-
 }
 

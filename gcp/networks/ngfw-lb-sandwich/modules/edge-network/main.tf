@@ -17,6 +17,15 @@ module "cloud_router" {
   network  = google_compute_network.this.name
 }
 
+module "peerings" {
+  source              = "./peerings"
+  for_each            = { for k, v in var.spoke_vpcs : k => v if var.vpc == "untrusted" }
+  hub_vpc_name        = google_compute_network.this.name
+  hub_vpc_self_link   = google_compute_network.this.self_link
+  spoke_vpc_name      = each.key
+  spoke_vpc_self_link = each.value
+}
+
 resource "google_compute_network" "this" {
   provider                        = google
   name                            = "${var.vpc}-vpc"
@@ -52,3 +61,7 @@ resource "google_compute_firewall" "this" {
   }
   target_tags = ["firewall"]
 }
+
+
+
+
