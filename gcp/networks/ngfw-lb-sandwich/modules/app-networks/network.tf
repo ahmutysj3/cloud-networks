@@ -19,9 +19,7 @@ resource "google_compute_subnetwork" "this" {
 }
 
 output "network" {
-  value = {
-    "${var.vpc_name}" : google_compute_network.this.self_link
-  }
+  value = google_compute_network.this.self_link
 }
 
 variable "ip_block" {
@@ -52,7 +50,7 @@ terraform {
     }
     google-beta = {
       source  = "hashicorp/google-beta"
-      version = ">=3.79.0"
+      version = ">=5.9"
     }
   }
 }

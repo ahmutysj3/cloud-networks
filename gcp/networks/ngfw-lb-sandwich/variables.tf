@@ -6,10 +6,6 @@ variable "prod_vpc_project" {
   type = string
 }
 
-variable "dev_vpc_project" {
-  type = string
-}
-
 variable "gcp_region" {
   type = string
 }

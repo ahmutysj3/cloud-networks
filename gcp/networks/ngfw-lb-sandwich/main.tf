@@ -7,33 +7,22 @@ locals {
     ip_addr = module.edge_network_services[type].ip_addr
     gateway = module.edge_network_services[type].gateway
   }]
+
+  peer_vpcs = { for vpcs, spoke in module.spoke_vpcs : vpcs => spoke.network }
 }
 
-module "spoke_vpc_prod" {
+module "spoke_vpcs" {
   source        = "./modules/app-networks"
-  ip_block      = var.spoke_vpcs["prod"].cidr
-  project       = var.spoke_vpcs["prod"].project
-  vpc_name      = "prod-vpc"
+  for_each      = var.spoke_vpcs
+  ip_block      = each.value.cidr
+  project       = each.value.project
+  vpc_name      = "${each.key}-vpc"
   spoke_subnets = var.spoke_subnets
   region        = var.gcp_region
 
   providers = {
-    google      = google.spoke1
-    google-beta = google-beta.spoke1
-  }
-}
-
-module "spoke_vpc_dev" {
-  source        = "./modules/app-networks"
-  ip_block      = var.spoke_vpcs["dev"].cidr
-  project       = var.spoke_vpcs["dev"].project
-  vpc_name      = "dev-vpc"
-  spoke_subnets = var.spoke_subnets
-  region        = var.gcp_region
-
-  providers = {
-    google      = google.spoke2
-    google-beta = google-beta.spoke2
+    google      = google.spoke
+    google-beta = google-beta.spoke
   }
 }
 
@@ -43,7 +32,7 @@ module "edge_network_services" {
   ip_block   = each.value.cidr
   router     = each.value.router
   vpc        = each.key
-  spoke_vpcs = merge(module.spoke_vpc_prod.network, module.spoke_vpc_dev.network)
+  spoke_vpcs = local.peer_vpcs
   providers = {
     google      = google.edge
     google-beta = google-beta.edge

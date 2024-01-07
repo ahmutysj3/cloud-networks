@@ -1,7 +1,6 @@
 image_project    = "trace-terraform-perm"
 edge_project     = "trace-vpc-edge"
-prod_vpc_project = "trace-vpc-app-prod"
-dev_vpc_project  = "trace-vpc-app-dev"
+prod_vpc_project = "trace-vpc-app-prod-410520"
 
 gcp_region = "us-east1"
 
@@ -17,13 +16,13 @@ edge_vpcs = {
 }
 
 spoke_vpcs = {
-  prod = {
+  app = {
     cidr    = "192.168.0.0/17"
-    project = "trace-vpc-app-prod"
+    project = "trace-vpc-app-prod-410520"
   }
-  dev = {
+  db = {
     cidr    = "192.168.128.0/17"
-    project = "trace-vpc-app-dev"
+    project = "trace-vpc-app-prod-410520"
   }
 }
 
