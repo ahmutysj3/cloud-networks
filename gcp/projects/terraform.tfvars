@@ -37,4 +37,3 @@ vm_services = [
 ]
 
 edge_project = "trace-vpc-edge"
-vm_project   = "trace-app-vm"
