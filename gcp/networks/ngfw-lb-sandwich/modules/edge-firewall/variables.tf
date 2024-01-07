@@ -14,3 +14,13 @@ variable "model" {
 variable "ssh_public_key" {
   type = string
 }
+
+variable "lb_types" {
+  type    = list(string)
+  default = ["ilb", "elb"]
+}
+
+variable "fw_gui_port" {
+  type    = number
+  default = 8001
+}

@@ -1,14 +1,20 @@
 locals {
-  firewall_name = "${var.model}-firewall"
-
   fw_gateways = {
     untrusted = var.fw_network_interfaces[0].gateway
     trusted   = var.fw_network_interfaces[1].gateway
   }
 
-  firewall_images = {
-    pfsense   = data.google_compute_image.pfsense.self_link
-    fortigate = data.google_compute_image.fortigate.self_link
+  names = {
+    instance_group = "firewall-instance-group"
+    instance       = "${var.model}-firewall-instance"
+    disk           = "firewall-boot-disk"
+    address        = "firewall-mgmt-external-ip"
+  }
+
+  firewall_image = {
+    project = var.model == "pfsense" ? data.google_client_config.this.project : "fortigcp-project-001"
+    name    = var.model == "pfsense" ? "pfsense-272-fully-configured" : null
+    family  = var.model == "fortigate" ? "fortigate-74-payg" : null
   }
 }
 
@@ -22,36 +28,40 @@ data "google_compute_zones" "available" {
 data "google_compute_default_service_account" "default" {
 }
 
-data "google_compute_image" "pfsense" {
-  project = data.google_client_config.this.project
-  name    = "pfsense-272-fully-configured"
+data "google_compute_image" "this" {
+  project = local.firewall_image.project
+  name    = local.firewall_image.name
+  family  = local.firewall_image.family
 }
 
-data "google_compute_image" "fortigate" {
-  family  = "fortigate-74-payg"
-  project = "fortigcp-project-001"
+module "load_balancers" {
+  source                   = "./load-balancers"
+  for_each                 = toset(var.lb_types)
+  lb_type                  = each.key
+  hc_port                  = var.fw_gui_port
+  instance_group_self_link = google_compute_instance_group.this.self_link
+  trusted_subnet           = var.fw_network_interfaces[1].subnet
+  trusted_network          = var.fw_network_interfaces[1].vpc
 }
 
-
-resource "google_compute_address" "mgmt" {
-  name         = "fw-mgmt-external-ip"
+resource "google_compute_address" "this" {
+  name         = local.names["address"]
   address_type = "EXTERNAL"
   project      = data.google_client_config.this.project
   ip_version   = "IPV4"
   region       = data.google_client_config.this.region
 }
 
-
 # Firewall instance and instance group
 resource "google_compute_instance_group" "this" {
   provider  = google
-  name      = "firewall-elb-instance-group"
+  name      = local.names["instance_group"]
   zone      = google_compute_instance.this.zone
   instances = [google_compute_instance.this.id]
 }
 
 resource "google_compute_instance" "this" {
-  name           = local.firewall_name
+  name           = local.names["instance"]
   machine_type   = "n1-standard-2"
   zone           = data.google_compute_zones.available.names[0]
   can_ip_forward = true
@@ -65,7 +75,7 @@ resource "google_compute_instance" "this" {
 
   boot_disk {
     auto_delete = true
-    device_name = "boot-disk"
+    device_name = local.names["disk"]
     mode        = "READ_WRITE"
     source      = google_compute_disk.firewall_boot.self_link
   }
@@ -81,7 +91,7 @@ resource "google_compute_instance" "this" {
       dynamic "access_config" {
         for_each = network_interface.value.vpc == "untrusted-vpc" ? [1] : []
         content {
-          nat_ip = google_compute_address.mgmt.address
+          nat_ip = google_compute_address.this.address
         }
       }
     }
@@ -102,41 +112,11 @@ resource "google_compute_instance" "this" {
 }
 
 resource "google_compute_disk" "firewall_boot" {
-  image                     = local.firewall_images[var.model]
-  name                      = "firewall-boot-disk"
+  image                     = data.google_compute_image.this.self_link
+  name                      = local.names["disk"]
   physical_block_size_bytes = 4096
   project                   = data.google_client_config.this.project
   size                      = 50
   type                      = "pd-standard"
   zone                      = data.google_compute_zones.available.names[0]
-}
-
-module "load_balancers" {
-  source                   = "./load-balancers"
-  for_each                 = toset(var.lb_types)
-  lb_type                  = each.key
-  hc_port                  = var.fw_gui_port
-  instance_group_self_link = google_compute_instance_group.this.self_link
-  trusted_subnet           = data.google_compute_subnetwork.trusted.self_link
-  trusted_network          = var.fw_network_interfaces[1].vpc
-}
-
-variable "lb_types" {
-  type    = list(string)
-  default = ["ilb", "elb"]
-}
-
-variable "fw_gui_port" {
-  type    = number
-  default = 8001
-}
-
-data "google_compute_network" "trusted" {
-  project = data.google_client_config.this.project
-  name    = var.fw_network_interfaces[1].vpc
-}
-
-data "google_compute_subnetwork" "trusted" {
-  project   = data.google_client_config.this.project
-  self_link = var.fw_network_interfaces[1].subnet
 }
