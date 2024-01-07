@@ -104,7 +104,6 @@ resource "google_compute_route" "this" {
   dest_range  = "0.0.0.0/0"
   priority    = 100
   next_hop_ip = google_compute_forwarding_rule.ilb.ip_address
-
 }
 
 resource "google_compute_region_backend_service" "ilb" {
