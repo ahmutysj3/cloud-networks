@@ -1,3 +1,14 @@
+locals {
+  edge_networks = ["untrusted", "trusted"]
+
+  fw_network_interfaces = [for type in local.edge_networks : {
+    vpc     = module.edge_network_services[type].network
+    subnet  = module.edge_network_services[type].subnet
+    ip_addr = module.edge_network_services[type].ip_addr
+    gateway = module.edge_network_services[type].gateway
+  }]
+}
+
 module "spoke_vpc_prod" {
   source        = "./modules/app-networks"
   ip_block      = var.spoke_vpcs["prod"].cidr
@@ -50,17 +61,5 @@ module "firewall" {
   fw_network_interfaces = local.fw_network_interfaces
 
   ssh_public_key = var.trace_ssh_public_key
-}
-
-locals {
-
-  edge_networks = ["untrusted", "trusted"]
-
-  fw_network_interfaces = [for type in local.edge_networks : {
-    vpc     = module.edge_network_services[type].network
-    subnet  = module.edge_network_services[type].subnet
-    ip_addr = module.edge_network_services[type].ip_addr
-    gateway = module.edge_network_services[type].gateway
-  }]
 }
 
