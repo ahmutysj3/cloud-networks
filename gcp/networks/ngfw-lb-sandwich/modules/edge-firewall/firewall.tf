@@ -102,7 +102,7 @@ resource "google_compute_route" "this" {
   name        = "default-fw-ilbnh-route"
   network     = data.google_compute_network.trusted.self_link
   dest_range  = "0.0.0.0/0"
-  priority    = 1
+  priority    = 100
   next_hop_ip = google_compute_forwarding_rule.ilb.ip_address
 
 }

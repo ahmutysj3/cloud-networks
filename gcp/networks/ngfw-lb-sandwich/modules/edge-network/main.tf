@@ -19,7 +19,7 @@ module "cloud_router" {
 
 module "peerings" {
   source              = "./peerings"
-  for_each            = { for k, v in var.spoke_vpcs : k => v if var.vpc == "untrusted" }
+  for_each            = { for k, v in var.spoke_vpcs : k => v if var.vpc == "trusted" }
   hub_vpc_name        = google_compute_network.this.name
   hub_vpc_self_link   = google_compute_network.this.self_link
   spoke_vpc_name      = each.key
