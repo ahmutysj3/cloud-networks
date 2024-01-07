@@ -24,7 +24,7 @@ data "google_compute_default_service_account" "default" {
 
 data "google_compute_image" "pfsense" {
   project = data.google_client_config.this.project
-  name    = "pfsense-272-fully-configured-image"
+  name    = "pfsense-272-fully-configured"
 }
 
 data "google_compute_image" "fortigate" {
@@ -33,131 +33,16 @@ data "google_compute_image" "fortigate" {
 }
 
 
-resource "google_compute_address" "elb" {
-  name         = "firewall-elb-vip"
+resource "google_compute_address" "mgmt" {
+  name         = "fw-mgmt-external-ip"
   address_type = "EXTERNAL"
   project      = data.google_client_config.this.project
   ip_version   = "IPV4"
   region       = data.google_client_config.this.region
 }
 
-resource "google_compute_address" "test" {
-  name         = "fw-test-external-ip"
-  address_type = "EXTERNAL"
-  project      = data.google_client_config.this.project
-  ip_version   = "IPV4"
-  region       = data.google_client_config.this.region
-}
 
-data "google_compute_subnetwork" "trusted" {
-  project   = data.google_client_config.this.project
-  self_link = var.fw_network_interfaces[1].subnet
-}
-
-resource "google_compute_address" "ilb" {
-  name         = "firewall-ilb-vip"
-  address_type = "INTERNAL"
-  project      = data.google_client_config.this.project
-  ip_version   = "IPV4"
-  region       = data.google_client_config.this.region
-  subnetwork   = data.google_compute_subnetwork.trusted.self_link
-  #network      = data.google_compute_network.trusted.self_link
-  address = cidrhost(data.google_compute_subnetwork.trusted.ip_cidr_range, 3)
-}
-
-resource "google_compute_forwarding_rule" "ilb" {
-  provider              = google-beta
-  name                  = "firewall-ilb-fwd-rule"
-  load_balancing_scheme = "INTERNAL"
-  project               = data.google_client_config.this.project
-  network               = data.google_compute_network.trusted.self_link
-  subnetwork            = google_compute_instance.this.network_interface[1].subnetwork
-  ip_protocol           = "L3_DEFAULT"
-  all_ports             = true
-  ip_address            = google_compute_address.ilb.address
-  backend_service       = google_compute_region_backend_service.ilb.id
-}
-
-resource "google_compute_region_health_check" "ilb" {
-  provider            = google-beta
-  project             = data.google_client_config.this.project
-  name                = "firewall-ilb-health-check"
-  region              = data.google_client_config.this.region
-  timeout_sec         = 3
-  check_interval_sec  = 5
-  unhealthy_threshold = 2
-
-  tcp_health_check {
-    port = 8001
-  }
-}
-
-data "google_compute_network" "trusted" {
-  project = data.google_client_config.this.project
-  name    = var.fw_network_interfaces[1].vpc
-}
-
-resource "google_compute_route" "this" {
-  provider    = google
-  name        = "default-fw-ilbnh-route"
-  network     = data.google_compute_network.trusted.self_link
-  dest_range  = "0.0.0.0/0"
-  priority    = 100
-  next_hop_ip = google_compute_forwarding_rule.ilb.ip_address
-}
-
-resource "google_compute_region_backend_service" "ilb" {
-  provider              = google-beta
-  project               = data.google_client_config.this.project
-  region                = data.google_client_config.this.region
-  name                  = "firewall-ilb"
-  health_checks         = [google_compute_region_health_check.ilb.id]
-  protocol              = "UNSPECIFIED"
-  load_balancing_scheme = "INTERNAL"
-  network               = data.google_compute_network.trusted.self_link
-  session_affinity      = "NONE"
-
-  backend {
-    group = google_compute_instance_group.this.self_link
-  }
-}
-
-resource "google_compute_forwarding_rule" "elb" {
-  provider        = google-beta
-  name            = "firewall-elb-fwd-rule"
-  backend_service = google_compute_region_backend_service.elb.id
-  ip_protocol     = "L3_DEFAULT"
-  ip_address      = google_compute_address.elb.address
-  all_ports       = true
-}
-
-resource "google_compute_region_backend_service" "elb" {
-  provider              = google-beta
-  region                = data.google_client_config.this.region
-  name                  = "firewall-elb"
-  health_checks         = [google_compute_region_health_check.elb.id]
-  protocol              = "UNSPECIFIED"
-  load_balancing_scheme = "EXTERNAL"
-
-  backend {
-    group = google_compute_instance_group.this.self_link
-  }
-
-}
-
-resource "google_compute_region_health_check" "elb" {
-  provider            = google-beta
-  name                = "firewall-elb-health-check"
-  region              = data.google_client_config.this.region
-  timeout_sec         = 3
-  check_interval_sec  = 5
-  unhealthy_threshold = 2
-
-  tcp_health_check {
-    port = 8001
-  }
-}
-
+# Firewall instance and instance group
 resource "google_compute_instance_group" "this" {
   provider  = google
   name      = "firewall-elb-instance-group"
@@ -196,7 +81,7 @@ resource "google_compute_instance" "this" {
       dynamic "access_config" {
         for_each = network_interface.value.vpc == "untrusted-vpc" ? [1] : []
         content {
-          nat_ip = google_compute_address.test.address
+          nat_ip = google_compute_address.mgmt.address
         }
       }
     }
@@ -224,4 +109,34 @@ resource "google_compute_disk" "firewall_boot" {
   size                      = 50
   type                      = "pd-standard"
   zone                      = data.google_compute_zones.available.names[0]
+}
+
+module "load_balancers" {
+  source                   = "./load-balancers"
+  for_each                 = toset(var.lb_types)
+  lb_type                  = each.key
+  hc_port                  = var.fw_gui_port
+  instance_group_self_link = google_compute_instance_group.this.self_link
+  trusted_subnet           = data.google_compute_subnetwork.trusted.self_link
+  trusted_network          = var.fw_network_interfaces[1].vpc
+}
+
+variable "lb_types" {
+  type    = list(string)
+  default = ["ilb", "elb"]
+}
+
+variable "fw_gui_port" {
+  type    = number
+  default = 8001
+}
+
+data "google_compute_network" "trusted" {
+  project = data.google_client_config.this.project
+  name    = var.fw_network_interfaces[1].vpc
+}
+
+data "google_compute_subnetwork" "trusted" {
+  project   = data.google_client_config.this.project
+  self_link = var.fw_network_interfaces[1].subnet
 }
