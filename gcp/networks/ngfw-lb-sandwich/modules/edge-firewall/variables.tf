@@ -20,7 +20,6 @@ variable "lb_types" {
   default = ["ilb", "elb"]
 }
 
-variable "fw_gui_port" {
-  type    = number
-  default = 8001
+variable "gui_port" {
+  type = number
 }

@@ -38,7 +38,7 @@ module "load_balancers" {
   source                   = "./load-balancers"
   for_each                 = toset(var.lb_types)
   lb_type                  = each.key
-  hc_port                  = var.fw_gui_port
+  hc_port                  = var.gui_port
   instance_group_self_link = google_compute_instance_group.this.self_link
   trusted_subnet           = var.fw_network_interfaces[1].subnet
   trusted_network          = var.fw_network_interfaces[1].vpc

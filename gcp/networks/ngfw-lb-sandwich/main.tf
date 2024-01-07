@@ -59,7 +59,7 @@ module "firewall" {
     google-beta = google-beta.edge
   }
   fw_network_interfaces = local.fw_network_interfaces
-
-  ssh_public_key = var.trace_ssh_public_key
+  gui_port              = 8001
+  ssh_public_key        = var.trace_ssh_public_key
 }
 
