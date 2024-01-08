@@ -10,11 +10,35 @@ data "google_compute_zones" "available" {
 data "google_client_config" "this" {
 }
 
-module "cloud_router" {
+/* module "cloud_router" {
   source   = "./cloud-router"
   count    = var.router ? 1 : 0
   vpc_name = var.vpc
   network  = google_compute_network.this.name
+} */
+
+# Creates a Cloud Router for the untrusted network
+resource "google_compute_router" "this" {
+  count   = var.router ? 1 : 0
+  name    = "${var.vpc}-cloud-router"
+  region  = data.google_client_config.this.region
+  project = data.google_client_config.this.project
+  network = google_compute_network.this.name
+}
+
+# Creates a Cloud Router for the untrusted network
+resource "google_compute_router_nat" "this" {
+  count                              = var.router ? 1 : 0
+  name                               = "${google_compute_router.this[0].name}-nat"
+  router                             = google_compute_router.this[0].name
+  region                             = google_compute_router.this[0].region
+  nat_ip_allocate_option             = var.nat_ip_allocate_option
+  source_subnetwork_ip_ranges_to_nat = var.source_subnetwork_ip_ranges_to_nat
+
+  log_config {
+    enable = var.log_config.enable
+    filter = var.log_config.filter
+  }
 }
 
 module "peerings" {

@@ -9,6 +9,7 @@ app_network_services = [
   "networkmanagement.googleapis.com",
   "networksecurity.googleapis.com",
   "networkservices.googleapis.com",
+  "dns.googleapis.com",
 ]
 edge_network_services = [
   "servicenetworking.googleapis.com",
@@ -22,6 +23,7 @@ edge_network_services = [
   "networkmanagement.googleapis.com",
   "networksecurity.googleapis.com",
   "networkservices.googleapis.com",
+  "dns.googleapis.com",
 ]
 vm_services = [
   "compute.googleapis.com",

@@ -11,13 +11,13 @@ locals {
 
 module "edge_vpc_project" {
   for_each = toset(local.edge_project)
-  source   = "./modules/edge-network"
+  source   = "./modules/services"
   project  = each.key
   services = var.edge_network_services
 }
 
 module "app_vpc_projects" {
-  source   = "./modules/app-networks"
+  source   = "./modules/services"
   for_each = toset(local.app_vpc_projects)
   project  = each.key
   services = var.app_network_services
@@ -25,7 +25,7 @@ module "app_vpc_projects" {
 
 module "vm_project" {
   for_each = toset(local.vm_projects)
-  source   = "./modules/vm-projects"
+  source   = "./modules/services"
   project  = each.key
   services = var.vm_services
 }
