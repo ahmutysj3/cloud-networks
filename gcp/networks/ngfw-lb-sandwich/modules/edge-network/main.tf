@@ -10,13 +10,6 @@ data "google_compute_zones" "available" {
 data "google_client_config" "this" {
 }
 
-/* module "cloud_router" {
-  source   = "./cloud-router"
-  count    = var.router ? 1 : 0
-  vpc_name = var.vpc
-  network  = google_compute_network.this.name
-} */
-
 # Creates a Cloud Router for the untrusted network
 resource "google_compute_router" "this" {
   count   = var.router ? 1 : 0
