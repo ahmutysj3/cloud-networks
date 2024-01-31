@@ -29,3 +29,13 @@ variable "network_project" {
   type        = string
 
 }
+
+variable "subnetwork_name" {
+  description = "The name of the subnetwork to use for the instance."
+  type        = string
+}
+
+variable "vpc_name" {
+  description = "The name of the VPC to use for the instance."
+  type        = string
+}

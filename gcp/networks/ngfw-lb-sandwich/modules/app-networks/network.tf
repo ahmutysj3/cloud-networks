@@ -18,6 +18,16 @@ resource "google_compute_subnetwork" "this" {
   network       = google_compute_network.this.name
 }
 
+resource "google_compute_subnetwork" "proxy_subnet" {
+  name          = "${var.vpc_name}-l7-ilb-proxy-subnet"
+  ip_cidr_range = cidrsubnet(var.ip_block, 8, 254)
+  region        = var.region
+  purpose       = "REGIONAL_MANAGED_PROXY"
+  role          = "ACTIVE"
+  network       = google_compute_network.this.name
+  project       = var.project
+}
+
 output "network" {
   value = google_compute_network.this.self_link
 }

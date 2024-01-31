@@ -40,18 +40,6 @@ data "google_compute_subnetwork" "app" {
   name    = var.subnetwork_name
 }
 
-variable "subnetwork_name" {
-  description = "The name of the subnetwork to use for the instance."
-  type        = string
-  default     = "app-vpc-application-subnet"
-}
-
-variable "vpc_name" {
-  description = "The name of the VPC to use for the instance."
-  type        = string
-  default     = "app-vpc"
-}
-
 data "google_compute_zones" "available" {
   region = var.gcp_region
 }

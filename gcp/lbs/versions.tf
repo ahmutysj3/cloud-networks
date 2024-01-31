@@ -8,11 +8,15 @@ terraform {
       source  = "hashicorp/google"
       version = "5.14.0"
     }
+    google-beta = {
+      source  = "hashicorp/google"
+      version = "5.14.0"
+    }
   }
 
   backend "gcs" {
     bucket = "trace_terraform_perm_bucket"
-    prefix = "gcp/vms/instances"
+    prefix = "gcp/lbs/internal-alb"
   }
 
 }
