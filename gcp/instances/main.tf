@@ -3,6 +3,7 @@ resource "google_compute_instance" "this" {
   machine_type = var.machine_type
   zone         = data.google_compute_zones.available.names[0]
 
+
   tags = var.tags
 
   boot_disk {
@@ -28,17 +29,9 @@ resource "google_compute_instance" "this" {
 data "google_compute_default_service_account" "default" {
 }
 
-data "google_compute_networks" "all" {
-  project = var.network_project
-}
-
-locals {
-  app_network = [for networks in data.google_compute_networks.all.networks : networks if length(regexall("app", networks)) > 0]
-}
-
 data "google_compute_network" "app" {
   project = var.network_project
-  name    = local.app_network[0]
+  name    = var.vpc_name
 }
 
 data "google_compute_subnetwork" "app" {
@@ -51,7 +44,12 @@ variable "subnetwork_name" {
   description = "The name of the subnetwork to use for the instance."
   type        = string
   default     = "app-vpc-application-subnet"
+}
 
+variable "vpc_name" {
+  description = "The name of the VPC to use for the instance."
+  type        = string
+  default     = "app-vpc"
 }
 
 data "google_compute_zones" "available" {
