@@ -32,3 +32,9 @@ variable "gcp_region" {
   description = "The region to deploy the instance"
   type        = string
 }
+
+variable "allow_all" {
+  description = "Allow all traffic to the instance"
+  type        = bool
+
+}

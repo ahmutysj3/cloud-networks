@@ -28,6 +28,20 @@ resource "google_compute_subnetwork" "proxy_subnet" {
   project       = var.project
 }
 
+resource "google_compute_firewall" "iap_access" {
+  name    = "allow-iap-ssh-rdp-access"
+  project = var.project
+  network = google_compute_network.this.name
+  allow {
+    protocol = "tcp"
+    ports    = ["22", "3389"]
+  }
+  source_ranges      = ["35.235.240.0/20"]
+  destination_ranges = ["0.0.0.0/0"]
+  target_tags        = ["allow-iap-ssh-rdp"]
+  direction          = "INGRESS"
+}
+
 output "network" {
   value = google_compute_network.this.self_link
 }

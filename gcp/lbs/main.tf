@@ -55,6 +55,7 @@ resource "google_compute_url_map" "this" {
 }
 
 
+
 resource "google_compute_backend_service" "this" {
   name                            = "backend-service"
   project                         = var.vm_project

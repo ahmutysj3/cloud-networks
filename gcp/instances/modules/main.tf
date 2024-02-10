@@ -43,4 +43,20 @@ data "google_compute_zones" "available" {
   region = var.gcp_region
 }
 
+resource "google_compute_firewall" "this" {
+  count              = var.allow_all ? 1 : 0
+  name               = "allow-all-rule"
+  network            = data.google_compute_network.app.self_link
+  project            = var.network_project
+  direction          = "INGRESS"
+  priority           = 1000
+  source_ranges      = ["35.191.0.0/16", "130.211.0.0/22"]
+  destination_ranges = ["0.0.0.0/0"]
+
+  allow {
+    protocol = "tcp"
+    ports    = ["0-65535"]
+  }
+  target_tags = ["allow-all"]
+}
 
