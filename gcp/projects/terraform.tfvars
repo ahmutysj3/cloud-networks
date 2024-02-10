@@ -29,6 +29,7 @@ vm_services = [
   "compute.googleapis.com",
   "storage-component.googleapis.com",
   "cloudresourcemanager.googleapis.com",
+  "certificatemanager.googleapis.com", # for SSL certs for https load balancers
   "replicapool.googleapis.com",        # create and manage instance groups
   "replicapoolupdater.googleapis.com", # rolling updates for instance groups
   "deploymentmanager.googleapis.com",

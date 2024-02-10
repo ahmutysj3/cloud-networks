@@ -1,6 +1,7 @@
 network_project = "trace-vpc-app-prod-410520"
 vpc_name        = "app-vpc"
-instance_name   = "trace-test-instance"
+vm_name         = "trace-test-instance"
 gcp_region      = "us-east1"
 vm_project      = "trace-vm-instance-410520"
+vm_zone         = "us-east1-b"
 subnetwork_name = "app-vpc-application-subnet"
