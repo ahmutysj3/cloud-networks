@@ -29,7 +29,7 @@ resource "google_compute_subnetwork" "proxy_subnet" {
 }
 
 resource "google_compute_firewall" "iap_access" {
-  name    = "allow-iap-ssh-rdp-access"
+  name    = "${var.vpc_name}-allow-iap-ssh-rdp-access"
   project = var.project
   network = google_compute_network.this.name
   allow {

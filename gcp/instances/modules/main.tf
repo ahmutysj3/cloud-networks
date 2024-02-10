@@ -59,4 +59,3 @@ resource "google_compute_firewall" "this" {
   }
   target_tags = ["allow-all"]
 }
-
