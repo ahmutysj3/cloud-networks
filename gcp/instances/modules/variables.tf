@@ -38,8 +38,3 @@ variable "allow_all" {
   type        = bool
 
 }
-
-variable "allow_iap" {
-  description = "Allow IAP traffic to the instance"
-  type        = bool
-}

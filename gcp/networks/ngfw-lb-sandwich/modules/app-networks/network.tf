@@ -42,6 +42,19 @@ resource "google_compute_firewall" "iap_access" {
   direction          = "INGRESS"
 }
 
+resource "google_compute_firewall" "egress" {
+  name    = "${var.vpc_name}-allow-all-egress"
+  project = var.project
+  network = google_compute_network.this.name
+  allow {
+    protocol = "all"
+  }
+  source_ranges      = [for subnets in google_compute_subnetwork.this : subnets.ip_cidr_range]
+  destination_ranges = ["0.0.0.0/0"]
+  direction          = "EGRESS"
+
+}
+
 output "network" {
   value = google_compute_network.this.self_link
 }

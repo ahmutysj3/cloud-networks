@@ -8,5 +8,4 @@ module "gcp_instances" {
   vpc_name        = var.vpc_name
   subnetwork_name = var.subnetwork_name
   allow_all       = var.allow_all
-  allow_iap       = var.allow_iap
 }

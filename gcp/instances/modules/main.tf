@@ -43,9 +43,9 @@ data "google_compute_zones" "available" {
   region = var.gcp_region
 }
 
-resource "google_compute_firewall" "this" {
+resource "google_compute_firewall" "health_checks" {
   count              = var.allow_all ? 1 : 0
-  name               = "allow-all-rule"
+  name               = "allow-all-lb-health-checks"
   network            = data.google_compute_network.app.self_link
   project            = var.network_project
   direction          = "INGRESS"
@@ -57,5 +57,5 @@ resource "google_compute_firewall" "this" {
     protocol = "tcp"
     ports    = ["0-65535"]
   }
-  target_tags = ["allow-all"]
+  target_tags = ["allow-all-lb-hc"]
 }
