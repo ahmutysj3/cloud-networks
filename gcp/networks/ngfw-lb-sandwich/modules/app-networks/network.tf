@@ -56,8 +56,8 @@ resource "google_compute_firewall" "egress" {
 }
 
 resource "google_compute_firewall" "health_checks" {
-  name               = "allow-all-lb-health-checks"
-  network            = data.google_compute_network.app.self_link
+  name               = "${var.vpc_name}-allow-all-lb-health-checks"
+  network            = google_compute_network.this.name
   project            = var.project
   direction          = "INGRESS"
   priority           = 1000
@@ -72,8 +72,8 @@ resource "google_compute_firewall" "health_checks" {
 }
 
 resource "google_compute_firewall" "allow_all" {
-  name               = "allow-all"
-  network            = data.google_compute_network.app.self_link
+  name               = "${var.vpc_name}-allow-all"
+  network            = google_compute_network.this.name
   project            = var.project
   direction          = "INGRESS"
   priority           = 1000

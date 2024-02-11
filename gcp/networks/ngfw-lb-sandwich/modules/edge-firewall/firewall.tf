@@ -14,7 +14,7 @@ locals {
   firewall_image = {
     project = var.model == "pfsense" ? data.google_client_config.this.project : "fortigcp-project-001"
     name    = var.model == "pfsense" ? "pfsense-272-fully-configured-new" : null
-    family  = var.model == "pfsense" ? "trace-pfsense" : "fortigate-74-payg"
+    family  = var.model == "fortigate" ? "fortigate-74-payg" : null
   }
 }
 
