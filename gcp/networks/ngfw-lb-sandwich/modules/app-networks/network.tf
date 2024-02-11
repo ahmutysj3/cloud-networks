@@ -55,6 +55,36 @@ resource "google_compute_firewall" "egress" {
 
 }
 
+resource "google_compute_firewall" "health_checks" {
+  name               = "allow-all-lb-health-checks"
+  network            = data.google_compute_network.app.self_link
+  project            = var.project
+  direction          = "INGRESS"
+  priority           = 1000
+  source_ranges      = ["35.191.0.0/16", "130.211.0.0/22"]
+  destination_ranges = ["0.0.0.0/0"]
+
+  allow {
+    protocol = "tcp"
+    ports    = ["0-65535"]
+  }
+  target_tags = ["allow-all-lb-hc"]
+}
+
+resource "google_compute_firewall" "allow_all" {
+  name               = "allow-all"
+  network            = data.google_compute_network.app.self_link
+  project            = var.project
+  direction          = "INGRESS"
+  priority           = 1000
+  source_ranges      = ["0.0.0.0/0"]
+  destination_ranges = ["0.0.0.0/0"]
+  allow {
+    protocol = "all"
+  }
+  target_tags = ["allow-all"]
+
+}
 output "network" {
   value = google_compute_network.this.self_link
 }

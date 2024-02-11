@@ -7,6 +7,4 @@ module "gcp_instances" {
   network_project = var.network_project
   vpc_name        = var.vpc_name
   subnetwork_name = var.subnetwork_name
-  allow_hc        = var.allow_hc
-  allow_all       = var.allow_all
 }

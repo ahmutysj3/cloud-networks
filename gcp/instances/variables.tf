@@ -39,13 +39,3 @@ variable "vpc_name" {
   description = "The name of the VPC to use for the instance."
   type        = string
 }
-
-variable "allow_all" {
-  description = "Allow all traffic to the instance"
-  type        = bool
-}
-
-variable "allow_hc" {
-  description = "Allow all hc traffic to the instance"
-  type        = bool
-}
