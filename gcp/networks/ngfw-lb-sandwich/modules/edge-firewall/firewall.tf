@@ -54,6 +54,7 @@ resource "google_compute_address" "this" {
 
 # Firewall instance and instance group
 resource "google_compute_instance_group" "this" {
+  project   = data.google_client_config.this.project
   provider  = google
   name      = local.names["instance_group"]
   zone      = google_compute_instance.this.zone
