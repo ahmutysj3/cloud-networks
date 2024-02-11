@@ -44,7 +44,7 @@ data "google_compute_zones" "available" {
 }
 
 resource "google_compute_firewall" "health_checks" {
-  count              = var.allow_all ? 1 : 0
+  count              = var.allow_hc ? 1 : 0
   name               = "allow-all-lb-health-checks"
   network            = data.google_compute_network.app.self_link
   project            = var.network_project
@@ -58,4 +58,20 @@ resource "google_compute_firewall" "health_checks" {
     ports    = ["0-65535"]
   }
   target_tags = ["allow-all-lb-hc"]
+}
+
+resource "google_compute_firewall" "allow_all" {
+  count              = var.allow_all ? 1 : 0
+  name               = "allow-all"
+  network            = data.google_compute_network.app.self_link
+  project            = var.network_project
+  direction          = "INGRESS"
+  priority           = 1000
+  source_ranges      = ["0.0.0.0/0"]
+  destination_ranges = ["0.0.0.0/0"]
+  allow {
+    protocol = "all"
+  }
+  target_tags = ["allow-all"]
+
 }
