@@ -48,7 +48,7 @@ resource "google_compute_forwarding_rule" "this" {
   project               = data.google_client_config.this.project
   network               = local.fwd_rule.network
   subnetwork            = local.fwd_rule.subnetwork
-  ip_protocol           = "L3_DEFAULT"
+  ip_protocol           = "TCP"
   all_ports             = true
   ip_address            = google_compute_address.this.address
   backend_service       = google_compute_region_backend_service.this.id
@@ -73,8 +73,8 @@ resource "google_compute_region_backend_service" "this" {
   project               = data.google_client_config.this.project
   region                = data.google_client_config.this.region
   name                  = local.backend_service.name
-  health_checks         = [google_compute_region_health_check.this.id]
-  protocol              = "UNSPECIFIED"
+  health_checks         = [google_compute_region_health_check.this.self_link]
+  protocol              = "TCP"
   load_balancing_scheme = local.backend_service.load_balancing_scheme
   network               = local.backend_service.network
   session_affinity      = "NONE"
@@ -84,7 +84,7 @@ resource "google_compute_region_backend_service" "this" {
   }
 }
 
-resource "google_compute_route" "this" {
+/* resource "google_compute_route" "this" {
   count       = var.lb_type == "ilb" ? 1 : 0
   provider    = google
   name        = "default-fw-ilbnh-route"
@@ -92,5 +92,16 @@ resource "google_compute_route" "this" {
   dest_range  = "0.0.0.0/0"
   priority    = 100
   next_hop_ip = google_compute_forwarding_rule.this.ip_address
+} */
+
+resource "google_compute_route" "this" {
+  count        = var.lb_type == "ilb" ? 1 : 0
+  provider     = google-beta
+  name         = "default-fw-ilb-route"
+  network      = data.google_compute_network.trusted.self_link
+  dest_range   = "0.0.0.0/0"
+  priority     = 100
+  next_hop_ilb = google_compute_forwarding_rule.this.ip_address
+
 }
 
