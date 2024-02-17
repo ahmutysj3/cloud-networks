@@ -17,3 +17,4 @@ tags            = ["allow-all"]
 network_project = "trace-terraform-perm"
 subnetwork_name = "test-subnet"
 vpc_name        = "test-vpc"
+domain          = "test.tracecloud.us"

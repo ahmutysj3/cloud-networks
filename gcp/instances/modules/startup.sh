@@ -5,7 +5,7 @@ apt-get update
 apt-get install -y nginx
 
 # Generate self-signed SSL certificate
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt -subj "/C=US/ST=Florida/L=Miami/O=YourOrganization/OU=YourUnit/CN=example.com"
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt -subj "/C=US/ST=Florida/L=Miami/O=trace-org/OU=trace/CN=${domain}"
 
 # Configure Nginx to use the SSL certificate and serve a test page
 cat <<EOF > /etc/nginx/sites-available/default

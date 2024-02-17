@@ -33,14 +33,11 @@ variable "gcp_region" {
   type        = string
 }
 
-variable "startup_script" {
-  description = "The startup script to run on the instance"
-  type        = string
-
-}
-
 variable "vm_project" {
   description = "The project to deploy the instance"
   type        = string
 }
 
+variable "domain" {
+  description = "the hostname of the instance"
+}

@@ -39,3 +39,8 @@ variable "vpc_name" {
   description = "The name of the VPC to use for the instance."
   type        = string
 }
+
+variable "domain" {
+  description = "The domain of the instance"
+  type        = string
+}

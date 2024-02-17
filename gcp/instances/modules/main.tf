@@ -20,7 +20,9 @@ resource "google_compute_instance" "this" {
     }
   }
 
-  metadata_startup_script = var.startup_script
+  metadata_startup_script = templatefile("${path.module}/startup.sh", {
+    domain = var.domain,
+  })
 
   service_account {
     email  = data.google_compute_default_service_account.default.email
