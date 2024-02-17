@@ -39,3 +39,8 @@ variable "startup_script" {
 
 }
 
+variable "vm_project" {
+  description = "The project to deploy the instance"
+  type        = string
+}
+

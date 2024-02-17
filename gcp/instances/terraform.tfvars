@@ -16,3 +16,4 @@ vm_project      = "trace-terraform-perm"
 tags            = ["allow-all"]
 network_project = "trace-terraform-perm"
 subnetwork_name = "test-subnet"
+vpc_name        = "test-vpc"

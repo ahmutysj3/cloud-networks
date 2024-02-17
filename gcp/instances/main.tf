@@ -6,6 +6,7 @@ module "gcp_instances" {
   tags            = var.tags
   network_project = var.network_project
   vpc_name        = var.vpc_name
+  vm_project      = var.vm_project
   subnetwork_name = var.subnetwork_name
   startup_script  = "" # file("startup.sh")
 }
