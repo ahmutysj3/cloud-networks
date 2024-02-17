@@ -17,7 +17,7 @@ resource "google_compute_instance" "this" {
     subnetwork = data.google_compute_subnetwork.app.self_link
   }
 
-  metadata_startup_script = file("startup.sh")
+  metadata_startup_script = var.startup_script
 
   service_account {
     email  = data.google_compute_default_service_account.default.email

@@ -33,4 +33,9 @@ variable "gcp_region" {
   type        = string
 }
 
+variable "startup_script" {
+  description = "The startup script to run on the instance"
+  type        = string
+
+}
 
