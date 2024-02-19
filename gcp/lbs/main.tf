@@ -33,11 +33,10 @@ resource "google_compute_global_forwarding_rule" "this" {
 }
 
 resource "google_compute_target_https_proxy" "this" {
-  name             = "elb-target-https-proxy"
-  project          = var.vm_project
-  url_map          = google_compute_url_map.this.id
-  ssl_certificates = [google_compute_managed_ssl_certificate.this.id]
-
+  name            = "elb-target-https-proxy"
+  project         = var.vm_project
+  url_map         = google_compute_url_map.this.id
+  certificate_map = "//certificatemanager.googleapis.com/${google_certificate_manager_certificate_map.this.id}"
 }
 
 resource "google_compute_url_map" "this" {
@@ -105,9 +104,6 @@ resource "google_compute_instance_group" "this" {
   }
   instances = [data.google_compute_instance.this.self_link]
 }
-
-
-
 
 variable "subnetwork_name" {
   description = "The name of the subnetwork to use for the instance."

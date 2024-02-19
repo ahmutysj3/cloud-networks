@@ -8,3 +8,6 @@ provider "google-beta" {
   region  = var.gcp_region
 
 }
+
+provider "cloudflare" {
+}

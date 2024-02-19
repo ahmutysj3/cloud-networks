@@ -12,6 +12,10 @@ terraform {
       source  = "hashicorp/google-beta"
       version = "5.14.0"
     }
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "4.24.0"
+    }
   }
 
   backend "gcs" {
