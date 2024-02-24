@@ -12,8 +12,8 @@ locals {
     trace-gke-project  = var.vm_services
   }
 
-  host_projects    = ["trace-vpc-app-prod", "trace-vpc-edge"]
-  service_projects = ["trace-vm-instance", "trace-gke-project"]
+  host_projects    = ["trace-vpc-app-prod"]
+  service_projects = [local.project_ids["trace-vm-instance"], local.project_ids["trace-gke-project"]]
 }
 
 module "project_services" {

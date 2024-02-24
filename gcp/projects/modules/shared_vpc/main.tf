@@ -9,11 +9,3 @@ resource "google_compute_shared_vpc_service_project" "this" {
   service_project = each.key
   host_project    = google_compute_shared_vpc_host_project.this.project
 }
-
-variable "host_project" {
-  type = string
-}
-
-variable "service_projects" {
-  type = list(string)
-}

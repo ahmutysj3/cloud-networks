@@ -11,12 +11,3 @@ resource "google_project_service" "this" {
   disable_dependent_services = true
 }
 
-
-variable "project" {
-  type = string
-}
-
-variable "services" {
-  type = list(string)
-}
-
