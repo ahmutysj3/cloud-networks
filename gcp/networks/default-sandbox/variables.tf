@@ -1,6 +1,6 @@
 variable "gcp_project" {
   type    = string
-  default = "terraform-project-trace-lab"
+  default = "trace-terraform-perm"
 }
 
 variable "gcp_region" {

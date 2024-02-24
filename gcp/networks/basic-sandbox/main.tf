@@ -1,15 +1,15 @@
 resource "google_compute_network" "this" {
   project                 = var.project
-  name                    = "test-vpc"
+  name                    = var.vpc_name
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "this" {
   project       = var.project
-  name          = "test-subnet"
+  name          = var.subnet_name
   region        = var.region
   network       = google_compute_network.this.self_link
-  ip_cidr_range = "10.0.0.0/24"
+  ip_cidr_range = var.ip_cidr_range
 }
 
 resource "google_compute_firewall" "this" {
@@ -23,3 +23,5 @@ resource "google_compute_firewall" "this" {
   source_ranges      = ["0.0.0.0/0"]
   destination_ranges = ["0.0.0.0/0"]
 }
+
+
