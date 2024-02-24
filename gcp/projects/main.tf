@@ -16,33 +16,6 @@ locals {
   service_projects = ["trace-vm-instance", "trace-gke-project"]
 }
 
-moved {
-  from = module.app_vpc_projects["trace-vpc-app-prod-410520"].google_project_service.this["compute.googleapis.com"]
-  to   = module.project_services["trace-vpc-app-prod"].google_project_service.this["compute.googleapis.com"]
-}
-
-moved {
-  from = module.edge_vpc_project["trace-vpc-edge"].google_project_service.this["compute.googleapis.com"]
-  to   = module.project_services["trace-vpc-edge"].google_project_service.this["compute.googleapis.com"]
-}
-
-moved {
-  from = module.vm_project["trace-vm-instance-410520"].google_project_service.this["certificatemanager.googleapis.com"]
-  to   = module.project_services["trace-vm-instance"].google_project_service.this["certificatemanager.googleapis.com"]
-}
-
-moved {
-  from = module.shared_vpc["trace-vpc-app-prod-410520"].google_compute_shared_vpc_host_project.this
-  to   = module.shared_vpc["trace-vpc-app-prod"].google_compute_shared_vpc_host_project.this
-}
-
-moved {
-  from = module.shared_vpc["trace-vpc-app-prod-410520"].google_compute_shared_vpc_service_project.this["trace-vm-instance-410520"]
-  to   = module.shared_vpc["trace-vpc-app-prod"].google_compute_shared_vpc_service_project.this["trace-vm-instance"]
-}
-
-
-
 module "project_services" {
   source   = "./modules/services"
   for_each = local.projects
