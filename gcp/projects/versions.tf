@@ -10,3 +10,6 @@ terraform {
     prefix = "gcp/projects"
   }
 }
+
+provider "google" {
+}
