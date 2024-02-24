@@ -5,27 +5,29 @@ data "google_projects" "this" {
 locals {
   project_ids = { for k, v in data.google_projects.this.projects : v.name => v.project_id }
 
-  projects = {
-    trace-vpc-app-prod = var.app_network_services
-    trace-vpc-edge     = var.edge_network_services
-    trace-vm-instance  = var.vm_services
-    trace-gke-project  = var.vm_services
-  }
+  host_project     = var.project_names["app_vpc"]
+  service_projects = [local.project_ids[var.project_names["vm"]], local.project_ids[var.project_names["gke"]]]
 
-  host_projects    = ["trace-vpc-app-prod"]
-  service_projects = [local.project_ids["trace-vm-instance"], local.project_ids["trace-gke-project"]]
 }
 
-module "project_services" {
-  source   = "./modules/services"
-  for_each = local.projects
-  project  = local.project_ids[each.key]
-  services = each.value
+module "org_projects" {
+  source                = "./modules"
+  project_names         = var.project_names
+  project_ids           = local.project_ids
+  host_project          = local.host_project
+  service_projects      = local.service_projects
+  vm_services           = var.vm_services
+  edge_network_services = var.edge_network_services
+  app_network_services  = var.app_network_services
 }
 
-module "shared_vpc" {
-  source           = "./modules/shared_vpc"
-  for_each         = toset(local.host_projects)
-  host_project     = local.project_ids[each.key]
-  service_projects = local.service_projects
+moved {
+  from = module.project_services["trace-vm-instance"].google_project_service.this["certificatemanager.googleapis.com"]
+  to   = module.org_projects.google_project_service.vm["certificatemanager.googleapis.com"]
+}
+
+moved {
+  from = module.project_services["trace-vpc-edge"].google_project_service.this["compute.googleapis.com"]
+  to   = module.org_projects.google_project_service.edge["compute.googleapis.com"]
+
 }

@@ -10,6 +10,6 @@ variable "vm_services" {
   type = list(string)
 }
 
-variable "edge_project" {
-  type = string
+variable "project_names" {
+  type = map(string)
 }

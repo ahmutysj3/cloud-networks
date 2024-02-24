@@ -39,4 +39,9 @@ vm_services = [
   "networkconnectivity.googleapis.com",
 ]
 
-edge_project = "trace-vpc-edge"
+project_names = {
+  app_vpc = "trace-vpc-app-prod"
+  edge    = "trace-vpc-edge"
+  vm      = "trace-vm-instance"
+  gke     = "trace-gke-project"
+}
