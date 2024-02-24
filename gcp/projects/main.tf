@@ -1,33 +1,73 @@
-data "google_projects" "this" {
-  filter = "name:trace-* lifecycleState:ACTIVE"
-}
-
 locals {
-  project_ids = { for k, v in data.google_projects.this.projects : v.name => v.project_id }
-
-  host_project     = var.project_names["app_vpc"]
-  service_projects = [local.project_ids[var.project_names["vm"]], local.project_ids[var.project_names["gke"]]]
-
+  vm_project_services   = { for k, v in toset(var.vm_services) : v => var.project_ids[var.project_names["vm"]] }
+  edge_project_services = { for k, v in toset(var.edge_network_services) : v => var.project_ids[var.project_names["edge"]] }
+  app_project_services  = { for k, v in toset(var.app_network_services) : v => var.project_ids[var.project_names["app_vpc"]] }
+  gke_project_services  = { for k, v in toset(var.app_network_services) : v => var.project_ids[var.project_names["gke"]] }
 }
 
-module "org_projects" {
-  source                = "./modules"
-  project_names         = var.project_names
-  project_ids           = local.project_ids
-  host_project          = local.host_project
-  service_projects      = local.service_projects
-  vm_services           = var.vm_services
-  edge_network_services = var.edge_network_services
-  app_network_services  = var.app_network_services
+resource "google_compute_shared_vpc_host_project" "this" {
+  provider = google-beta
+  project  = var.host_project
 }
 
-moved {
-  from = module.project_services["trace-vm-instance"].google_project_service.this["certificatemanager.googleapis.com"]
-  to   = module.org_projects.google_project_service.vm["certificatemanager.googleapis.com"]
+resource "google_compute_shared_vpc_service_project" "this" {
+  provider        = google-beta
+  for_each        = toset(var.service_projects)
+  service_project = each.key
+  host_project    = google_compute_shared_vpc_host_project.this.project
 }
 
-moved {
-  from = module.project_services["trace-vpc-edge"].google_project_service.this["compute.googleapis.com"]
-  to   = module.org_projects.google_project_service.edge["compute.googleapis.com"]
+resource "google_project_service" "vm" {
+  for_each = local.vm_project_services
+  project  = each.value
+  service  = each.key
 
+  timeouts {
+    create = var.timeouts["create"]
+    update = var.timeouts["update"]
+  }
+
+  disable_dependent_services = var.disable_dependent_services
 }
+
+resource "google_project_service" "edge" {
+  for_each = local.edge_project_services
+  project  = each.value
+  service  = each.key
+
+  timeouts {
+    create = var.timeouts["create"]
+    update = var.timeouts["update"]
+  }
+
+  disable_dependent_services = var.disable_dependent_services
+}
+
+resource "google_project_service" "app" {
+  for_each = local.app_project_services
+  project  = each.value
+  service  = each.key
+
+  timeouts {
+    create = var.timeouts["create"]
+    update = var.timeouts["update"]
+  }
+
+  disable_dependent_services = var.disable_dependent_services
+}
+
+resource "google_project_service" "gke" {
+  for_each = local.gke_project_services
+  project  = each.value
+  service  = each.key
+
+  timeouts {
+    create = var.timeouts["create"]
+    update = var.timeouts["update"]
+  }
+
+  disable_dependent_services = var.disable_dependent_services
+}
+
+
+
