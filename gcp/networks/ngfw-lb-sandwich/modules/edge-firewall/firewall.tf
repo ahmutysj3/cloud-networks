@@ -11,10 +11,29 @@ locals {
     address        = "firewall-mgmt-external-ip"
   }
 
+  image_projects = {
+    pfsense   = data.google_client_config.this.project
+    fortigate = "fortigcp-project-001"
+    palo-alto = "paloaltonetworksgcp-public"
+  }
+
+  image_name = {
+    pfsense   = "pfsense-272-fully-configured-new"
+    fortigate = null
+    palo-alto = "vmseries-flex-bundle2-1018h2"
+  }
+
+  image_family = {
+    pfsense   = null
+    fortigate = "fortigate-74-payg"
+    palo-alto = null
+  }
+
+
   firewall_image = {
-    project = var.model == "pfsense" ? data.google_client_config.this.project : "fortigcp-project-001"
-    name    = var.model == "pfsense" ? "pfsense-272-fully-configured-new" : null
-    family  = var.model == "fortigate" ? "fortigate-74-payg" : null
+    project = local.image_projects[var.model]
+    name    = local.image_name[var.model]
+    family  = local.image_family[var.model]
   }
 }
 
@@ -46,10 +65,19 @@ module "load_balancers" {
 
 resource "google_compute_address" "this" {
   name         = local.names["address"]
-  address_type = "EXTERNAL"
+  address_type = var.address_params.address_type
   project      = data.google_client_config.this.project
-  ip_version   = "IPV4"
+  ip_version   = var.address_params.ip_version
   region       = data.google_client_config.this.region
+}
+
+variable "address_params" {
+  description = "ip address params"
+  type        = map(string)
+  default = {
+    ip_version   = "IPV4"
+    address_type = "EXTERNAL"
+  }
 }
 
 # Firewall instance and instance group
@@ -117,7 +145,7 @@ resource "google_compute_disk" "firewall_boot" {
   name                      = local.names["disk"]
   physical_block_size_bytes = 4096
   project                   = data.google_client_config.this.project
-  size                      = 50
+  size                      = 100
   type                      = "pd-standard"
   zone                      = data.google_compute_zones.available.names[0]
 }
