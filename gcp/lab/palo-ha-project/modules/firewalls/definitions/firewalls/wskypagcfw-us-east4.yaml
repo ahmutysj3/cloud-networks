@@ -1,0 +1,29 @@
+firewall_pairs:  
+  - name_prefix: wskypagcfw-test
+    names:
+      - wskypagcfw-test-01
+      - wskypagcfw-test-02
+    region: us-east4
+
+    interfaces:
+      - untrusted:
+          subnet: wsky-test-untrusted-subnet
+          subnet_project: temp-mslhf8uo-wsky
+          public_ip: false
+      - mgmt:
+          subnet: wsky-test-mgmt-subnet
+          public_ip: true
+          subnet_project: temp-mslhf8uo-wsky
+      - ha:
+          subnet: wsky-test-ha-subnet
+          public_ip: false
+          subnet_project: temp-mslhf8uo-wsky
+      - trusted: 
+          subnet: wsky-test-trusted-subnet
+          public_ip: false
+          subnet_project: temp-mslhf8uo-wsky
+    image_name: vmseries-flex-bundle2-1018h2
+    image_project: paloaltonetworksgcp-public
+    disk_size: 100
+    disk_type: pd-standard
+    machine_type: n2-standard-8

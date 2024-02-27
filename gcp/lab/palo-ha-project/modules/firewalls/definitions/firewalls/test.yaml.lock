@@ -1,0 +1,37 @@
+firewall_pairs:  
+  - name_prefix: wskypagcfw-test
+    names:
+      - wskypagcfw-test-01
+      - wskypagcfw-test-02
+    vm_ip_addresses:
+      - ""
+      - ""
+    subnetwork: subnet-edge-prod-ext-ue4
+    region: us-east4
+    image_name: vmseries-flex-bundle2-1018h2
+    image_project: paloaltonetworksgcp-public
+    disk_size: 100
+    disk_type: pd-standard
+    machine_type: n2-standard-8
+    sshKeySecret: palo-alto-ssh-key-trace-ue4
+    bootstrap_override: ue4-pa-bootstrap-bucket
+    metadata:
+      serial-port-enable: true
+      mgmt-interface-swap: enable
+    panorama_ip: 10.202.1.2
+    palo_vm_auth_key_secret: panorama-auth-key
+    primary_interface:
+      subnetwork: subnet-edge-prod-ext-ue4
+      subnetwork-project: core-prod-vpc-edge-01-wsky
+    additional_interfaces:
+      - subnetwork: subnet-edge-prod-mgmt-ue4
+        subnetwork-project: core-prod-vpc-edge-01-wsky
+      - subnetwork: subnet-edge-prod-int-ue4
+        subnetwork-project: core-prod-vpc-edge-01-wsky
+    tags:
+      - allow-internet-access
+      - allow-skyvpn-ingress
+      - health-check
+      - palo-alto
+      - logic-monitor
+      - radius
