@@ -1,14 +1,16 @@
 data "google_compute_network" "this" {
-  project  = var.edge_project
-  for_each = toset(local.edge_networks)
-  name     = "${each.value}-vpc"
+  depends_on = [module.edge_network_services]
+  project    = var.edge_project
+  for_each   = toset(local.fw_edge_networks)
+  name       = "${each.value}-vpc"
 }
 
 data "google_compute_subnetwork" "this" {
-  project  = var.edge_project
-  region   = var.gcp_region
-  for_each = toset(local.edge_networks)
-  name     = "${each.value}-subnet"
+  depends_on = [module.edge_network_services]
+  project    = var.edge_project
+  region     = var.gcp_region
+  for_each   = toset(local.fw_edge_networks)
+  name       = "${each.value}-subnet"
 }
 
 locals {
@@ -17,16 +19,20 @@ locals {
   fw_ip_addr  = { for k, v in data.google_compute_subnetwork.this : k => cidrhost(v.ip_cidr_range, 2) }
   fw_gateway  = { for k, v in data.google_compute_subnetwork.this : k => v.gateway_address }
 
-  fw_network_interfaces = [for networks in local.edge_networks : {
+  fw_edge_networks = ["untrusted", "mgmt", "ha", "trusted"]
+  fw_network_interfaces = [for networks in local.fw_edge_networks : {
     vpc     = local.fw_networks[networks]
     subnet  = local.fw_subnets[networks]
     ip_addr = local.fw_ip_addr[networks]
     gateway = local.fw_gateway[networks]
   }]
+
+  firewall_model = "palo-alto" # "fortigate", "pfsense", "palo-alto"
+
 }
 
 module "firewall" {
-  depends_on = [module.edge_network_services]
+  depends_on = [module.edge_network_services, module.spoke_vpcs]
   source     = "./modules/edge-firewall"
   model      = "palo-alto" # fortigate, pfsense, palo-alto
   providers = {
@@ -34,7 +40,8 @@ module "firewall" {
     google-beta = google-beta.edge
   }
   fw_network_interfaces = local.fw_network_interfaces
-  gui_port              = 8001
+  gui_port              = 443
   ssh_public_key        = var.trace_ssh_public_key
+  fw_public_interface   = var.fw_public_interface
 }
 

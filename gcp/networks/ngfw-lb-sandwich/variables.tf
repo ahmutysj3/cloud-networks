@@ -26,10 +26,11 @@ variable "spoke_subnets" {
   type = list(string)
 }
 
-variable "firewall_model" {
+variable "trace_ssh_public_key" {
   type = string
 }
 
-variable "trace_ssh_public_key" {
+variable "fw_public_interface" {
   type = string
+
 }

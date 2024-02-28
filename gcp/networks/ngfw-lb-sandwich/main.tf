@@ -1,6 +1,4 @@
 locals {
-  edge_networks = ["untrusted", "trusted"]
-
   peer_vpcs = { for vpcs, spoke in module.spoke_vpcs : vpcs => spoke.network }
 }
 

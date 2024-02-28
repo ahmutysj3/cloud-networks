@@ -23,3 +23,16 @@ variable "lb_types" {
 variable "gui_port" {
   type = number
 }
+
+variable "fw_public_interface" {
+  type = string
+}
+
+variable "address_params" {
+  description = "ip address params"
+  type        = map(string)
+  default = {
+    ip_version   = "IPV4"
+    address_type = "EXTERNAL"
+  }
+}

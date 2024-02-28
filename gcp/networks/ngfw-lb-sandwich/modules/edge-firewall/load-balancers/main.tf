@@ -48,7 +48,7 @@ resource "google_compute_forwarding_rule" "this" {
   project               = data.google_client_config.this.project
   network               = local.fwd_rule.network
   subnetwork            = local.fwd_rule.subnetwork
-  ip_protocol           = "TCP"
+  ip_protocol           = var.lb_type == "ilb" ? "TCP" : "L3_DEFAULT"
   all_ports             = true
   ip_address            = google_compute_address.this.address
   backend_service       = google_compute_region_backend_service.this.id
@@ -63,7 +63,7 @@ resource "google_compute_region_health_check" "this" {
   check_interval_sec  = 5
   unhealthy_threshold = 2
 
-  tcp_health_check {
+  http_health_check {
     port = var.hc_port
   }
 }
@@ -74,25 +74,26 @@ resource "google_compute_region_backend_service" "this" {
   region                = data.google_client_config.this.region
   name                  = local.backend_service.name
   health_checks         = [google_compute_region_health_check.this.self_link]
-  protocol              = "TCP"
+  protocol              = var.lb_type == "ilb" ? "TCP" : "UNSPECIFIED"
   load_balancing_scheme = local.backend_service.load_balancing_scheme
   network               = local.backend_service.network
-  session_affinity      = "NONE"
+  session_affinity      = var.lb_type == "ilb" ? null : "NONE"
 
-  backend {
-    group = var.instance_group_self_link
+  dynamic "backend" {
+    for_each = var.instance_groups
+    content {
+      group    = backend.value
+      failover = backend.key == "active" ? false : true
+    }
+  }
+
+  connection_tracking_policy {
+    tracking_mode                                = "PER_SESSION"
+    connection_persistence_on_unhealthy_backends = "NEVER_PERSIST"
+    idle_timeout_sec                             = var.lb_type == "elb" ? 600 : null
   }
 }
 
-/* resource "google_compute_route" "this" {
-  count       = var.lb_type == "ilb" ? 1 : 0
-  provider    = google
-  name        = "default-fw-ilbnh-route"
-  network     = data.google_compute_network.trusted.self_link
-  dest_range  = "0.0.0.0/0"
-  priority    = 100
-  next_hop_ip = google_compute_forwarding_rule.this.ip_address
-} */
 
 resource "google_compute_route" "this" {
   count        = var.lb_type == "ilb" ? 1 : 0

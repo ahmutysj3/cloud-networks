@@ -54,50 +54,50 @@ data "google_compute_image" "this" {
 }
 
 module "load_balancers" {
-  source                   = "./load-balancers"
-  for_each                 = toset(var.lb_types)
-  lb_type                  = each.key
-  hc_port                  = var.gui_port
-  instance_group_self_link = google_compute_instance_group.this.self_link
-  trusted_subnet           = var.fw_network_interfaces[1].subnet
-  trusted_network          = var.fw_network_interfaces[1].vpc
+  source   = "./load-balancers"
+  for_each = toset(var.lb_types)
+  lb_type  = each.key
+  hc_port  = var.gui_port
+  instance_groups = {
+    active  = google_compute_instance_group.this[0].self_link
+    standby = google_compute_instance_group.this[1].self_link
+  }
+  trusted_subnet  = var.fw_network_interfaces[1].subnet
+  trusted_network = var.fw_network_interfaces[1].vpc
 }
 
 resource "google_compute_address" "this" {
-  name         = local.names["address"]
+  count = 2
+  name  = "${local.names["address"]}-${count.index}"
+
   address_type = var.address_params.address_type
   project      = data.google_client_config.this.project
   ip_version   = var.address_params.ip_version
   region       = data.google_client_config.this.region
 }
 
-variable "address_params" {
-  description = "ip address params"
-  type        = map(string)
-  default = {
-    ip_version   = "IPV4"
-    address_type = "EXTERNAL"
-  }
-}
-
 # Firewall instance and instance group
 resource "google_compute_instance_group" "this" {
+  count = 2
+
   project   = data.google_client_config.this.project
   provider  = google
-  name      = local.names["instance_group"]
-  zone      = google_compute_instance.this.zone
-  instances = [google_compute_instance.this.id]
+  name      = "${local.names["instance_group"]}-${count.index}"
+  zone      = google_compute_instance.this[count.index].zone
+  instances = [google_compute_instance.this[count.index].id]
 }
 
 resource "google_compute_instance" "this" {
-  name           = local.names["instance"]
-  machine_type   = "n1-standard-2"
-  zone           = data.google_compute_zones.available.names[0]
+  count          = 2
+  name           = "${local.names["instance"]}-${count.index}"
+  machine_type   = "n2-standard-4"
+  zone           = data.google_compute_zones.available.names[count.index]
   can_ip_forward = true
   project        = data.google_client_config.this.project
   metadata = {
-    serial-port-enable = "TRUE"
-    ssh-keys           = var.ssh_public_key
+    serial-port-enable  = true
+    mgmt-interface-swap = "enable"
+    ssh-keys            = var.ssh_public_key
   }
 
   tags = ["firewall"]
@@ -106,7 +106,7 @@ resource "google_compute_instance" "this" {
     auto_delete = true
     device_name = local.names["disk"]
     mode        = "READ_WRITE"
-    source      = google_compute_disk.firewall_boot.self_link
+    source      = google_compute_disk.firewall_boot[count.index].self_link
   }
 
   dynamic "network_interface" {
@@ -118,9 +118,9 @@ resource "google_compute_instance" "this" {
       network_ip = network_interface.value.ip_addr
 
       dynamic "access_config" {
-        for_each = network_interface.value.vpc == "untrusted-vpc" ? [1] : []
+        for_each = network_interface.value.vpc == var.fw_public_interface ? [1] : []
         content {
-          nat_ip = google_compute_address.this.address
+          nat_ip = google_compute_address.this[count.index].address
         }
       }
     }
@@ -141,8 +141,9 @@ resource "google_compute_instance" "this" {
 }
 
 resource "google_compute_disk" "firewall_boot" {
+  count                     = 2
   image                     = data.google_compute_image.this.self_link
-  name                      = local.names["disk"]
+  name                      = "${local.names["disk"]}-${count.index}"
   physical_block_size_bytes = 4096
   project                   = data.google_client_config.this.project
   size                      = 100

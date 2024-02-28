@@ -2,8 +2,8 @@ variable "hc_port" {
   type = number
 }
 
-variable "instance_group_self_link" {
-  type = string
+variable "instance_groups" {
+  type = map(string)
 }
 
 variable "lb_type" {
