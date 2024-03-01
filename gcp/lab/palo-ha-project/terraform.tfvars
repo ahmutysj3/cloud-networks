@@ -1,6 +1,6 @@
 config = {
   region     = "us-east4"
-  project_id = "XXX"
+  project_id = "trace-terraform-perm"
 }
 
 fw_networks =    {

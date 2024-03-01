@@ -14,7 +14,8 @@ module "firewalls" {
   name       = each.value.name_prefix
   project_id = var.config.project_id
   region     = each.value.region
-  interfaces = merge([for item in each.value.interfaces : item]...)
+  interfaces = each.value.interfaces
+  ssh_key    = try(each.value.ssh_key, "admin:${file("~/.ssh/id_rsa.pub")}")
   compute_params = {
     image_name    = each.value.image_name
     machine_type  = each.value.machine_type
@@ -24,21 +25,4 @@ module "firewalls" {
     disk_size = each.value.disk_size
     disk_type = each.value.disk_type
   }
-}
-
-output "fw_subnets" {
-  value = module.firewalls["wskypagcfw-test"].fw_subnets
-
-}
-
-output "interfaces" {
-  value = module.firewalls["wskypagcfw-test"].interfaces
-}
-
-output "compute_params" {
-  value = module.firewalls["wskypagcfw-test"].compute_params
-}
-
-output "disk_params" {
-  value = module.firewalls["wskypagcfw-test"].disk_params
 }

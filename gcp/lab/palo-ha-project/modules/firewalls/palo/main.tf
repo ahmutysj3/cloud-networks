@@ -1,90 +1,84 @@
 locals {
-  outputs = {
-    interfaces     = var.interfaces
-    compute_params = var.compute_params
-    disk_params    = var.disk_params
-  }
-}
+  fw_vnics = { for index, interface in flatten([
+    for count, values in var.interfaces : [
+      for interface, details in values : {
+        "index"          = count
+        "interface"      = interface
+        "public_ip"      = details.public_ip
+        "subnet"         = details.subnet
+        "subnet_project" = details.subnet_project
+      }
+    ]
+    ]) : index => {
+    "interface"      = interface.interface
+    "public_ip"      = interface.public_ip
+    "subnet"         = interface.subnet
+    "subnet_project" = interface.subnet_project
+  } }
 
-
-data "google_compute_image" "palo_vmseries" {
-  name    = var.compute_params.image_name
-  project = "paloaltonetworksgcp-public"
-}
-
-output "interfaces" {
-  value = local.outputs.interfaces
-}
-
-output "compute_params" {
-  value = local.outputs.compute_params
-}
-
-output "disk_params" {
-  value = local.outputs.disk_params
 }
 
 data "google_compute_subnetwork" "this" {
-  for_each = var.interfaces
+  for_each = local.fw_vnics
   project  = each.value.subnet_project
   region   = var.region
   name     = each.value.subnet
 }
 
-data "google_compute_zones" "available" {
-  project = var.project_id
-  region  = var.region
-}
 
-output "fw_subnets" {
-  value = data.google_compute_subnetwork.this
-}
-
-resource "google_compute_address" "this" {
+module "fw_instances" {
+  source       = "./vms"
   count        = 2
-  name         = "${var.name}-nat-ip-${count.index}"
-  project      = var.project_id
-  purpose      = "GCE_ENDPOINT"
-  address_type = "EXTERNAL"
+  fw_vnics     = local.fw_vnics
+  fw_subnets   = data.google_compute_subnetwork.this
+  project_id   = var.project_id
+  region       = var.region
+  ssh_key      = var.ssh_key
+  name         = var.name
+  index        = count.index
+  image       = var.compute_params.image_name
+  machine_type = var.compute_params.machine_type
+  disk_params  = var.disk_params
 }
 
-resource "google_compute_instance" "this" {
-  count                     = 2
-  name                      = "${var.name}-${count.index}"
-  zone                      = data.google_compute_zones.available.names[count.index]
-  machine_type              = var.compute_params.machine_type
-  project                   = var.project_id
-  can_ip_forward            = true
-  allow_stopping_for_update = true
-
-  metadata = {
-    serial-port-enable  = true
-    mgmt-interface-swap = "enable"
-  }
-
-  dynamic "network_interface" {
-    for_each = var.interfaces
-
-    content {
-      network_ip = cidrhost(data.google_compute_subnetwork.this[network_interface.key].ip_cidr_range, 2 + count.index)
-      subnetwork = data.google_compute_subnetwork.this[network_interface.key].self_link
-
-/*       dynamic "access_config" {
-        for_each = network_interface.value.public_ip ? [1] : []
-        content {
-          nat_ip                 = local.access_configs[network_interface.key].nat_ip
-          public_ptr_domain_name = local.access_configs[network_interface.key].public_ptr_domain_name
-        }
-      } */
-    }
-  }
-
-  boot_disk {
-    initialize_params {
-      image = data.google_compute_image.palo_vmseries.self_link
-      type  = var.disk_params.disk_type
-      size = var.disk_params.disk_size
-    }
-  }
-
+module "bootstrap" {
+  source = "./bootstrap"
+  
 }
+
+/* locals {
+    vmseries_vms = {
+      vmseries01 = {
+        zone                      = data.google_compute_zones.available.names[0]
+        management_private_ip     = cidrhost(var.cidr_mgmt, 2)
+        managementpeer_private_ip = cidrhost(var.cidr_mgmt, 3)
+        untrust_private_ip        = cidrhost(var.cidr_untrust, 2)
+        untrust_gateway_ip        = data.google_compute_subnetwork.untrust.gateway_address
+        trust_private_ip          = cidrhost(var.cidr_trust, 2)
+        trust_gateway_ip          = data.google_compute_subnetwork.trust.gateway_address
+        ha2_private_ip            = cidrhost(var.cidr_ha2, 2)
+        ha2_subnet_mask           = cidrnetmask(var.cidr_ha2)
+        ha2_gateway_ip            = data.google_compute_subnetwork.ha2.gateway_address
+        external_lb_ip            = google_compute_address.external_nat_ip.address
+        workload_vm               = cidrhost(var.cidr_trust, 5)
+      }
+
+      vmseries02 = {
+        zone                      = data.google_compute_zones.available.names[1]
+        management_private_ip     = cidrhost(var.cidr_mgmt, 3)
+        managementpeer_private_ip = cidrhost(var.cidr_mgmt, 2)
+        untrust_private_ip        = cidrhost(var.cidr_untrust, 3)
+        untrust_gateway_ip        = data.google_compute_subnetwork.untrust.gateway_address
+        trust_private_ip          = cidrhost(var.cidr_trust, 3)
+        trust_gateway_ip          = data.google_compute_subnetwork.trust.gateway_address
+        ha2_private_ip            = cidrhost(var.cidr_ha2, 3)
+        ha2_subnet_mask           = cidrnetmask(var.cidr_ha2)
+        ha2_gateway_ip            = data.google_compute_subnetwork.ha2.gateway_address
+        external_lb_ip            = google_compute_address.external_nat_ip.address
+        workload_vm               = cidrhost(var.cidr_trust, 5)
+      }
+  }
+    
+} */
+
+
