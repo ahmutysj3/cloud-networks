@@ -1,21 +1,21 @@
 firewall_pairs:  
-  - name_prefix: wskypagcfw-test
+  - name_prefix: trace-palo-alto-test
     region: us-east4
     interfaces:
       - untrusted:
-          subnet: wsky-test-untrusted-subnet
+          subnet: trace-test-untrusted-subnet
           subnet_project: trace-terraform-perm
           public_ip: false
       - mgmt:
-          subnet: wsky-test-mgmt-subnet
+          subnet: trace-test-mgmt-subnet
           public_ip: true
           subnet_project: trace-terraform-perm
       - ha:
-          subnet: wsky-test-ha-subnet
+          subnet: trace-test-ha-subnet
           public_ip: false
           subnet_project: trace-terraform-perm
       - trusted: 
-          subnet: wsky-test-trusted-subnet
+          subnet: trace-test-trusted-subnet
           public_ip: false
           subnet_project: trace-terraform-perm
     image_name: vmseries-flex-bundle2-1018h2

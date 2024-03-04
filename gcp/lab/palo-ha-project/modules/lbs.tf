@@ -1,4 +1,4 @@
-resource "google_compute_region_backend_service" "elb" {
+/* resource "google_compute_region_backend_service" "elb" {
   provider              = google-beta
   name                  = "${var.name}-elb-backend-service"
   project               = var.project_id
@@ -6,13 +6,6 @@ resource "google_compute_region_backend_service" "elb" {
   region                = var.region
   load_balancing_scheme = "EXTERNAL"
   health_checks         = [google_compute_region_health_check.this.self_link]
-
-  /*   dynamic "backend" {
-    for_each = [for k, v in google_compute_instance_group.this : google_compute_instance_group.this[k].self_link]
-    content {
-      group = backend.value
-    }
-  } */
 
   dynamic "backend" {
     for_each = [for firewalls in module.fw_instances : firewalls.instance_group]
@@ -67,14 +60,6 @@ resource "google_compute_region_backend_service" "ilb" {
   network               = data.google_compute_subnetwork.this[3].network
   session_affinity      = null
 
-  /*   dynamic "backend" {
-    for_each = [for k, v in google_compute_instance_group.this : google_compute_instance_group.this[k].self_link]
-    content {
-      group    = backend.value
-      failover = false
-    }
-  } */
-
   dynamic "backend" {
     for_each = [for firewalls in module.fw_instances : firewalls.instance_group]
     content {
@@ -118,4 +103,4 @@ resource "google_compute_region_health_check" "this" {
     port         = 80
     request_path = "/php/login.php"
   }
-}
+} */

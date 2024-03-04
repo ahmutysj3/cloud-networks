@@ -36,9 +36,18 @@ variable "region" {
 }
 
 variable "fw_subnets" {
-  type = any  
+  type = any
 }
 
 variable "image" {
   type = string
+}
+
+variable "addresses" {
+  type = any
+}
+
+variable "bootstrap_bucket" {
+  type = string
+
 }

@@ -14,14 +14,6 @@ data "google_compute_image" "palo_vmseries" {
   project = "paloaltonetworksgcp-public"
 }
 
-resource "google_compute_address" "internal" {
-  for_each     = var.fw_vnics
-  name         = "${var.name}-${each.value.interface}-fw0${var.index}-ip"
-  project      = var.project_id
-  address_type = "INTERNAL"
-  subnetwork   = var.fw_subnets[each.key].self_link
-}
-
 resource "google_compute_instance" "this" {
   name                      = "${var.name}-${var.index}"
   zone                      = data.google_compute_zones.available.names[var.index]
@@ -31,17 +23,17 @@ resource "google_compute_instance" "this" {
   allow_stopping_for_update = true
 
   metadata = {
-    serial-port-enable  = true
-    mgmt-interface-swap = "enable"
-    ssh-keys            = var.ssh_key
+    serial-port-enable                   = true
+    ssh-keys                             = var.ssh_key
+    vmseries-bootstrap-gce-storagebucket = var.bootstrap_bucket
   }
 
   dynamic "network_interface" {
     for_each = var.fw_vnics
 
     content {
-      network_ip = google_compute_address.internal[network_interface.key].address
-      subnetwork = google_compute_address.internal[network_interface.key].subnetwork
+      network_ip = var.addresses[network_interface.key].ip
+      subnetwork = var.fw_subnets[network_interface.key].self_link
 
       dynamic "access_config" {
         for_each = network_interface.value.public_ip ? [1] : []
