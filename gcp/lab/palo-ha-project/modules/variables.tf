@@ -22,3 +22,9 @@ variable "compute_params" {
 variable "disk_params" {
   type = map(string)
 }
+
+variable "ssh_key" {
+  description = "ssh pubkey to be used in bootstrap process"
+  type        = string
+  default     = ""
+}

@@ -1,11 +1,15 @@
 terraform {
-  required_version = "= 1.3.8"
+  required_version = ">=1.3.8"
 
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = "4.66.0"
+      version = ">=4.66.0"
     }
+  }
+  backend "gcs" {
+    bucket = "trace_terraform_perm_bucket"
+    prefix = "gcp/networks/nva-multi-vpc"
   }
 }
 

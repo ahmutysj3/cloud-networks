@@ -1,0 +1,25 @@
+firewall_pairs:  
+  - name_prefix: trace-palo-alto-test
+    region: us-east4
+    interfaces:
+      - untrusted:
+          subnet: trace-test-untrusted-subnet
+          subnet_project: trace-terraform-perm
+          public_ip: false
+      - mgmt:
+          subnet: trace-test-mgmt-subnet
+          public_ip: true
+          subnet_project: trace-terraform-perm
+      - ha:
+          subnet: trace-test-ha-subnet
+          public_ip: false
+          subnet_project: trace-terraform-perm
+      - trusted: 
+          subnet: trace-test-trusted-subnet
+          public_ip: false
+          subnet_project: trace-terraform-perm
+    image_name: vmseries-flex-bundle2-1018h2
+    image_project: paloaltonetworksgcp-public
+    disk_size: 100
+    disk_type: pd-standard
+    machine_type: n2-standard-4
