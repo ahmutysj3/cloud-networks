@@ -93,7 +93,7 @@ module "fw_instances" {
 
 module "bootstrap_bucket" {
   source = "./bucket"
-  prefix = "trace-test-${var.name}-"
+  prefix = "${var.name}-"
 
 }
 

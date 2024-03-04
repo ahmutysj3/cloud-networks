@@ -14,6 +14,9 @@ data "google_compute_image" "palo_vmseries" {
   project = "paloaltonetworksgcp-public"
 }
 
+data "google_compute_default_service_account" "this" {
+}
+
 resource "google_compute_instance" "this" {
   name                      = "${var.name}-${var.index}"
   zone                      = data.google_compute_zones.available.names[var.index]
@@ -27,6 +30,11 @@ resource "google_compute_instance" "this" {
     mgmt-interface-swap                  = "enable"
     ssh-keys                             = var.ssh_key
     vmseries-bootstrap-gce-storagebucket = var.bootstrap_bucket
+  }
+
+  service_account {
+    email  = data.google_compute_default_service_account.this.email
+    scopes = ["cloud-platform"]
   }
 
   dynamic "network_interface" {
