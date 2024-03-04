@@ -24,6 +24,7 @@ resource "google_compute_instance" "this" {
 
   metadata = {
     serial-port-enable                   = true
+    mgmt-interface-swap                  = "enable"
     ssh-keys                             = var.ssh_key
     vmseries-bootstrap-gce-storagebucket = var.bootstrap_bucket
   }
