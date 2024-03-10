@@ -16,32 +16,6 @@ locals {
     "subnet_project" = interface.subnet_project
   } }
 
-}
-
-data "google_compute_zones" "available" {
-  project = var.project_id
-  region  = var.region
-}
-
-
-data "google_compute_subnetwork" "this" {
-  for_each = local.fw_vnics
-  project  = each.value.subnet_project
-  region   = var.region
-  name     = each.value.subnet
-}
-
-module "addresses" {
-  source     = "./addresses"
-  count      = 2
-  name       = var.name
-  project_id = var.project_id
-  index      = count.index
-  fw_subnets = data.google_compute_subnetwork.this
-  fw_vnics   = local.fw_vnics
-}
-
-locals {
   bootstrap_ips = {
     vm01 = {
       zone                 = data.google_compute_zones.available.names[0]
@@ -74,6 +48,29 @@ output "fw_ips" {
   value = local.bootstrap_ips
 }
 
+
+data "google_compute_zones" "available" {
+  project = var.project_id
+  region  = var.region
+}
+
+data "google_compute_subnetwork" "this" {
+  for_each = local.fw_vnics
+  project  = each.value.subnet_project
+  region   = var.region
+  name     = each.value.subnet
+}
+
+module "addresses" {
+  source     = "./addresses"
+  count      = 2
+  name       = var.name
+  project_id = var.project_id
+  index      = count.index
+  fw_subnets = data.google_compute_subnetwork.this
+  fw_vnics   = local.fw_vnics
+}
+/* 
 module "fw_instances" {
   source           = "./vms"
   count            = 2
@@ -96,5 +93,5 @@ module "bootstrap_bucket" {
   prefix = "${var.name}-"
 
 }
-
+ */
 
