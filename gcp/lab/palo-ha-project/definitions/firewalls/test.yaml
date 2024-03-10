@@ -1,6 +1,6 @@
 firewall_pairs:  
   - name_prefix: trace-palo-alto-test
-    region: us-east4
+    region: us-east1
     interfaces:
       - untrusted:
           subnet: trace-test-untrusted-subnet

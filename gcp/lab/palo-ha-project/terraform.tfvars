@@ -1,4 +1,4 @@
 config = {
-  region     = "us-east4"
+  region     = "us-east1"
   project_id = "trace-terraform-perm"
 }
