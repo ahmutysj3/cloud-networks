@@ -54,3 +54,8 @@ variable "app_network_services" {
   type        = list(string)
   default     = []
 }
+
+variable "gke_project_services" {
+  type    = list(string)
+  default = []
+}

@@ -39,6 +39,16 @@ vm_services = [
   "networkconnectivity.googleapis.com",
 ]
 
+gke_project_services = [
+  "servicenetworking.googleapis.com",
+  "compute.googleapis.com",
+  "cloudresourcemanager.googleapis.com",
+  "logging.googleapis.com",
+  "networksecurity.googleapis.com",
+  "networkservices.googleapis.com",
+  "container.googleapis.com",
+]
+
 project_names = {
   app_vpc = "trace-vpc-app-prod"
   edge    = "trace-vpc-edge"

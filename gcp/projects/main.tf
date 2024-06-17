@@ -2,7 +2,7 @@ locals {
   vm_project_services   = { for k, v in toset(var.vm_services) : v => var.project_ids[var.project_names["vm"]] }
   edge_project_services = { for k, v in toset(var.edge_network_services) : v => var.project_ids[var.project_names["edge"]] }
   app_project_services  = { for k, v in toset(var.app_network_services) : v => var.project_ids[var.project_names["app_vpc"]] }
-  gke_project_services  = { for k, v in toset(var.app_network_services) : v => var.project_ids[var.project_names["gke"]] }
+  gke_project_services  = { for k, v in toset(var.gke_project_services) : v => var.project_ids[var.project_names["gke"]] }
 }
 
 resource "google_compute_shared_vpc_host_project" "this" {

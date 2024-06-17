@@ -19,4 +19,5 @@ module "org_projects" {
   vm_services           = var.vm_services
   edge_network_services = var.edge_network_services
   app_network_services  = var.app_network_services
+  gke_project_services  = var.gke_project_services
 }

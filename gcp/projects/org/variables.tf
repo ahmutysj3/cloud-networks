@@ -6,6 +6,10 @@ variable "app_network_services" {
   type = list(string)
 }
 
+variable "gke_project_services" {
+  type = list(string)
+}
+
 variable "vm_services" {
   type = list(string)
 }
