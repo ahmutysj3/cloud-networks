@@ -99,38 +99,48 @@
 │   │   │   ├── README.md
 │   │   │   ├── variables.tf
 │   │   │   └── versions.tf
-│   │   └── ngfw-lb-sandwich
-│   │       ├── backup_firewalls
-│   │       │   ├── palo_alto_ngfw.tf.lock
-│   │       │   └── pfsense.tf.lock
+│   │   ├── ngfw-lb-sandwich
+│   │   │   ├── firewall.tf
+│   │   │   ├── main.tf
+│   │   │   ├── modules
+│   │   │   │   ├── app-networks
+│   │   │   │   │   ├── network.tf
+│   │   │   │   │   └── README.md
+│   │   │   │   ├── edge-firewall
+│   │   │   │   │   ├── firewall.tf
+│   │   │   │   │   ├── fortigate
+│   │   │   │   │   │   ├── addresses.tf
+│   │   │   │   │   │   ├── bootstrap2.tpl
+│   │   │   │   │   │   ├── bootstrap.tpl
+│   │   │   │   │   │   ├── firewall.tf
+│   │   │   │   │   │   ├── load_balancers.tf
+│   │   │   │   │   │   └── variables.tf
+│   │   │   │   │   ├── load-balancers
+│   │   │   │   │   │   ├── main.tf
+│   │   │   │   │   │   └── variables.tf
+│   │   │   │   │   ├── README.md
+│   │   │   │   │   ├── variables.tf
+│   │   │   │   │   └── versions.tf
+│   │   │   │   └── edge-network
+│   │   │   │       ├── main.tf
+│   │   │   │       ├── outputs.tf
+│   │   │   │       ├── peerings
+│   │   │   │       │   ├── main.tf
+│   │   │   │       │   └── variables.tf
+│   │   │   │       ├── README.md
+│   │   │   │       ├── variables.tf
+│   │   │   │       └── versions.tf
+│   │   │   ├── providers.tf
+│   │   │   ├── README.md
+│   │   │   ├── terraform.tfvars
+│   │   │   ├── variables.tf
+│   │   │   └── versions.tf
+│   │   └── nva-multi-vpc
 │   │       ├── main.tf
 │   │       ├── modules
-│   │       │   ├── app-networks
-│   │       │   │   └── network.tf
-│   │       │   ├── edge-firewall
-│   │       │   │   ├── firewall.tf
-│   │       │   │   ├── fortigate
-│   │       │   │   │   ├── addresses.tf
-│   │       │   │   │   ├── bootstrap2.tpl
-│   │       │   │   │   ├── bootstrap.tpl
-│   │       │   │   │   ├── firewall.tf
-│   │       │   │   │   ├── load_balancers.tf
-│   │       │   │   │   └── variables.tf
-│   │       │   │   ├── load-balancers
-│   │       │   │   │   ├── main.tf
-│   │       │   │   │   └── variables.tf
-│   │       │   │   ├── variables.tf
-│   │       │   │   └── versions.tf
-│   │       │   └── edge-network
-│   │       │       ├── main.tf
-│   │       │       ├── outputs.tf
-│   │       │       ├── peerings
-│   │       │       │   ├── main.tf
-│   │       │       │   └── variables.tf
-│   │       │       ├── variables.tf
-│   │       │       └── versions.tf
-│   │       ├── providers.tf
-│   │       ├── README.md
+│   │       │   ├── main.tf
+│   │       │   ├── outputs.tf
+│   │       │   └── variables.tf
 │   │       ├── terraform.tfvars
 │   │       ├── variables.tf
 │   │       └── versions.tf
@@ -158,7 +168,7 @@
 │   └── versions.tf
 └── README.md
 
-29 directories, 122 files
+30 directories, 131 files
 ```
 
 ## Public Cloud Networks
