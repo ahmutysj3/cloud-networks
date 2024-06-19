@@ -1,0 +1,15 @@
+name: Fix Terraform file formatting
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    name: Check Terraform file are formatted correctly
+    steps:
+      
+      - name: terraform-fmt
+        uses: dflook/terraform-fmt@v1.43.0
