@@ -1,6 +1,6 @@
 terraform {
 
-  required_version = "1.6.3"
+  required_version = "1.6.6"
   required_providers {
     google = {
       source  = "hashicorp/google"
@@ -12,10 +12,17 @@ terraform {
     }
   }
 
-  backend "gcs" {
+  cloud {
+    organization = "ahmutysj3"
+
+    workspaces {
+      name = "gcp-networks-basic-sandbox"
+    }
+  }
+  /* backend "gcs" {
     bucket = "trace_terraform_perm_bucket"
     prefix = "gcp/networks/basic"
-  }
+  } */
 }
 
 provider "google" {
