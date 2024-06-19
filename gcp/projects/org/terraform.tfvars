@@ -4,7 +4,6 @@ app_network_services = [
   "storage-component.googleapis.com",
   "cloudresourcemanager.googleapis.com",
   "logging.googleapis.com",
-  "firewallinsights.googleapis.com",
   "networkconnectivity.googleapis.com",
   "networkmanagement.googleapis.com",
   "networksecurity.googleapis.com",
