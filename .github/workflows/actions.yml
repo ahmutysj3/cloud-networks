@@ -1,4 +1,4 @@
-name: Fix Terraform file formatting
+name: Terraform Format
 
 on:
   push:
@@ -6,26 +6,41 @@ on:
       - main
 
 jobs:
-  format:
+  terraform-fmt:
     runs-on: ubuntu-latest
-    name: Check Terraform file are formatted correctly
-    permissions:
-      contents: read
-      pull-requests: write
-    
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
 
-      - name: terraform-fmt
-        uses: dflook/terraform-fmt@v1.43.0
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
         with:
-          path: /
+          terraform_version: 1.0.11
+
+      - name: Run terraform fmt
+        id: fmt
+        run: |
+          if terraform fmt -recursive -check; then
+            echo "No formatting changes needed."
+          else
+            terraform fmt -recursive
+            git config --global user.email "actions@github.com"
+            git config --global user.name "GitHub Actions"
+            git checkout -b terraform-fmt-fix
+            git add .
+            git commit -m "Automatic terraform fmt fixes"
+            git push --set-upstream origin terraform-fmt-fix
+            echo "::set-output name=need-pr::true"
+          fi
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+        if: steps.fmt.outputs.need-pr == 'true'
+        uses: peter-evans/create-pull-request@v3
         with:
-          commit-message: terraform fmt
-          title: Reformat terraform files
-          body: Update Terraform files to canonical format using `terraform fmt`
-          branch: automated-terraform-fmt
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "Automatic terraform fmt fixes"
+          title: "Automatic terraform fmt fixes"
+          body: "This pull request contains automatic formatting fixes by terraform fmt."
+          branch: terraform-fmt-fix
+          base: main
