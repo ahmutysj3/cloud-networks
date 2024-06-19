@@ -10,6 +10,18 @@ jobs:
     runs-on: ubuntu-latest
     name: Check Terraform file are formatted correctly
     steps:
-      
-      - name: terraform-fmt
-        uses: dflook/terraform-fmt@v1.43.0
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: terraform fmt
+        uses: dflook/terraform-fmt@v1
+        with:
+          path: my-terraform-config
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: terraform fmt
+          title: Reformat terraform files
+          body: Update Terraform files to canonical format using `terraform fmt`
+          branch: automated-terraform-fmt
