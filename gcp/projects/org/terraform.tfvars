@@ -47,6 +47,7 @@ gke_project_services = [
   "networksecurity.googleapis.com",
   "networkservices.googleapis.com",
   "container.googleapis.com",
+  "containersecurity.googleapis.com",
 ]
 
 project_names = {
