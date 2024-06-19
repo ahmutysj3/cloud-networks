@@ -9,9 +9,13 @@ jobs:
   format:
     runs-on: ubuntu-latest
     name: Check Terraform file are formatted correctly
+    permissions:
+      contents: read
+      pull-requests: write
+    
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v3
 
       - name: terraform-fmt
         uses: dflook/terraform-fmt@v1.43.0
