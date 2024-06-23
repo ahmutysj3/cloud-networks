@@ -13,7 +13,7 @@ terraform {
   }
   backend "gcs" {
     bucket = "trace_terraform_perm_bucket"
-    prefix = "gcp/projects"
+    prefix = "gcp/org/apis"
   }
 }
 

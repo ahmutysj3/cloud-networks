@@ -1,0 +1,23 @@
+projects:
+  - name: trace-terraform-perm
+    folder: null
+  - name: trace-vpc-core-prod
+    folder: spokes
+  - name: trace-vpc-app-prod
+    folder: spokes
+  - name: trace-vpc-edge-prod
+    folder: edge
+  - name: trace-vm-instances
+    folder: app
+
+root_folders:
+  - name: networks
+    parent: tracecloud.us
+  - name: app
+    parent: tracecloud.us
+
+subfolders:
+  - name: spokes
+    parent: networks
+  - name: edge
+    parent: networks
