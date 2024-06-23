@@ -1,0 +1,65 @@
+enable_apis:
+  - project: trace-terraform-perm
+    services:
+    - compute.googleapis.com
+    - storage-component.googleapis.com
+    - cloudresourcemanager.googleapis.com
+    - certificatemanager.googleapis.com- 
+    - replicapool.googleapis.com       
+    - replicapoolupdater.googleapis.com 
+    - deploymentmanager.googleapis.com
+    - cloudshell.googleapis.com
+    - oslogin.googleapis.com
+    - resourceviews.googleapis.com 
+    - networkconnectivity.googleapis.com
+  - project: trace-vpc-core-prod
+    services:
+    - servicenetworking.googleapis.com- 
+    - compute.googleapis.com- 
+    - storage-component.googleapis.com- 
+    - cloudresourcemanager.googleapis.com- 
+    - logging.googleapis.com- 
+    - networkconnectivity.googleapis.com- 
+    - networkmanagement.googleapis.com- 
+    - networksecurity.googleapis.com- 
+    - networkservices.googleapis.com- 
+    - dns.googleapis.com- 
+  - project: trace-vpc-app-prod
+    services:
+    - servicenetworking.googleapis.com- 
+    - compute.googleapis.com- 
+    - storage-component.googleapis.com- 
+    - cloudresourcemanager.googleapis.com- 
+    - logging.googleapis.com- 
+    - networkconnectivity.googleapis.com- 
+    - networkmanagement.googleapis.com- 
+    - networksecurity.googleapis.com- 
+    - networkservices.googleapis.com- 
+    - dns.googleapis.com- 
+  - project: trace-vpc-edge-prod
+    services:
+    - servicenetworking.googleapis.com- 
+    - compute.googleapis.com- 
+    - certificatemanager.googleapis.com- 
+    - cloudresourcemanager.googleapis.com- 
+    - secretmanager.googleapis.com- 
+    - logging.googleapis.com- 
+    - firewallinsights.googleapis.com- 
+    - networkconnectivity.googleapis.com- 
+    - networkmanagement.googleapis.com- 
+    - networksecurity.googleapis.com- 
+    - networkservices.googleapis.com- 
+    - dns.googleapis.com- 
+  - project: trace-vm-instances
+    services:
+    - compute.googleapis.com
+    - storage-component.googleapis.com
+    - cloudresourcemanager.googleapis.com
+    - certificatemanager.googleapis.com- 
+    - replicapool.googleapis.com       
+    - replicapoolupdater.googleapis.com 
+    - deploymentmanager.googleapis.com
+    - cloudshell.googleapis.com
+    - oslogin.googleapis.com
+    - resourceviews.googleapis.com 
+    - networkconnectivity.googleapis.com
