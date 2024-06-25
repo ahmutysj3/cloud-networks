@@ -40,3 +40,19 @@ data "google_billing_account" "this" {
 locals {
   definitions = yamldecode(file("${path.module}/projects.yml"))
 }
+
+resource "google_compute_shared_vpc_host_project" "this" {
+  for_each = toset(local.definitions.shared_vpcs["host_projects"])
+
+  project = google_project.this[each.value].project_id
+}
+
+resource "google_compute_shared_vpc_service_project" "this" {
+  depends_on = [google_compute_shared_vpc_host_project.this]
+
+  for_each = { for k, v in local.definitions.shared_vpcs["service_projects"] : k => v }
+
+  host_project    = google_compute_shared_vpc_host_project.this[each.value.connect_to].project
+  service_project = google_project.this[each.value.project].project_id
+}
+

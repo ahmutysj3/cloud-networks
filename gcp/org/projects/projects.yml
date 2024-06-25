@@ -21,3 +21,14 @@ subfolders:
     parent: networks
   - name: edge
     parent: networks
+
+shared_vpcs:
+  host_projects: 
+    - trace-vpc-core-prod
+    - trace-vpc-app-prod
+  service_projects:
+    - project: trace-terraform-perm
+      connect_to: trace-vpc-core-prod
+    - project: trace-vm-instances
+      connect_to: trace-vpc-app-prod
+
