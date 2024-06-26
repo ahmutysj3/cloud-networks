@@ -41,6 +41,10 @@ enable_apis:
   - project: trace-vpc-edge-prod
     services:
     - compute.googleapis.com
+    - deploymentmanager.googleapis.com
+    - runtimeconfig.googleapis.com
+    - networkservices.googleapis.com 
+    - networkconnectivity.googleapis.com 
   - project: trace-vm-instances
     services:
     - compute.googleapis.com
