@@ -43,9 +43,9 @@ resource "google_compute_network" "this" {
 
   name                            = each.value.name
   project                         = each.value.project
-  auto_create_subnetworks         = false
-  routing_mode                    = "GLOBAL"
-  delete_default_routes_on_create = true
+  auto_create_subnetworks         = var.default_network_params.auto_create_subnetworks
+  routing_mode                    = var.default_network_params.routing_mode
+  delete_default_routes_on_create = var.default_network_params.delete_default_routes_on_create
 }
 
 resource "google_compute_subnetwork" "this" {

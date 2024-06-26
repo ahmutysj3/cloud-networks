@@ -1,0 +1,5 @@
+routes:
+  - name: default-inet-route
+    destination_range: 0.0.0.0/0
+    next_hop_gateway: default-internet-gateway
+    priority: 100
