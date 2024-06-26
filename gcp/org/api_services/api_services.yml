@@ -44,3 +44,4 @@ enable_apis:
   - project: trace-vm-instances
     services:
     - compute.googleapis.com
+    - networkservices.googleapis.com
