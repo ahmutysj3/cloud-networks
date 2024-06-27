@@ -28,3 +28,31 @@ rules:
     - 0.0.0.0/0
     source_tags: null
     target_tags: null
+  - action: allow
+    destination_ranges: null
+    direction: ingress
+    name: test-firewall-ha-allow-all-rule-1
+    network: trace-vpc-edge-ha2
+    priority: 1000
+    project: trace-vpc-edge-prod-01
+    rules:
+      - protocol: all
+        ports: null
+    source_tags: 
+      - palo-ha2
+    target_tags:
+      - palo-ha2
+  - action: allow
+    destination_ranges: null
+    direction: ingress
+    name: test-firewall-untrusted-allow-all-rule-1
+    network: trace-vpc-edge-untrusted
+    priority: 1000
+    project: trace-vpc-edge-prod-01
+    rules:
+      - protocol: all
+        ports: null
+    source_ranges: 
+      - 0.0.0.0/0
+    target_tags:
+      - palo-untrusted
