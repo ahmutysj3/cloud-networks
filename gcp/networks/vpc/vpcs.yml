@@ -3,7 +3,7 @@ vpcs:
     project: trace-vpc-core-prod-01
     subnets:
       - name: core-subnet-01
-        region: us-east1
+        region: us-east4
         cidr_range: 10.1.0.0/24
       - name: core-subnet-02
         region: us-central1
@@ -12,7 +12,7 @@ vpcs:
     project: trace-vpc-app-prod-01
     subnets:
       - name: app-subnet-01
-        region: us-east1
+        region: us-east4
         cidr_range: 10.2.0.0/24
       - name: app-subnet-02
         region: us-central1
@@ -21,7 +21,7 @@ vpcs:
     project: trace-vpc-edge-prod-01
     subnets:
       - name: edge-trusted-subnet-01
-        region: us-east1
+        region: us-east4
         cidr_range: 10.100.0.0/28
       - name: edge-trusted-subnet-02
         region: us-central1
@@ -30,7 +30,7 @@ vpcs:
     project: trace-vpc-edge-prod-01
     subnets:
       - name: edge-untrusted-subnet-01
-        region: us-east1
+        region: us-east4
         cidr_range: 10.255.0.0/28
       - name: edge-untrusted-subnet-02
         region: us-central1
@@ -39,7 +39,7 @@ vpcs:
     project: trace-vpc-edge-prod-01
     subnets:
       - name: edge-ha2-subnet-01
-        region: us-east1
+        region: us-east4
         cidr_range: 10.100.0.16/28
       - name: edge-ha2-subnet-02
         region: us-central1
@@ -48,7 +48,7 @@ vpcs:
     project: trace-vpc-edge-prod-01
     subnets:
       - name: edge-mgmt-subnet-01
-        region: us-east1
+        region: us-east4
         cidr_range: 10.100.0.32/28
       - name: edge-mgmt-subnet-02
         region: us-central1
