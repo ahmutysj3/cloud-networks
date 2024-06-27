@@ -1,18 +1,11 @@
-/* resource "google_compute_route" "default" {
-  name        = "network-route"
-  dest_range  = "15.0.0.0/24"
-  network     = google_compute_network.default.name
-  next_hop_ip = "10.132.1.5"
-  priority    = 100
-} */
-
 data "google_projects" "this" {
   filter = "name:trace-vpc-* lifecycleState:ACTIVE"
 }
 
 data "google_compute_networks" "this" {
   for_each = local.shared_vpc_projects
-  project  = each.value.project_id
+
+  project = each.value.project_id
 }
 
 locals {
@@ -22,7 +15,8 @@ locals {
 
 
 resource "google_compute_firewall" "this" {
-  for_each           = { for k, v in var.firewall_rules : v.name => v }
+  for_each = { for k, v in var.firewall_rules : v.name => v }
+
   name               = each.value.name
   network            = each.value.network
   project            = each.value.project
@@ -52,89 +46,9 @@ resource "google_compute_firewall" "this" {
   }
 }
 
-variable "firewall_rules" {
-  type = list(object({
-    name      = string
-    action    = string
-    direction = string
-    network   = string
-    project   = string
-    rules = list(object({
-      protocol = string
-      ports    = optional(list(string))
-    }))
-    destination_ranges = optional(list(string))
-    source_ranges      = optional(list(string))
-    priority           = number
-    target_tags        = optional(list(string))
-    source_tags        = optional(list(string))
-  }))
-  default = [
-    {
-      name      = "test-firewall-ssh-rule-1"
-      network   = "trace-vpc-edge-mgmt"
-      project   = "trace-vpc-edge-prod-01"
-      priority  = 1000
-      action    = "allow"
-      direction = "ingress"
-      rules = [{
-        ports    = ["22"]
-        protocol = "tcp"
-        }
-      ]
-      source_ranges = ["0.0.0.0/0"]
-    },
-    {
-      name      = "test-firewall-ping-rule-1"
-      network   = "trace-vpc-edge-mgmt"
-      project   = "trace-vpc-edge-prod-01"
-      priority  = 1000
-      action    = "allow"
-      direction = "ingress"
-      rules = [{
-        protocol = "icmp"
-        }
-      ]
-      source_ranges = ["0.0.0.0/0"]
-  }]
-}
-
-variable "firewall_routes" {
-  type = list(object({
-    name                = string
-    dest_range          = string
-    network             = string
-    project             = string
-    priority            = optional(number)
-    target_tags         = optional(list(string))
-    next_hop_gateway    = optional(string)
-    next_hop_ip         = optional(string)
-    next_hop_instance   = optional(string)
-    next_hop_ilb        = optional(string)
-    next_hop_vpn_tunnel = optional(string)
-  }))
-  default = [
-    {
-      name             = "fw-mgmt-default-inet-route-01"
-      dest_range       = "0.0.0.0/0"
-      network          = "trace-vpc-edge-mgmt"
-      project          = "trace-vpc-edge-prod-01"
-      priority         = 0
-      next_hop_gateway = "default-internet-gateway"
-    },
-    {
-      name             = "fw-untrusted-default-inet-route-01"
-      dest_range       = "0.0.0.0/0"
-      network          = "trace-vpc-edge-untrusted"
-      project          = "trace-vpc-edge-prod-01"
-      priority         = 0
-      next_hop_gateway = "default-internet-gateway"
-  }]
-}
-
-
 resource "google_compute_route" "this" {
-  for_each            = { for k, v in var.firewall_routes : v.name => v }
+  for_each = { for k, v in var.firewall_routes : v.name => v }
+
   name                = each.value.name
   dest_range          = each.value.dest_range
   network             = each.value.network
