@@ -27,17 +27,18 @@ variable "firewall_rules" {
 
 variable "firewall_routes" {
   type = list(object({
-    name                = string
-    dest_range          = string
-    network             = string
-    project             = string
-    priority            = optional(number)
-    target_tags         = optional(list(string))
-    next_hop_gateway    = optional(string)
-    next_hop_ip         = optional(string)
-    next_hop_instance   = optional(string)
-    next_hop_ilb        = optional(string)
-    next_hop_vpn_tunnel = optional(string)
+    name                   = string
+    dest_range             = string
+    network                = string
+    project                = string
+    priority               = optional(number)
+    target_tags            = optional(list(string))
+    next_hop_gateway       = optional(string)
+    next_hop_ip            = optional(string)
+    next_hop_instance      = optional(string)
+    next_hop_instance_zone = optional(string)
+    next_hop_ilb           = optional(string)
+    next_hop_vpn_tunnel    = optional(string)
   }))
   default = []
 }

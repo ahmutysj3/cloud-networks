@@ -1,0 +1,30 @@
+rules:
+  - action: allow
+    destination_ranges: null
+    direction: ingress
+    name: test-firewall-ssh-rule-1
+    network: trace-vpc-edge-mgmt
+    priority: 1000
+    project: trace-vpc-edge-prod-01
+    rules:
+    - ports:
+      - 22
+      protocol: tcp
+    source_ranges:
+    - 0.0.0.0/0
+    source_tags: null
+    target_tags: null
+  - action: allow
+    destination_ranges: null
+    direction: ingress
+    name: test-firewall-ping-rule-1
+    network: trace-vpc-edge-mgmt
+    priority: 1000
+    project: trace-vpc-edge-prod-01
+    rules:
+    - ports: null
+      protocol: icmp
+    source_ranges:
+    - 0.0.0.0/0
+    source_tags: null
+    target_tags: null

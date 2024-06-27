@@ -1,0 +1,13 @@
+routes:
+  - dest_range: 0.0.0.0/0
+    name: fw-mgmt-default-inet-route-01
+    network: trace-vpc-edge-mgmt
+    next_hop_gateway: default-internet-gateway
+    priority: 0
+    project: trace-vpc-edge-prod-01
+  - dest_range: 0.0.0.0/0
+    name: fw-untrusted-default-inet-route-01
+    network: trace-vpc-edge-untrusted
+    next_hop_gateway: default-internet-gateway
+    priority: 0
+    project: trace-vpc-edge-prod-01

@@ -1,5 +1,0 @@
-routes:
-  - name: shared-test-route
-    destination_range: 0.0.0.0/0
-    next_hop_ilb: 192.168.1.1
-    priority: 100
