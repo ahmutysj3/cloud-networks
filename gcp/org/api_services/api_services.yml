@@ -1,20 +1,12 @@
 enable_apis:
   - project: trace-terraform-perm
     services:
-    - artifactregistry.googleapis.com     
-    - autoscaling.googleapis.com          
-    - bigquery.googleapis.com             
-    - bigquerymigration.googleapis.com   
-    - bigquerystorage.googleapis.com      
-    - cloudtrace.googleapis.com          
     - compute.googleapis.com              
     - container.googleapis.com            
     - containerfilesystem.googleapis.com 
-    - containerregistry.googleapis.com    
-    - datastore.googleapis.com            
+    - containerregistry.googleapis.com              
     - dns.googleapis.com                  
-    - domains.googleapis.com              
-    - edgecache.googleapis.com            
+    - domains.googleapis.com                         
     - firewallinsights.googleapis.com     
     - gkebackup.googleapis.com            
     - iam.googleapis.com                  
@@ -28,8 +20,7 @@ enable_apis:
     - pubsub.googleapis.com               
     - runtimeconfig.googleapis.com        
     - servicemanagement.googleapis.com    
-    - serviceusage.googleapis.com         
-    - sql-component.googleapis.com       
+    - serviceusage.googleapis.com                
     - storage-api.googleapis.com          
     - storage.googleapis.com              
   - project: trace-vpc-core-prod
