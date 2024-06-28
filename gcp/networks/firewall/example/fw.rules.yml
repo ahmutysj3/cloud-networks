@@ -56,3 +56,48 @@ rules:
       - 0.0.0.0/0
     target_tags:
       - palo-untrusted
+  - action: allow
+    destination_ranges: null
+    direction: ingress
+    name: netmgmt-ssh-rule-1
+    network: trace-vpc-edge-netmgmt
+    priority: 1000
+    project: trace-vpc-edge-prod-01
+    rules:
+    - ports:
+      - 22
+      protocol: tcp
+    source_ranges:
+    - 0.0.0.0/0
+    source_tags: null
+    target_tags: null
+  - action: allow
+    destination_ranges: null
+    direction: ingress
+    name: netmgmt-ping-rule-1
+    network: trace-vpc-edge-netmgmt
+    priority: 1000
+    project: trace-vpc-edge-prod-01
+    rules:
+    - ports: null
+      protocol: icmp
+    source_ranges:
+    - 0.0.0.0/0
+    source_tags: null
+    target_tags: null
+
+  - action: allow
+    destination_ranges: null
+    direction: ingress
+    name: netmgmt-https-rule-1
+    network: trace-vpc-edge-netmgmt
+    priority: 1000
+    project: trace-vpc-edge-prod-01
+    rules:
+    - ports: 
+        - 443
+      protocol: tcp
+    source_ranges:
+    - 0.0.0.0/0
+    source_tags: null
+    target_tags: null

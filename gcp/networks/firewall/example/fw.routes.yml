@@ -11,3 +11,9 @@ routes:
     next_hop_gateway: default-internet-gateway
     priority: 0
     project: trace-vpc-edge-prod-01
+  - dest_range: 0.0.0.0/0
+    name: netmgmt-default-inet-route-01
+    network: trace-vpc-edge-netmgmt
+    next_hop_gateway: default-internet-gateway
+    priority: 0
+    project: trace-vpc-edge-prod-01
