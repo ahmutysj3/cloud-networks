@@ -1,8 +1,8 @@
 rules:
-  - action: allow
+  - name: test-firewall-ssh-rule-1
+    action: allow
     destination_ranges: null
     direction: ingress
-    name: test-firewall-ssh-rule-1
     network: trace-vpc-edge-mgmt
     priority: 1000
     project: trace-vpc-edge-prod-01
@@ -13,11 +13,13 @@ rules:
     source_ranges:
     - 0.0.0.0/0
     source_tags: null
-    target_tags: null
-  - action: allow
+    target_tags: 
+      - palo-mgmt
+
+  - name: test-firewall-ping-rule-1
+    action: allow
     destination_ranges: null
     direction: ingress
-    name: test-firewall-ping-rule-1
     network: trace-vpc-edge-mgmt
     priority: 1000
     project: trace-vpc-edge-prod-01
@@ -27,11 +29,13 @@ rules:
     source_ranges:
     - 0.0.0.0/0
     source_tags: null
-    target_tags: null
-  - action: allow
+    target_tags: 
+      - palo-mgmt
+
+  - name: test-firewall-ha-allow-all-rule-1
+    action: allow
     destination_ranges: null
     direction: ingress
-    name: test-firewall-ha-allow-all-rule-1
     network: trace-vpc-edge-ha2
     priority: 1000
     project: trace-vpc-edge-prod-01
@@ -42,10 +46,11 @@ rules:
       - palo-ha2
     target_tags:
       - palo-ha2
-  - action: allow
+
+  - name: test-firewall-untrusted-allow-all-rule-1
+    action: allow
     destination_ranges: null
     direction: ingress
-    name: test-firewall-untrusted-allow-all-rule-1
     network: trace-vpc-edge-untrusted
     priority: 1000
     project: trace-vpc-edge-prod-01
@@ -56,25 +61,29 @@ rules:
       - 0.0.0.0/0
     target_tags:
       - palo-untrusted
-  - action: allow
+
+  - name: netmgmt-ssh-rule-1
+    action: allow
     destination_ranges: null
     direction: ingress
-    name: netmgmt-ssh-rule-1
     network: trace-vpc-edge-netmgmt
     priority: 1000
     project: trace-vpc-edge-prod-01
     rules:
-    - ports:
-      - 22
-      protocol: tcp
+    - protocol: tcp
+      ports:
+        - 22
     source_ranges:
     - 0.0.0.0/0
     source_tags: null
-    target_tags: null
-  - action: allow
+    target_tags: 
+      - allow-all-ssh
+    
+
+  - name: netmgmt-ping-rule-1
+    action: allow
     destination_ranges: null
     direction: ingress
-    name: netmgmt-ping-rule-1
     network: trace-vpc-edge-netmgmt
     priority: 1000
     project: trace-vpc-edge-prod-01
@@ -84,12 +93,13 @@ rules:
     source_ranges:
     - 0.0.0.0/0
     source_tags: null
-    target_tags: null
+    target_tags: 
+      - allow-all-ping
 
-  - action: allow
+  - name: netmgmt-https-rule-1
+    action: allow
     destination_ranges: null
     direction: ingress
-    name: netmgmt-https-rule-1
     network: trace-vpc-edge-netmgmt
     priority: 1000
     project: trace-vpc-edge-prod-01
@@ -100,4 +110,5 @@ rules:
     source_ranges:
     - 0.0.0.0/0
     source_tags: null
-    target_tags: null
+    target_tags: 
+      - allow-all-https

@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">=1.7.1"
+  required_version = ">=1.0.5"
 
   required_providers {
     google = {
@@ -10,7 +10,7 @@ terraform {
 
   backend "gcs" {
     bucket = "trace_terraform_perm_bucket"
-    prefix = "gcp/vms/instances/standard-ubuntu"
+    prefix = "gcp/vms/instances"
   }
 
 }
