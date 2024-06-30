@@ -1,0 +1,16 @@
+---
+  - name: my_first_playbook
+    hosts: ubuntu
+    gather_facts: yes
+    tasks:
+      - name: ensure nano is installed
+        become: yes
+        ansible.builtin.apt:
+          name: nano
+          state: present
+      - name: print nano version
+        ansible.builtin.command: nano --version
+        register: nano_version
+      - name: print nano version
+        debug:
+          var: nano_version.stdout

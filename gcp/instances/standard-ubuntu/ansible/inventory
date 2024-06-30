@@ -1,0 +1,22 @@
+---
+primary:
+    hosts:
+        ubuntu-1:
+            ansible_host: 34.48.122.3
+        ubuntu-2:
+            ansible_host: 34.48.156.144
+
+backup:
+    hosts:
+        ubuntu-3:
+            ansible_host: 34.145.253.91
+
+ubuntu:
+    children:
+        primary:
+        backup:
+
+    vars:
+        ansible_user: ubuntu
+        ansible_ssh_private_key_file: ~/.ssh/id_rsa
+        

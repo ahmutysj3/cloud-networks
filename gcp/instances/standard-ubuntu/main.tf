@@ -76,3 +76,7 @@ resource "google_compute_instance" "this" {
     scopes = ["cloud-platform"]
   }
 }
+
+output "public_ips" {
+  value = { for k, v in google_compute_address.external : k => v.address }
+}
