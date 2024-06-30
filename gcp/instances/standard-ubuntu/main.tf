@@ -19,6 +19,27 @@ data "google_compute_subnetwork" "this" {
   name     = each.value.nic["subnet"]
 }
 
+data "google_compute_zones" "available" {
+  region = var.gcp_region
+}
+
+resource "google_compute_address" "external" {
+  for_each     = { for k, v in var.instances : v.name => v if v.nic["assign_public_ip"] == true }
+  name         = "${each.value.name}-external-ip"
+  project      = each.value.nic["vpc_project"]
+  address_type = "EXTERNAL"
+  network_tier = "PREMIUM"
+}
+
+resource "google_compute_address" "internal" {
+  for_each     = { for k, v in var.instances : v.name => v }
+  name         = "${each.value.name}-internal-ip"
+  project      = each.value.nic["vpc_project"]
+  address_type = "INTERNAL"
+  subnetwork   = data.google_compute_subnetwork.this[each.key].self_link
+  address      = each.value.nic["address"]
+}
+
 variable "instances" {
   description = "The instances to create"
   type = list(object({
@@ -29,12 +50,13 @@ variable "instances" {
       project = string
     })
     tags         = list(string)
-    machine_type = string
-    zone         = string
+    machine_type = optional(string)
+    zone         = optional(string)
     nic = object({
       subnet           = string
       vpc_project      = string
       assign_public_ip = bool
+      address          = optional(string)
     })
   }))
   default = [{
@@ -50,6 +72,7 @@ variable "instances" {
       assign_public_ip = true
       vpc_project      = "trace-vpc-app-prod-01"
       subnet           = "app-subnet-01"
+      address          = null
     }
     tags = []
   }]
