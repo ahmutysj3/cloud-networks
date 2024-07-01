@@ -3,7 +3,7 @@
     hosts: ubuntu
     gather_facts: yes
     tasks:
-    
+
       - name: ensure nano is installed
         become: yes
         ansible.builtin.apt:
@@ -29,7 +29,7 @@
           password: $6$trace123$GIILptnD7gvJOfJzTkA6aMEdNF0s8gwO9IPchTX8CenHtNai8T/ageGdmXsj2aYX1PDckjUiNwXnEuEYc75/H/
       
       - name: create .ssh directory for trace
-        file:
+        ansible.builtin.file:
           path: /home/trace/.ssh
           state: directory
           owner: trace
@@ -38,7 +38,7 @@
         become: yes
       
       - name: copy authorized_keys from ubuntu to trace
-        copy:
+        ansible.builtin.copy:
           src: /home/ubuntu/.ssh/authorized_keys
           dest: /home/trace/.ssh/authorized_keys
           owner: trace
