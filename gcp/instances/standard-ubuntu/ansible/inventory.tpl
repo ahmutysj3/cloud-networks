@@ -2,14 +2,14 @@
 primary:
     hosts:
         ubuntu-1:
-            ansible_host: 34.48.133.134
+            ansible_host: ${host_1}
         ubuntu-2:
-            ansible_host: 34.85.253.154
+            ansible_host: ${host_2}
 
 backup:
     hosts:
         ubuntu-3:
-            ansible_host: 35.245.139.28
+            ansible_host: ${host_3}
 
 ubuntu:
     children:
