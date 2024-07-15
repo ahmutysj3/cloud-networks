@@ -53,6 +53,14 @@ resource "google_compute_instance" "this" {
     }
   }
 
+  scheduling {
+    instance_termination_action = "STOP"
+    automatic_restart           = false
+    on_host_maintenance         = "TERMINATE"
+    preemptible                 = true
+    provisioning_model          = "SPOT"
+  }
+
   network_interface {
     stack_type = "IPV4_ONLY"
     subnetwork = data.google_compute_subnetwork.this[each.key].self_link
@@ -86,7 +94,7 @@ output "public_ips" {
 }
 
 data "template_file" "inventory" {
-  template = file("${path.module}/ansible/inventory.tpl")
+  template = file("${path.module}/playbooks/inventory.tpl")
   vars = {
     host_1 = local.public_ips[0]
     host_2 = local.public_ips[1]
@@ -95,6 +103,6 @@ data "template_file" "inventory" {
 }
 
 resource "local_file" "inventory" {
-  filename = "${path.module}/ansible/inventory"
+  filename = "${path.module}/playbooks/inventory"
   content  = data.template_file.inventory.rendered
 }
