@@ -1,2 +1,2 @@
 gcp_region = "us-east4"
-vm_project = "trace-vpc-edge-prod-01"
+vm_project = "network-edge-infra-dr-sandbox"
