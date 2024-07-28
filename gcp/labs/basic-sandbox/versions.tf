@@ -13,17 +13,10 @@ terraform {
     }
   }
 
-  cloud {
-    organization = "ahmutysj3"
-
-    workspaces {
-      name = "gcp-networks-basic-sandbox"
-    }
-  }
-  /* backend "gcs" {
+  backend "gcs" {
     bucket = "trace_terraform_perm_bucket"
     prefix = "gcp/networks/basic"
-  } */
+  }
 }
 
 provider "google" {

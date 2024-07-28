@@ -1,2 +1,2 @@
-gcp_region = "us-east4"
-vm_project = "trace-vpc-edge-prod-01"
+gcp_region = "us-east1"
+vm_project = "trace-terraform-perm"

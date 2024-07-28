@@ -97,8 +97,6 @@ data "template_file" "inventory" {
   template = file("${path.module}/playbooks/inventory.tpl")
   vars = {
     host_1 = local.public_ips[0]
-    host_2 = local.public_ips[1]
-    host_3 = local.public_ips[2]
   }
 }
 
