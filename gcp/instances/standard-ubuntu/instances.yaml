@@ -28,17 +28,3 @@ instances:
       assign_public_ip: true
     tags:
       - allow-ansible-access
-  - name: standard-ubuntu-3
-    vm_project: network-edge-infra-dr-sandbox
-    machine_type: e2-micro
-    zone: us-east4-a
-    image:
-      name: ubuntu-2004-focal-v20240209
-      project: ubuntu-os-cloud
-    nic:
-      vpc_project: network-edge-infra-dr-sandbox
-      subnet: edge-netmgmt-subnet-01
-      address: null
-      assign_public_ip: true
-    tags:
-      - allow-ansible-access

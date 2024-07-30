@@ -1,36 +1,19 @@
 provider "ansible" {
 }
 
-resource "ansible_group" "ubuntu" {
-  name = "ubuntu"
-
-  variables = {
-    ansible_ssh_private_key_file = "~/.ssh/id_rsa"
-    ansible_user                 = "ubuntu"
-  }
-}
-
-resource "ansible_host" "this" {
-  depends_on = [data.google_compute_instance.this]
-  for_each   = local.ansible_target_ips
-  name       = each.key
-  groups     = [ansible_group.ubuntu.name]
-
-  variables = {
-    ansible_host = each.value
-  }
-}
-
 resource "ansible_playbook" "playbook" {
-  for_each = { for k, v in ansible_host.this : v.name => v if contains(v.groups, ansible_group.ubuntu.name) }
+  for_each = { for k, v in local.ansible_targets : v.vm_name => v }
   playbook                = "playbooks/playbook.yml"
-  name                    = ansible_host.this[each.key].variables.ansible_host
+  name                    = each.value.vm_name
   replayable              = true
   ansible_playbook_binary = "ansible-playbook"
   verbosity               = 1
-  groups                  = [ansible_group.ubuntu.name]
+  groups                  = null
 
-  extra_vars = ansible_group.ubuntu.variables
+  extra_vars = {
+    ansible_host = local.ansible_target_ips[each.key]
+    ansible_ssh_private_key_file = "~/.ssh/id_rsa"
+  }
 }
 
 locals {
@@ -43,11 +26,6 @@ locals {
     {
       vm_project = "network-edge-infra-dr-sandbox"
       vm_name    = "standard-ubuntu-2"
-      vm_zone    = "us-east4-a"
-    },
-    {
-      vm_project = "network-edge-infra-dr-sandbox"
-      vm_name    = "standard-ubuntu-3"
       vm_zone    = "us-east4-a"
     }
   ]

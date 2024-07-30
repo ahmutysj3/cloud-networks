@@ -2,7 +2,7 @@
 - name: test playbook
   hosts: all
   gather_facts: yes
-  remote_user: '{{ ansible_user }}'
+  remote_user: ubuntu
   tasks:
 
     - name: ensure nano is installed
