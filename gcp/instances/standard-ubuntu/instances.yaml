@@ -1,47 +1,16 @@
 ---
 instances:
   - name: standard-ubuntu-1
-    vm_project: trace-vpc-edge-prod-01
+    vm_project: vpc-edge-prod-01
     machine_type: e2-micro
     zone: us-east4-a
     image:
       name: ubuntu-2004-focal-v20240209
       project: ubuntu-os-cloud
     nic:
-      vpc_project: trace-vpc-edge-prod-01
-      subnet: edge-netmgmt-subnet-01
+      vpc_project: vpc-edge-prod-01
+      subnet: edge-untrusted-subnet-01
       address: null
       assign_public_ip: true
     tags:
-      - allow-all-ssh
-      - allow-all-ping
-  - name: standard-ubuntu-2
-    vm_project: trace-vpc-edge-prod-01
-    machine_type: e2-micro
-    zone: us-east4-a
-    image:
-      name: ubuntu-2004-focal-v20240209
-      project: ubuntu-os-cloud
-    nic:
-      vpc_project: trace-vpc-edge-prod-01
-      subnet: edge-netmgmt-subnet-01
-      address: null
-      assign_public_ip: true
-    tags:
-      - allow-all-ssh
-      - allow-all-ping
-  - name: standard-ubuntu-3
-    vm_project: trace-vpc-edge-prod-01
-    machine_type: e2-micro
-    zone: us-east4-a
-    image:
-      name: ubuntu-2004-focal-v20240209
-      project: ubuntu-os-cloud
-    nic:
-      vpc_project: trace-vpc-edge-prod-01
-      subnet: edge-netmgmt-subnet-01
-      address: null
-      assign_public_ip: true
-    tags:
-      - allow-all-ssh
-      - allow-all-ping
+      - mgmt
